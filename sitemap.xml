@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <!-- Halaman Utama -->
+  <url>
+    <loc>https://fnbnokos.web.id/</loc>
+    <lastmod>2026-05-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Halaman Login -->
+  <url>
+    <loc>https://fnbnokos.web.id/login.html</loc>
+    <lastmod>2026-05-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Halaman Dashboard -->
+  <url>
+    <loc>https://fnbnokos.web.id/dashboard.html</loc>
+    <lastmod>2026-05-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Halaman Order Nokos -->
+  <url>
+    <loc>https://fnbnokos.web.id/nokos.html</loc>
+    <lastmod>2026-05-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Halaman Deposit -->
+  <url>
+    <loc>https://fnbnokos.web.id/deposit.html</loc>
+    <lastmod>2026-05-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Halaman Riwayat -->
+  <url>
+    <loc>https://fnbnokos.web.id/riwayat.html</loc>
+    <lastmod>2026-05-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <!-- Halaman Profil -->
+  <url>
+    <loc>https://fnbnokos.web.id/profile.html</loc>
+    <lastmod>2026-05-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <!-- Halaman Dokumentasi API -->
+  <url>
+    <loc>https://fnbnokos.web.id/docs.html</loc>
+    <lastmod>2026-05-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+</urlset>

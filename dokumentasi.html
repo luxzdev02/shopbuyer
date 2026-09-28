@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Documentation — FNB NOKOS</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<style>
+:root {
+  --accent:   #3B82F6;
+  --green:    #3B82F6;
+  --green-d:  #2563EB;
+  --green-xl: #DBEAFE;
+  --blue:     #3B82F6;
+  --amber:    #f59e0b;
+  --red:      #ef4444;
+  --bg:       #FFFFFF;
+  --surface:  #F9FAFB;
+  --border:   #E5E7EB;
+  --text:     #111827;
+  --muted:    #6B7280;
+  --shadow:   0 4px 20px rgba(17,24,39,0.05);
+  --mono:     'JetBrains Mono', monospace;
+  --sidebar-w:268px;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:var(--bg); color:var(--text);
+  -webkit-font-smoothing:antialiased; line-height:1.6;
+}
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,.15); border-radius:4px; }
+
+/* ─── SIDEBAR ────────────────────────────────────── */
+.sidebar {
+  position:fixed; top:0; left:0; width:var(--sidebar-w); height:100vh;
+  background:linear-gradient(180deg,#0f172a 0%,#0d1520 100%);
+  overflow-y:auto; z-index:200; display:flex; flex-direction:column;
+  border-right:1px solid rgba(255,255,255,.05);
+}
+.sidebar::-webkit-scrollbar { width:3px; }
+.sidebar::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); }
+
+.sb-brand {
+  padding:24px 20px 20px; display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  position:sticky; top:0; background:#0f172a; z-index:1;
+}
+.sb-brand-mark {
+  width:34px; height:34px; border-radius:10px; flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),#38BDF8);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:15px; box-shadow:0 4px 12px rgba(59,130,246,.3);
+}
+.sb-brand-text { font-size:16px; font-weight:800; color:#fff; letter-spacing:-.3px; }
+.sb-brand-text span { color:var(--accent); }
+
+.sb-search-wrap { padding:14px 14px 4px; position:sticky; top:73px; background:#0f172a; z-index:1; }
+.sb-search { position:relative; }
+.sb-search i { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:12px; color:rgba(255,255,255,.3); }
+.sb-search input {
+  width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);
+  border-radius:10px; padding:9px 12px 9px 32px; font-size:12.5px; color:#fff;
+  font-family:'Plus Jakarta Sans',sans-serif; outline:none; transition:.2s;
+}
+.sb-search input::placeholder { color:rgba(255,255,255,.28); }
+.sb-search input:focus { border-color:rgba(59,130,246,.5); background:rgba(255,255,255,.08); }
+.sb-no-match { padding:10px 14px; font-size:12px; color:rgba(255,255,255,.25); display:none; }
+
+.sb-section { padding:16px 14px 8px; }
+.sb-section-title {
+  font-size:10px; font-weight:700; color:rgba(255,255,255,.25);
+  text-transform:uppercase; letter-spacing:.12em; padding:0 8px; margin-bottom:4px;
+}
+.sb-link {
+  display:flex; align-items:center; gap:9px;
+  padding:9px 10px; border-radius:10px;
+  color:rgba(255,255,255,.45); text-decoration:none;
+  font-size:13px; font-weight:600; transition:.2s; cursor:pointer;
+  margin-bottom:2px;
+}
+.sb-link:hover { color:#fff; background:rgba(255,255,255,.06); }
+.sb-link.active { color:#fff; background:rgba(59,130,246,.15); }
+.sb-link i { width:16px; text-align:center; font-size:13px; flex-shrink:0; }
+.sb-method {
+  margin-left:auto; font-size:9px; font-weight:700;
+  padding:2px 7px; border-radius:5px; font-family:var(--mono); letter-spacing:.04em;
+  flex-shrink:0;
+}
+.m-get  { background:rgba(59,130,246,.15);  color:#93c5fd; }
+.m-post { background:rgba(16,185,129,.15);  color:#6ee7b7; }
+
+.sb-footer {
+  margin-top:auto; padding:16px 20px;
+  border-top:1px solid rgba(255,255,255,.05);
+  font-size:11px; color:rgba(255,255,255,.2);
+}
+.sb-status {
+  display:flex; align-items:center; gap:6px;
+  font-family:var(--mono); color:var(--accent); font-size:11px; margin-top:6px;
+}
+.sb-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 6px var(--accent); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(.8);} }
+
+/* ─── MOBILE TOGGLE ─────────────────────────────── */
+.mob-toggle {
+  display:none; position:fixed; top:14px; left:14px; z-index:300;
+  width:40px; height:40px; border-radius:11px;
+  background:#0f172a; border:none; color:#fff; font-size:16px;
+  cursor:pointer; align-items:center; justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);
+}
+.sidebar-overlay {
+  display:none; position:fixed; inset:0; z-index:199;
+  background:rgba(0,0,0,.5); backdrop-filter:blur(4px);
+}
+.sidebar-overlay.open { display:block; }
+
+/* ─── MAIN ───────────────────────────────────────── */
+.main {
+  margin-left:var(--sidebar-w);
+  padding:40px 48px 80px;
+  max-width:calc(var(--sidebar-w) + 900px);
+}
+
+/* ─── HERO BANNER ───────────────────────────────── */
+.docs-hero {
+  background:linear-gradient(140deg,#0f172a 0%,#1e293b 60%,#0f2d1f 100%);
+  border-radius:22px; padding:38px 36px; margin-bottom:40px;
+  position:relative; overflow:hidden;
+  box-shadow:0 14px 40px rgba(0,0,0,.15);
+}
+.docs-hero::after {
+  content:''; position:absolute; inset:0; opacity:.4; pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size:22px 22px;
+  mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 75%);
+  -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 75%);
+}
+.docs-hero::before {
+  content:''; position:absolute; top:-60px; right:-60px;
+  width:250px; height:250px; border-radius:50%;
+  background:radial-gradient(circle,rgba(59,130,246,.12),transparent 70%);
+}
+.docs-hero > * { position:relative; z-index:1; }
+.docs-hero h1 { font-size:clamp(24px,3.5vw,36px); font-weight:800; color:#fff; margin-bottom:10px; letter-spacing:-.03em; }
+.docs-hero h1 span { color:#7dd3fc; }
+.docs-hero p { font-size:15px; color:rgba(255,255,255,.55); max-width:520px; margin-bottom:24px; line-height:1.65; }
+.hero-pills { display:flex; gap:10px; flex-wrap:wrap; }
+.hero-pill {
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
+  border-radius:10px; padding:8px 16px; font-size:13px; color:rgba(255,255,255,.7);
+}
+.hero-pill code { color:#7dd3fc; font-family:var(--mono); font-weight:700; }
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700;
+  color:#93c5fd; text-transform:uppercase; letter-spacing:.14em; margin-bottom:14px;
+  background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.25);
+  padding:6px 12px; border-radius:999px;
+}
+.hero-eyebrow .dot2 { width:6px; height:6px; border-radius:50%; background:#38bdf8; box-shadow:0 0 6px #38bdf8; animation:pulse 2s infinite; }
+.hero-stats {
+  display:flex; gap:28px; margin-top:26px; padding-top:22px;
+  border-top:1px solid rgba(255,255,255,.08); flex-wrap:wrap;
+}
+.hero-stat .n { font-family:var(--mono); font-size:22px; font-weight:800; color:#fff; letter-spacing:-.02em; }
+.hero-stat .l { font-size:11px; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:.08em; margin-top:2px; }
+
+/* ─── ENDPOINT CARD ─────────────────────────────── */
+.ep-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:20px; padding:0; margin-bottom:28px;
+  box-shadow:var(--shadow); overflow:hidden;
+  scroll-margin-top:24px;
+}
+
+.ep-head {
+  padding:20px 24px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.ep-head h3 { font-size:16px; font-weight:800; flex:1; min-width:0; }
+.ep-method {
+  padding:5px 12px; border-radius:8px;
+  font-size:11px; font-weight:800; font-family:var(--mono); letter-spacing:.06em;
+  flex-shrink:0;
+}
+.ep-method.get  { background:#dbeafe; color:#1d4ed8; }
+.ep-method.post { background:#dcfce7; color:#15803d; }
+.ep-url {
+  font-family:var(--mono); font-size:12px; color:var(--muted);
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:8px; padding:5px 12px; flex-shrink:0;
+  max-width:100%; overflow:auto; white-space:nowrap;
+}
+
+.ep-body { padding:20px 24px; }
+.ep-desc { font-size:14px; color:var(--muted); line-height:1.7; margin-bottom:18px; }
+
+/* ─── PARAMS TABLE ──────────────────────────────── */
+.ep-label {
+  font-size:11px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.08em;
+  margin-bottom:9px; display:flex; align-items:center; gap:6px;
+}
+.ep-label::before {
+  content:''; flex:1; height:1px; background:var(--border); display:none;
+}
+.params-table { width:100%; border-collapse:collapse; margin-bottom:20px; border-radius:12px; overflow:hidden; border:1px solid var(--border); }
+.params-table th {
+  background:var(--bg); padding:10px 14px; text-align:left;
+  font-size:11px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.07em;
+  border-bottom:1px solid var(--border);
+}
+.params-table td { padding:11px 14px; font-size:13px; border-bottom:1px solid var(--bg); vertical-align:top; }
+.params-table tr:last-child td { border-bottom:none; }
+.param-name  { font-family:var(--mono); font-size:12px; color:var(--accent); font-weight:700; }
+.param-type  { font-family:var(--mono); font-size:11px; color:var(--muted); }
+.param-req   { color:var(--red); font-weight:800; font-size:12px; }
+.param-opt   { color:var(--muted); font-size:11px; }
+.param-desc  { color:var(--text); }
+
+/* ─── REQUEST / RESPONSE PANELS ────────────────── */
+.rr-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px;
+}
+.rr-panel { border-radius:14px; overflow:hidden; border:1px solid var(--border); }
+.rr-panel-head {
+  padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.rr-panel.request .rr-panel-head { background:#1e293b; }
+.rr-panel.response .rr-panel-head { background:#0f2d1f; }
+.rr-panel-title {
+  font-size:11px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.08em; font-family:var(--mono);
+}
+.rr-panel.request  .rr-panel-title { color:#93c5fd; }
+.rr-panel.response .rr-panel-title { color:#6ee7b7; }
+.copy-btn {
+  background:rgba(255,255,255,.08); border:none; border-radius:6px;
+  color:rgba(255,255,255,.5); font-size:11px; padding:4px 10px; cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:600;
+  display:flex; align-items:center; gap:5px; transition:.2s;
+}
+.copy-btn:hover { background:rgba(255,255,255,.14); color:#fff; }
+.copy-btn.copied { color:var(--accent); }
+.rr-panel.request  .code-inner { background:#1e293b; }
+.rr-panel.response .code-inner { background:#0f2318; }
+.code-inner {
+  padding:16px; overflow-x:auto;
+  font-family:var(--mono); font-size:12.5px; line-height:1.75; color:#94a3b8;
+}
+/* Syntax */
+.c-key    { color:#93c5fd; }  /* JSON key / prop */
+.c-str    { color:#6ee7b7; }  /* string value */
+.c-num    { color:#fcd34d; }  /* number */
+.c-bool   { color:#f9a8d4; }  /* true/false */
+.c-null   { color:#94a3b8; }  /* null */
+.c-method { color:#c4b5fd; }  /* HTTP METHOD */
+.c-url    { color:#67e8f9; }  /* URL */
+.c-hkey   { color:#fcd34d; }  /* header key */
+.c-hval   { color:#86efac; }  /* header value */
+.c-cmt    { color:#475569; font-style:italic; } /* comment */
+.c-ok     { color:#4ade80; }  /* success indicator */
+.c-err    { color:#f87171; }  /* error indicator */
+
+/* Single code block (full width) */
+.code-block {
+  background:#1e293b; border-radius:14px; overflow:hidden;
+  margin-top:14px; border:1px solid rgba(255,255,255,.06);
+}
+.code-block-head {
+  padding:10px 16px; background:rgba(255,255,255,.03);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.code-block-title { font-size:11px; font-weight:700; color:rgba(255,255,255,.3); font-family:var(--mono); text-transform:uppercase; letter-spacing:.06em; }
+.code-block .code-inner { background:#1e293b; }
+
+/* Sub-section divider */
+.sub-sep {
+  margin:20px 0 16px; padding-top:20px;
+  border-top:1px dashed var(--border);
+}
+.sub-sep h4 {
+  font-size:14px; font-weight:800; display:flex; align-items:center; gap:10px; margin-bottom:8px;
+}
+.sub-sep p { font-size:13px; color:var(--muted); }
+
+/* Section heading outside card */
+.section-heading {
+  font-size:11px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.1em;
+  margin:40px 0 16px; display:flex; align-items:center; gap:10px;
+}
+.section-heading::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ─── RESPONSIVE ─────────────────────────────────── */
+@media(max-width:1100px) {
+  .rr-grid { grid-template-columns:1fr; }
+}
+@media(max-width:900px) {
+  .sidebar { transform:translateX(-100%); transition:.3s; }
+  .sidebar.open { transform:translateX(0); }
+  .mob-toggle { display:flex; }
+  .main { margin-left:0; padding:72px 20px 60px; }
+}
+@media(max-width:480px) {
+  .docs-hero { padding:28px 20px; }
+  .ep-body { padding:16px; }
+  .ep-head { padding:16px; }
+}
+
+.terms-section { margin-bottom:22px; }
+.terms-section:last-child { margin-bottom:0; }
+.terms-section h4 { font-size:14.5px; font-weight:800; color:var(--text); margin-bottom:9px; }
+.terms-section p { font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:9px; }
+.terms-section ul { margin:0 0 9px; padding-left:20px; }
+.terms-section li { font-size:13px; color:var(--muted); line-height:1.75; }
+</style>
+</head>
+<body>
+<script src="/premium-loader.js?v=3"></script>
+
+<!-- MOBILE TOGGLE -->
+<button class="mob-toggle" id="mobToggle" onclick="toggleSidebar()">
+  <i class="fas fa-bars" id="mobIcon"></i>
+</button>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ─── SIDEBAR ─────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <img src="https://files.catbox.moe/je2gz1.jpg" class="sb-brand-mark" style="object-fit:cover;border-radius:10px;" alt="Logo">
+    <span class="sb-brand-text">Digital<span>Pedia</span></span>
+  </div>
+
+  <div class="sb-search-wrap">
+    <div class="sb-search">
+      <i class="fas fa-magnifying-glass"></i>
+      <input type="text" id="sbSearch" placeholder="Cari endpoint..." oninput="filterSidebar(this.value)">
+    </div>
+  </div>
+  <div class="sb-no-match" id="sbNoMatch">Tidak ada endpoint yang cocok.</div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">Mulai</div>
+    <a class="sb-link active" href="#getting-started" onclick="navClick(this)">
+      <i class="fas fa-rocket"></i> Memulai
+    </a>
+    <a class="sb-link" href="#balance" onclick="navClick(this)">
+      <i class="fas fa-wallet"></i> Cek Saldo
+      <span class="sb-method m-get">GET</span>
+    </a>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">Deposit</div>
+    <a class="sb-link" href="#deposit-create" onclick="navClick(this)">
+      <i class="fas fa-plus-circle"></i> Buat Deposit
+      <span class="sb-method m-post">POST</span>
+    </a>
+    <a class="sb-link" href="#deposit-status" onclick="navClick(this)">
+      <i class="fas fa-magnifying-glass"></i> Cek Status
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#deposit-cancel" onclick="navClick(this)">
+      <i class="fas fa-times-circle"></i> Batalkan
+      <span class="sb-method m-post">POST</span>
+    </a>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">Nokos · Server 1</div>
+    <a class="sb-link" href="#s1-services" onclick="navClick(this)">
+      <i class="fas fa-layer-group"></i> Daftar Layanan
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s1-countries" onclick="navClick(this)">
+      <i class="fas fa-globe"></i> Daftar Negara
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s1-numbers" onclick="navClick(this)">
+      <i class="fas fa-list"></i> Operator &amp; Harga
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s1-order" onclick="navClick(this)">
+      <i class="fas fa-cart-shopping"></i> Order Nomor
+      <span class="sb-method m-post">POST</span>
+    </a>
+    <a class="sb-link" href="#s1-status" onclick="navClick(this)">
+      <i class="fas fa-key"></i> Cek OTP
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s1-cancel" onclick="navClick(this)">
+      <i class="fas fa-ban"></i> Batalkan Order
+      <span class="sb-method m-post">POST</span>
+    </a>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">Nokos · Server 2</div>
+    <a class="sb-link" href="#s2-services" onclick="navClick(this)">
+      <i class="fas fa-layer-group"></i> Daftar Layanan
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s2-countries" onclick="navClick(this)">
+      <i class="fas fa-globe"></i> Daftar Negara
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s2-numbers" onclick="navClick(this)">
+      <i class="fas fa-list"></i> Provider &amp; Harga
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s2-order" onclick="navClick(this)">
+      <i class="fas fa-cart-shopping"></i> Order Nomor
+      <span class="sb-method m-post">POST</span>
+    </a>
+    <a class="sb-link" href="#s2-status" onclick="navClick(this)">
+      <i class="fas fa-key"></i> Cek OTP
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s2-cancel" onclick="navClick(this)">
+      <i class="fas fa-ban"></i> Batalkan Order
+      <span class="sb-method m-post">POST</span>
+    </a>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">Nokos · Server 3</div>
+    <a class="sb-link" href="#s3-services" onclick="navClick(this)">
+      <i class="fas fa-layer-group"></i> Daftar Layanan
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s3-countries" onclick="navClick(this)">
+      <i class="fas fa-globe"></i> Daftar Negara
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s3-numbers" onclick="navClick(this)">
+      <i class="fas fa-list"></i> Provider &amp; Harga
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s3-order" onclick="navClick(this)">
+      <i class="fas fa-cart-shopping"></i> Order Nomor
+      <span class="sb-method m-post">POST</span>
+    </a>
+    <a class="sb-link" href="#s3-status" onclick="navClick(this)">
+      <i class="fas fa-key"></i> Cek OTP
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s3-cancel" onclick="navClick(this)">
+      <i class="fas fa-ban"></i> Batalkan Order
+      <span class="sb-method m-post">POST</span>
+    </a>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">Nokos · Server 4</div>
+    <a class="sb-link" href="#s4-services" onclick="navClick(this)">
+      <i class="fas fa-layer-group"></i> Daftar Layanan
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s4-countries" onclick="navClick(this)">
+      <i class="fas fa-globe"></i> Daftar Negara
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s4-numbers" onclick="navClick(this)">
+      <i class="fas fa-list"></i> Provider &amp; Harga
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s4-order" onclick="navClick(this)">
+      <i class="fas fa-cart-shopping"></i> Order Nomor
+      <span class="sb-method m-post">POST</span>
+    </a>
+    <a class="sb-link" href="#s4-status" onclick="navClick(this)">
+      <i class="fas fa-key"></i> Cek OTP
+      <span class="sb-method m-get">GET</span>
+    </a>
+    <a class="sb-link" href="#s4-cancel" onclick="navClick(this)">
+      <i class="fas fa-ban"></i> Batalkan Order
+      <span class="sb-method m-post">POST</span>
+    </a>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">Lainnya</div>
+    <a class="sb-link" href="#terms" onclick="navClick(this)">
+      <i class="fas fa-scale-balanced"></i> Syarat &amp; Ketentuan
+    </a>
+  </div>
+
+  <div class="sb-footer">
+    <div>© 2026 FNB NOKOS ID</div>
+    <div class="sb-status"><div class="sb-dot"></div> All Systems Operational</div>
+  </div>
+</aside>
+
+<!-- ─── MAIN CONTENT ─────────────────────────────── -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="docs-hero">
+    <div class="hero-eyebrow"><span class="dot2"></span> REST API · v1 · Live</div>
+    <h1>API <span>Documentation</span></h1>
+    <p>Integrasikan layanan nomor virtual, deposit, dan OTP FNB NOKOS langsung ke sistem atau bot kamu sendiri — satu API key, response JSON yang konsisten, siap dipakai dalam hitungan menit.</p>
+    <div class="hero-pills">
+      <div class="hero-pill">Base URL: <code>https://fnbnokos.web.id/api/v1</code></div>
+      <div class="hero-pill">Auth: <code>x-api-key: dp_xxxxxx</code></div>
+      <div class="hero-pill">Format: <code>application/json</code></div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="n">28</div><div class="l">Endpoint</div></div>
+      <div class="hero-stat"><div class="n">4</div><div class="l">Server Nokos</div></div>
+      <div class="hero-stat"><div class="n">JSON</div><div class="l">Response Format</div></div>
+      <div class="hero-stat"><div class="n">99.9%</div><div class="l">Uptime</div></div>
+    </div>
+  </div>
+
+  <!-- ── API KEY KAMU (live, dari akun yang sedang login) ────────── -->
+  <div class="ep-card" id="my-api-key" style="border-color:rgba(59,130,246,.35);background:linear-gradient(180deg,rgba(59,130,246,.07),transparent 45%)">
+    <div class="ep-head">
+      <h3><i class="fas fa-key" style="color:var(--accent);margin-right:8px"></i> API Key Kamu</h3>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc" id="myKeyLoggedOutMsg">Login dulu buat lihat API key kamu langsung di sini. <a href="login" style="color:var(--accent);font-weight:700">Masuk / Daftar →</a></p>
+      <div id="myKeyBox" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 16px;margin-bottom:16px;">
+          <code id="myKeyVal" style="flex:1;font-family:var(--mono);font-size:13px;color:#7dd3fc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">—</code>
+          <button class="copy-btn" onclick="copyMyKey()"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+        <div style="font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px;">
+          <i class="fas fa-shield-halved"></i> Whitelist IP
+        </div>
+        <div id="myKeyWhitelist" style="display:flex;flex-direction:column;gap:6px;margin-bottom:11px;font-size:12.5px;"></div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="myKeyNewIp" placeholder="Contoh: 103.10.20.5 atau 0.0.0.0" style="flex:1;padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.2);color:#e5e7eb;font-size:12.5px;outline:none;font-family:inherit;">
+          <button onclick="addMyKeyIp()" style="flex-shrink:0;padding:0 16px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;">+ Tambah</button>
+        </div>
+        <a href="profile" style="display:inline-flex;align-items:center;gap:6px;margin-top:13px;font-size:11.5px;color:var(--accent);text-decoration:none;font-weight:700;"><i class="fas fa-arrow-right"></i> Kelola & reset key di halaman Profil</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 1. GETTING STARTED ──────────────────────── -->
+  <div class="ep-card" id="getting-started">
+    <div class="ep-head">
+      <h3><i class="fas fa-rocket" style="color:var(--accent);margin-right:8px"></i> 1. Dapatkan API Key</h3>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Login via endpoint berikut untuk mendapatkan API Key. Simpan <code style="font-family:var(--mono);color:var(--accent);font-size:13px">api_key</code> dari response dan gunakan sebagai header di setiap request.</p>
+
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Request</span>
+            <button class="copy-btn" onclick="copyCode(this,'req-login')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="req-login"><span class="c-method">POST</span> <span class="c-url">https://fnbnokos.web.id/api/login</span>
+<span class="c-hkey">Content-Type:</span> <span class="c-hval">application/json</span>
+
+{
+  <span class="c-key">"username"</span>: <span class="c-str">"budi123"</span>,
+  <span class="c-key">"password"</span>: <span class="c-str">"rahasia"</span>
+}</pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Response 200</span>
+            <button class="copy-btn" onclick="copyCode(this,'res-login')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="res-login">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"user"</span>: {
+    <span class="c-key">"id"</span>:       <span class="c-num">123</span>,
+    <span class="c-key">"username"</span>: <span class="c-str">"budi123"</span>,
+    <span class="c-key">"balance"</span>:  <span class="c-num">50000</span>,
+    <span class="c-key">"api_key"</span>:  <span class="c-str">"dp_xxxxxxxxxxxxxxxx"</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. CEK SALDO ────────────────────────────── -->
+  <div class="ep-card" id="balance">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Cek Saldo</h3>
+      <code class="ep-url">/balance</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengambil saldo aktif akun. Tidak memerlukan body parameter.</p>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Request</span>
+            <button class="copy-btn" onclick="copyCode(this,'req-bal')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="req-bal"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/balance</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Response 200</span>
+            <button class="copy-btn" onclick="copyCode(this,'res-bal')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="res-bal">{
+  <span class="c-key">"success"</span>:  <span class="c-bool">true</span>,
+  <span class="c-key">"balance"</span>:  <span class="c-num">50000</span>,
+  <span class="c-key">"username"</span>: <span class="c-str">"budi123"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. BUAT DEPOSIT ────────────────────────── -->
+  <div class="ep-card" id="deposit-create">
+    <div class="ep-head">
+      <span class="ep-method post">POST</span>
+      <h3>Buat Deposit QRIS</h3>
+      <code class="ep-url">/deposit/create</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Membuat tagihan deposit QRIS baru. QR code aktif selama 5 menit. Saldo masuk otomatis setelah pembayaran dikonfirmasi.</p>
+
+      <div class="ep-label">Parameter Body</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr>
+          <td><span class="param-name">amount</span></td>
+          <td><span class="param-type">integer</span></td>
+          <td><span class="param-req">✅ Ya</span></td>
+          <td class="param-desc">Nominal deposit dalam Rupiah. Minimal <code style="font-family:var(--mono);color:var(--accent)">500</code></td>
+        </tr>
+      </table>
+
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Request</span>
+            <button class="copy-btn" onclick="copyCode(this,'req-dep')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="req-dep"><span class="c-method">POST</span> <span class="c-url">https://fnbnokos.web.id/api/v1/deposit/create</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span>
+<span class="c-hkey">Content-Type:</span> <span class="c-hval">application/json</span>
+
+{
+  <span class="c-key">"amount"</span>: <span class="c-num">50000</span>
+}</pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Response 200</span>
+            <button class="copy-btn" onclick="copyCode(this,'res-dep')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="res-dep">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"deposit"</span>: {
+    <span class="c-key">"id"</span>:            <span class="c-str">"DPxxx123"</span>,
+    <span class="c-key">"amount"</span>:        <span class="c-num">50000</span>,
+    <span class="c-key">"total_payment"</span>: <span class="c-num">52500</span>,
+    <span class="c-key">"qr_image"</span>:      <span class="c-str">"https://..."</span>,
+    <span class="c-key">"status"</span>:        <span class="c-str">"pending"</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. CEK STATUS DEPOSIT ──────────────────── -->
+  <div class="ep-card" id="deposit-status">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Cek Status Deposit</h3>
+      <code class="ep-url">/deposit/status/:deposit_id</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengecek apakah deposit sudah dibayar. Polling tiap 5–10 detik disarankan hingga status <code style="font-family:var(--mono);color:var(--accent)">success</code>.</p>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Request</span>
+            <button class="copy-btn" onclick="copyCode(this,'req-dsts')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="req-dsts"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/deposit/status/DP123456</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Response 200</span>
+            <button class="copy-btn" onclick="copyCode(this,'res-dsts')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="res-dsts">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"status"</span>:  <span class="c-ok">"success"</span>,
+  <span class="c-key">"message"</span>: <span class="c-str">"Deposit berhasil!"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. CANCEL DEPOSIT ──────────────────────── -->
+  <div class="ep-card" id="deposit-cancel">
+    <div class="ep-head">
+      <span class="ep-method post">POST</span>
+      <h3>Batalkan Deposit</h3>
+      <code class="ep-url">/deposit/cancel</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Membatalkan deposit yang masih berstatus <code style="font-family:var(--mono);color:var(--muted)">pending</code>.</p>
+
+      <div class="ep-label">Parameter Body</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr>
+          <td><span class="param-name">deposit_id</span></td>
+          <td><span class="param-type">string</span></td>
+          <td><span class="param-req">✅ Ya</span></td>
+          <td class="param-desc">ID deposit dari response <code style="font-family:var(--mono);color:var(--accent)">/deposit/create</code></td>
+        </tr>
+      </table>
+
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Request</span>
+            <button class="copy-btn" onclick="copyCode(this,'req-dcancel')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="req-dcancel"><span class="c-method">POST</span> <span class="c-url">https://fnbnokos.web.id/api/v1/deposit/cancel</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span>
+<span class="c-hkey">Content-Type:</span> <span class="c-hval">application/json</span>
+
+{
+  <span class="c-key">"deposit_id"</span>: <span class="c-str">"DP123456"</span>
+}</pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Response 200</span>
+            <button class="copy-btn" onclick="copyCode(this,'res-dcancel')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="res-dcancel">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"message"</span>: <span class="c-str">"Deposit dibatalkan"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SERVER 1 SECTION ─────────────── -->
+  <div class="section-heading"><i class="fas fa-star" style="color:var(--accent)"></i> Nokos — Server 1</div>
+  <p style="font-size:13px;color:var(--muted);margin:-8px 0 16px;">Server kualitas premium dengan banyak pilihan operator per negara. Alur: ambil <code style="font-family:var(--mono);color:var(--accent)">services</code> → <code style="font-family:var(--mono);color:var(--accent)">countries</code> (berisi <code style="font-family:var(--mono);color:var(--accent)">pricelist</code>) → <code style="font-family:var(--mono);color:var(--accent)">numbers</code> untuk daftar operator → <code style="font-family:var(--mono);color:var(--accent)">order</code> dengan <code style="font-family:var(--mono);color:var(--accent)">provider_id</code> + <code style="font-family:var(--mono);color:var(--accent)">operator_id</code>.</p>
+
+  <!-- S1: SERVICES -->
+  <div class="ep-card" id="s1-services">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Daftar Layanan</h3>
+      <code class="ep-url">/s1/nokos/services</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc"><code style="font-family:var(--mono);color:var(--accent)">service_code</code> dipakai sebagai <code style="font-family:var(--mono);color:var(--accent)">service_id</code> pada endpoint berikutnya.</p>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s1-req-svc')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-req-svc"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s1/nokos/services</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s1-res-svc')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-res-svc">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    {
+      <span class="c-key">"service_code"</span>: <span class="c-num">13</span>,
+      <span class="c-key">"service_name"</span>: <span class="c-str">"WhatsApp"</span>,
+      <span class="c-key">"service_img"</span>:  <span class="c-str">"https://assets.cindigital.id/apps/wa.png"</span>
+    }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1: COUNTRIES -->
+  <div class="ep-card" id="s1-countries">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Daftar Negara</h3>
+      <code class="ep-url">/s1/nokos/countries</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Berisi <code style="font-family:var(--mono);color:var(--accent)">pricelist</code> per negara. <code style="font-family:var(--mono);color:var(--accent)">price_with_markup</code> dihitung dari item pertama pricelist + <code style="font-family:var(--mono);color:var(--accent)">MARKUP_S1</code>.</p>
+      <div class="ep-label">Query Parameter</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">service_id</span></td><td><span class="param-type">integer</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc"><code style="font-family:var(--mono);color:var(--accent)">service_code</code> dari <code style="font-family:var(--mono);color:var(--accent)">/services</code></td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s1-req-ctry')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-req-ctry"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s1/nokos/countries
+    ?service_id=13</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s1-res-ctry')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-res-ctry">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    {
+      <span class="c-key">"number_id"</span>:  <span class="c-num">340437</span>,
+      <span class="c-key">"name"</span>:       <span class="c-str">"Indonesia"</span>,
+      <span class="c-key">"prefix"</span>:     <span class="c-str">"+62"</span>,
+      <span class="c-key">"stock_total"</span>: <span class="c-num">103</span>,
+      <span class="c-key">"pricelist"</span>: [
+        {
+          <span class="c-key">"provider_id"</span>: <span class="c-str">"3837"</span>,
+          <span class="c-key">"stock"</span>:      <span class="c-num">103</span>,
+          <span class="c-key">"price"</span>:      <span class="c-num">1100</span>,
+          <span class="c-key">"available"</span>: <span class="c-bool">true</span>
+        }
+      ],
+      <span class="c-key">"price_with_markup"</span>: <span class="c-num">2100</span>,
+      <span class="c-key">"original_price"</span>:    <span class="c-num">1100</span>
+    }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1: NUMBERS / OPERATORS -->
+  <div class="ep-card" id="s1-numbers">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Operator &amp; Harga</h3>
+      <code class="ep-url">/s1/nokos/numbers</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengambil daftar operator untuk satu provider/negara, lengkap dengan harga + markup.</p>
+      <div class="ep-label">Query Parameter</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">country_id</span></td><td><span class="param-type">integer</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc"><code style="font-family:var(--mono);color:var(--accent)">number_id</code> dari <code style="font-family:var(--mono);color:var(--accent)">/countries</code></td></tr>
+        <tr><td><span class="param-name">service_id</span></td><td><span class="param-type">integer</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc"><code style="font-family:var(--mono);color:var(--accent)">service_code</code> dari <code style="font-family:var(--mono);color:var(--accent)">/services</code></td></tr>
+        <tr><td><span class="param-name">provider_id</span></td><td><span class="param-type">string</span></td><td><span class="param-opt">Opsional</span></td><td class="param-desc">ID provider dari <code style="font-family:var(--mono);color:var(--accent)">pricelist</code>. Default item pertama.</td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s1-req-num')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-req-num"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s1/nokos/numbers
+    ?country_id=340437&amp;service_id=13&amp;provider_id=3837</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s1-res-num')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-res-num">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    {
+      <span class="c-key">"operator_id"</span>:       <span class="c-num">1</span>,
+      <span class="c-key">"operator_name"</span>:     <span class="c-str">"any"</span>,
+      <span class="c-key">"label"</span>:             <span class="c-str">"any"</span>,
+      <span class="c-key">"provider_id"</span>:       <span class="c-str">"3837"</span>,
+      <span class="c-key">"price"</span>:             <span class="c-num">1100</span>,
+      <span class="c-key">"price_with_markup"</span>: <span class="c-num">2100</span>
+    },
+    {
+      <span class="c-key">"operator_id"</span>:       <span class="c-num">3</span>,
+      <span class="c-key">"operator_name"</span>:     <span class="c-str">"telkomsel"</span>,
+      <span class="c-key">"label"</span>:             <span class="c-str">"telkomsel"</span>,
+      <span class="c-key">"provider_id"</span>:       <span class="c-str">"3837"</span>,
+      <span class="c-key">"price"</span>:             <span class="c-num">1100</span>,
+      <span class="c-key">"price_with_markup"</span>: <span class="c-num">2100</span>
+    }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1: ORDER -->
+  <div class="ep-card" id="s1-order">
+    <div class="ep-head">
+      <span class="ep-method post">POST</span>
+      <h3>Order Nomor Virtual</h3>
+      <code class="ep-url">/s1/nokos/order</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Membuat order nomor virtual. Wajib menyertakan <code style="font-family:var(--mono);color:var(--accent)">provider_id</code> &amp; <code style="font-family:var(--mono);color:var(--accent)">operator_id</code> dari <code style="font-family:var(--mono);color:var(--accent)">/numbers</code>.</p>
+      <div class="ep-label">Parameter Body</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">service_code</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">contoh: <code style="font-family:var(--mono);color:var(--accent)">"13"</code></td></tr>
+        <tr><td><span class="param-name">service_name</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">contoh: <code style="font-family:var(--mono);color:var(--accent)">"WhatsApp"</code></td></tr>
+        <tr><td><span class="param-name">country_id</span></td><td><span class="param-type">integer</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc"><code style="font-family:var(--mono);color:var(--accent)">number_id</code> negara, contoh: <code style="font-family:var(--mono);color:var(--accent)">340437</code></td></tr>
+        <tr><td><span class="param-name">country_name</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">contoh: <code style="font-family:var(--mono);color:var(--accent)">"Indonesia"</code></td></tr>
+        <tr><td><span class="param-name">provider_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">dari <code style="font-family:var(--mono);color:var(--accent)">/numbers</code>, contoh: <code style="font-family:var(--mono);color:var(--accent)">"3837"</code></td></tr>
+        <tr><td><span class="param-name">operator_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">dari <code style="font-family:var(--mono);color:var(--accent)">/numbers</code>, contoh: <code style="font-family:var(--mono);color:var(--accent)">"1"</code></td></tr>
+        <tr><td><span class="param-name">price_original</span></td><td><span class="param-type">integer</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">harga asli (tanpa markup) dari <code style="font-family:var(--mono);color:var(--accent)">/numbers</code></td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s1-req-order')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-req-order"><span class="c-method">POST</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s1/nokos/order</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span>
+<span class="c-hkey">Content-Type:</span> <span class="c-hval">application/json</span>
+
+{
+  <span class="c-key">"service_code"</span>:   <span class="c-str">"13"</span>,
+  <span class="c-key">"service_name"</span>:   <span class="c-str">"WhatsApp"</span>,
+  <span class="c-key">"country_id"</span>:     <span class="c-num">340437</span>,
+  <span class="c-key">"country_name"</span>:   <span class="c-str">"Indonesia"</span>,
+  <span class="c-key">"provider_id"</span>:    <span class="c-str">"3837"</span>,
+  <span class="c-key">"operator_id"</span>:    <span class="c-str">"1"</span>,
+  <span class="c-key">"price_original"</span>: <span class="c-num">1100</span>
+}</pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s1-res-order')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-res-order">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"order"</span>: {
+    <span class="c-key">"id"</span>:           <span class="c-str">"RO0004647717"</span>,
+    <span class="c-key">"server"</span>:       <span class="c-str">"s1"</span>,
+    <span class="c-key">"phone_number"</span>: <span class="c-str">"+62 858 4441 4442"</span>,
+    <span class="c-key">"status"</span>:       <span class="c-str">"pending"</span>,
+    <span class="c-key">"price"</span>:        <span class="c-num">2100</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1: STATUS -->
+  <div class="ep-card" id="s1-status">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Cek Status OTP</h3>
+      <code class="ep-url">/s1/nokos/status</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengecek status order &amp; kode OTP. Lakukan polling tiap 10 detik hingga status <code style="font-family:var(--mono);color:var(--accent)">received</code>.</p>
+      <div class="ep-label">Query Parameter</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">order_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">ID order dari response <code style="font-family:var(--mono);color:var(--accent)">/order</code></td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s1-req-sts')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-req-sts"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s1/nokos/status
+    ?order_id=RO0004647717</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response — OTP Diterima</span><button class="copy-btn" onclick="copyCode(this,'s1-res-sts')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-res-sts">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: {
+    <span class="c-key">"status"</span>:      <span class="c-ok">"received"</span>,
+    <span class="c-key">"otp_code"</span>:    <span class="c-str">"949708"</span>,
+    <span class="c-key">"otp_message"</span>: <span class="c-str">"Your WhatsApp code: 949-708"</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1: CANCEL -->
+  <div class="ep-card" id="s1-cancel">
+    <div class="ep-head">
+      <span class="ep-method post">POST</span>
+      <h3>Batalkan Order</h3>
+      <code class="ep-url">/s1/nokos/cancel</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Membatalkan order &amp; mengembalikan saldo. Minimal 10 menit setelah order dibuat.</p>
+      <div class="ep-label">Parameter Body</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">order_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">ID order yang akan dibatalkan</td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s1-req-can')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-req-can"><span class="c-method">POST</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s1/nokos/cancel</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span>
+<span class="c-hkey">Content-Type:</span> <span class="c-hval">application/json</span>
+
+{
+  <span class="c-key">"order_id"</span>: <span class="c-str">"RO0004647717"</span>
+}</pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s1-res-can')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s1-res-can">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"message"</span>: <span class="c-str">"Order dibatalkan, saldo dikembalikan"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── SERVER 2 SECTION ───────────────────────── -->
+  <div class="section-heading"><i class="fas fa-bolt" style="color:var(--accent)"></i> Nokos — Server 2</div>
+
+  <!-- S2: SERVICES -->
+  <div class="ep-card" id="s2-services">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Daftar Layanan</h3>
+      <code class="ep-url">/s2/nokos/services</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengambil semua layanan OTP yang tersedia di server 2. Gunakan <code style="font-family:var(--mono);color:var(--accent)">id</code> sebagai <code style="font-family:var(--mono);color:var(--accent)">service_code</code> saat order.</p>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Request</span>
+            <button class="copy-btn" onclick="copyCode(this,'req-svc')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="req-svc"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s2/nokos/services</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Response 200</span>
+            <button class="copy-btn" onclick="copyCode(this,'res-svc')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="res-svc">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    {
+      <span class="c-key">"id"</span>:   <span class="c-str">"13"</span>,
+      <span class="c-key">"name"</span>: <span class="c-str">"WhatsApp"</span>
+    },
+    {
+      <span class="c-key">"id"</span>:   <span class="c-str">"5"</span>,
+      <span class="c-key">"name"</span>: <span class="c-str">"Telegram"</span>
+    }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2: COUNTRIES -->
+  <div class="ep-card" id="s2-countries">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Daftar Negara</h3>
+      <code class="ep-url">/s2/nokos/countries</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengambil daftar negara yang tersedia. Gunakan <code style="font-family:var(--mono);color:var(--accent)">number_id</code> sebagai <code style="font-family:var(--mono);color:var(--accent)">country_id</code> saat order.</p>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Request</span>
+            <button class="copy-btn" onclick="copyCode(this,'req-ctry')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="req-ctry"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s2/nokos/countries</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Response 200</span>
+            <button class="copy-btn" onclick="copyCode(this,'res-ctry')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="res-ctry">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    {
+      <span class="c-key">"number_id"</span>: <span class="c-num">6</span>,
+      <span class="c-key">"name"</span>:      <span class="c-str">"Indonesia"</span>
+    },
+    {
+      <span class="c-key">"number_id"</span>: <span class="c-num">1</span>,
+      <span class="c-key">"name"</span>:      <span class="c-str">"United States"</span>
+    }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2: NUMBERS / PROVIDERS -->
+  <div class="ep-card" id="s2-numbers">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Provider &amp; Harga</h3>
+      <code class="ep-url">/s2/nokos/numbers</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengambil daftar provider yang tersedia beserta harga untuk kombinasi layanan dan negara tertentu.</p>
+
+      <div class="ep-label">Query Parameter</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr>
+          <td><span class="param-name">service_code</span></td>
+          <td><span class="param-type">string</span></td>
+          <td><span class="param-req">✅ Ya</span></td>
+          <td class="param-desc">ID layanan dari <code style="font-family:var(--mono);color:var(--accent)">/services</code></td>
+        </tr>
+        <tr>
+          <td><span class="param-name">country_id</span></td>
+          <td><span class="param-type">integer</span></td>
+          <td><span class="param-req">✅ Ya</span></td>
+          <td class="param-desc">ID negara dari <code style="font-family:var(--mono);color:var(--accent)">/countries</code></td>
+        </tr>
+      </table>
+
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Request</span>
+            <button class="copy-btn" onclick="copyCode(this,'req-num')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="req-num"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s2/nokos/numbers
+    ?service_code=13&amp;country_id=6</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Response 200</span>
+            <button class="copy-btn" onclick="copyCode(this,'res-num')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="res-num">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    {
+      <span class="c-key">"provider_id"</span>: <span class="c-str">"p1"</span>,
+      <span class="c-key">"label"</span>:       <span class="c-str">"Provider A"</span>,
+      <span class="c-key">"price"</span>:       <span class="c-num">2800</span>,
+      <span class="c-key">"count"</span>:       <span class="c-num">142</span>
+    }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2: ORDER -->
+  <div class="ep-card" id="s2-order">
+    <div class="ep-head">
+      <span class="ep-method post">POST</span>
+      <h3>Order Nomor Virtual</h3>
+      <code class="ep-url">/s2/nokos/order</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Membuat order nomor virtual baru. Saldo dipotong otomatis sesuai harga provider. Simpan <code style="font-family:var(--mono);color:var(--accent)">id</code> dari response untuk cek OTP.</p>
+
+      <div class="ep-label">Parameter Body</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr>
+          <td><span class="param-name">service_code</span></td>
+          <td><span class="param-type">string</span></td>
+          <td><span class="param-req">✅ Ya</span></td>
+          <td class="param-desc">ID layanan, contoh: <code style="font-family:var(--mono);color:var(--accent)">"13"</code></td>
+        </tr>
+        <tr>
+          <td><span class="param-name">service_name</span></td>
+          <td><span class="param-type">string</span></td>
+          <td><span class="param-req">✅ Ya</span></td>
+          <td class="param-desc">Nama layanan, contoh: <code style="font-family:var(--mono);color:var(--accent)">"WhatsApp"</code></td>
+        </tr>
+        <tr>
+          <td><span class="param-name">country_id</span></td>
+          <td><span class="param-type">integer</span></td>
+          <td><span class="param-req">✅ Ya</span></td>
+          <td class="param-desc">ID negara, contoh: <code style="font-family:var(--mono);color:var(--accent)">6</code></td>
+        </tr>
+        <tr>
+          <td><span class="param-name">country_name</span></td>
+          <td><span class="param-type">string</span></td>
+          <td><span class="param-req">✅ Ya</span></td>
+          <td class="param-desc">Nama negara, contoh: <code style="font-family:var(--mono);color:var(--accent)">"Indonesia"</code></td>
+        </tr>
+        <tr>
+          <td><span class="param-name">provider_id</span></td>
+          <td><span class="param-type">string</span></td>
+          <td><span class="param-opt">Opsional</span></td>
+          <td class="param-desc">ID provider spesifik. Kosongkan untuk auto-pilih.</td>
+        </tr>
+        <tr>
+          <td><span class="param-name">price_original</span></td>
+          <td><span class="param-type">integer</span></td>
+          <td><span class="param-req">✅ Ya</span></td>
+          <td class="param-desc">Harga asli dari provider (tanpa markup).</td>
+        </tr>
+      </table>
+
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Request</span>
+            <button class="copy-btn" onclick="copyCode(this,'req-order')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="req-order"><span class="c-method">POST</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s2/nokos/order</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span>
+<span class="c-hkey">Content-Type:</span> <span class="c-hval">application/json</span>
+
+{
+  <span class="c-key">"service_code"</span>:  <span class="c-str">"13"</span>,
+  <span class="c-key">"service_name"</span>:  <span class="c-str">"WhatsApp"</span>,
+  <span class="c-key">"country_id"</span>:    <span class="c-num">6</span>,
+  <span class="c-key">"country_name"</span>:  <span class="c-str">"Indonesia"</span>,
+  <span class="c-key">"provider_id"</span>:   <span class="c-str">""</span>,
+  <span class="c-key">"price_original"</span>:<span class="c-num">2800</span>
+}</pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Response 200</span>
+            <button class="copy-btn" onclick="copyCode(this,'res-order')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="res-order">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"order"</span>: {
+    <span class="c-key">"id"</span>:           <span class="c-str">"S6-abc123"</span>,
+    <span class="c-key">"phone_number"</span>: <span class="c-str">"628123456789"</span>,
+    <span class="c-key">"status"</span>:       <span class="c-str">"waiting"</span>,
+    <span class="c-key">"price"</span>:        <span class="c-num">2800</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2: STATUS / CEK OTP -->
+  <div class="ep-card" id="s2-status">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Cek Status OTP</h3>
+      <code class="ep-url">/s2/nokos/status</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengecek status order dan mengambil kode OTP jika sudah tersedia. Lakukan polling tiap 10 detik hingga status <code style="font-family:var(--mono);color:var(--accent)">received</code>.</p>
+
+      <div class="ep-label">Query Parameter</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr>
+          <td><span class="param-name">order_id</span></td>
+          <td><span class="param-type">string</span></td>
+          <td><span class="param-req">✅ Ya</span></td>
+          <td class="param-desc">ID order dari response <code style="font-family:var(--mono);color:var(--accent)">/order</code></td>
+        </tr>
+      </table>
+
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Request</span>
+            <button class="copy-btn" onclick="copyCode(this,'req-sts')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="req-sts"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s2/nokos/status
+    ?order_id=S6-abc123</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Response — OTP Diterima</span>
+            <button class="copy-btn" onclick="copyCode(this,'res-sts')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="res-sts">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: {
+    <span class="c-key">"status"</span>:       <span class="c-ok">"received"</span>,
+    <span class="c-key">"otp_code"</span>:     <span class="c-str">"847291"</span>,
+    <span class="c-key">"otp_msg"</span>:      <span class="c-str">"Your code is 847291"</span>,
+    <span class="c-key">"phone_number"</span>: <span class="c-str">"628123456789"</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2: CANCEL ORDER -->
+  <div class="ep-card" id="s2-cancel">
+    <div class="ep-head">
+      <span class="ep-method post">POST</span>
+      <h3>Batalkan Order</h3>
+      <code class="ep-url">/s2/nokos/cancel</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Membatalkan order yang masih aktif. Saldo dikembalikan otomatis jika OTP belum pernah diterima. Order hanya bisa dibatalkan minimal 10 menit setelah dibuat.</p>
+
+      <div class="ep-label">Parameter Body</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr>
+          <td><span class="param-name">order_id</span></td>
+          <td><span class="param-type">string</span></td>
+          <td><span class="param-req">✅ Ya</span></td>
+          <td class="param-desc">ID order yang akan dibatalkan</td>
+        </tr>
+      </table>
+
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Request</span>
+            <button class="copy-btn" onclick="copyCode(this,'req-can')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="req-can"><span class="c-method">POST</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s2/nokos/cancel</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span>
+<span class="c-hkey">Content-Type:</span> <span class="c-hval">application/json</span>
+
+{
+  <span class="c-key">"order_id"</span>: <span class="c-str">"S6-abc123"</span>
+}</pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head">
+            <span class="rr-panel-title">Response 200</span>
+            <button class="copy-btn" onclick="copyCode(this,'res-can')"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre class="code-inner" id="res-can">{
+  <span class="c-key">"success"</span>:  <span class="c-bool">true</span>,
+  <span class="c-key">"message"</span>:  <span class="c-str">"Order berhasil dibatalkan"</span>,
+  <span class="c-key">"refunded"</span>: <span class="c-bool">true</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── SERVER 3 SECTION ─────────────── -->
+  <div class="section-heading"><i class="fas fa-server" style="color:var(--accent)"></i> Nokos — Server 3</div>
+
+  <div class="ep-card" id="s3-services">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Daftar Layanan</h3>
+      <code class="ep-url">/s3/nokos/services</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengambil daftar layanan/aplikasi yang tersedia di server ini.</p>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s3-req-svc')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-req-svc"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s3/nokos/services</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s3-res-svc')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-res-svc">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    { <span class="c-key">"id"</span>: <span class="c-str">"1"</span>, <span class="c-key">"code"</span>: <span class="c-str">"1"</span>, <span class="c-key">"name"</span>: <span class="c-str">"WhatsApp"</span> },
+    { <span class="c-key">"id"</span>: <span class="c-str">"2"</span>, <span class="c-key">"code"</span>: <span class="c-str">"2"</span>, <span class="c-key">"name"</span>: <span class="c-str">"Telegram"</span> }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ep-card" id="s3-countries">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Daftar Negara</h3>
+      <code class="ep-url">/s3/nokos/countries</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengambil daftar negara yang tersedia.</p>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s3-req-ctry')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-req-ctry"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s3/nokos/countries</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s3-res-ctry')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-res-ctry">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    { <span class="c-key">"number_id"</span>: <span class="c-num">6</span>, <span class="c-key">"name"</span>: <span class="c-str">"Indonesia"</span> },
+    { <span class="c-key">"number_id"</span>: <span class="c-num">1</span>, <span class="c-key">"name"</span>: <span class="c-str">"Malaysia"</span> }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ep-card" id="s3-numbers">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Provider &amp; Harga</h3>
+      <code class="ep-url">/s3/nokos/numbers</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengambil daftar provider/operator beserta harga untuk kombinasi layanan &amp; negara tertentu.</p>
+      <div class="ep-label">Query Parameter</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">service_code</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">Kode layanan dari <code>/services</code></td></tr>
+        <tr><td><span class="param-name">country_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc"><code>number_id</code> dari <code>/countries</code></td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s3-req-num')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-req-num"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s3/nokos/numbers?service_code=1&amp;country_id=6</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s3-res-num')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-res-num">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    {
+      <span class="c-key">"provider_id"</span>: <span class="c-str">"881"</span>,
+      <span class="c-key">"label"</span>: <span class="c-str">"Nomor Virtual"</span>,
+      <span class="c-key">"price"</span>: <span class="c-num">2500</span>,
+      <span class="c-key">"price_with_markup"</span>: <span class="c-num">3500</span>
+      
+    }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ep-card" id="s3-order">
+    <div class="ep-head">
+      <span class="ep-method post">POST</span>
+      <h3>Order Nomor</h3>
+      <code class="ep-url">/s3/nokos/order</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Membuat order nomor virtual. Wajib menyertakan <code style="font-family:var(--mono);color:var(--accent)">provider_id</code> dari <code style="font-family:var(--mono);color:var(--accent)">/numbers</code>.</p>
+      <div class="ep-label">Parameter Body</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">service_code</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">Kode layanan</td></tr>
+        <tr><td><span class="param-name">service_name</span></td><td><span class="param-type">string</span></td><td><span class="param-req">❌ Opsional</span></td><td class="param-desc">Nama layanan (untuk histori)</td></tr>
+        <tr><td><span class="param-name">country_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">ID negara</td></tr>
+        <tr><td><span class="param-name">country_name</span></td><td><span class="param-type">string</span></td><td><span class="param-req">❌ Opsional</span></td><td class="param-desc">Nama negara (untuk histori)</td></tr>
+        <tr><td><span class="param-name">provider_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">Dari response <code>/numbers</code></td></tr>
+        <tr><td><span class="param-name">price_original</span></td><td><span class="param-type">number</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">Harga asli (sebelum markup) dari <code>/numbers</code></td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s3-req-order')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-req-order"><span class="c-method">POST</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s3/nokos/order</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span>
+<span class="c-hkey">Content-Type:</span> <span class="c-hval">application/json</span>
+
+{
+  <span class="c-key">"service_code"</span>: <span class="c-str">"1"</span>,
+  <span class="c-key">"service_name"</span>: <span class="c-str">"WhatsApp"</span>,
+  <span class="c-key">"country_id"</span>: <span class="c-str">"6"</span>,
+  <span class="c-key">"country_name"</span>: <span class="c-str">"Indonesia"</span>,
+  <span class="c-key">"provider_id"</span>: <span class="c-str">"881"</span>,
+  <span class="c-key">"price_original"</span>: <span class="c-num">2500</span>
+}</pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s3-res-order')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-res-order">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"order"</span>: {
+    <span class="c-key">"id"</span>: <span class="c-str">"NUSA-812345"</span>,
+    <span class="c-key">"phone_number"</span>: <span class="c-str">"+62812xxxxxxx"</span>,
+    <span class="c-key">"price"</span>: <span class="c-num">3500</span>,
+    <span class="c-key">"status"</span>: <span class="c-str">"pending"</span>,
+    <span class="c-key">"expires_at"</span>: <span class="c-num">1735900000000</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ep-card" id="s3-status">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Cek OTP</h3>
+      <code class="ep-url">/s3/nokos/status</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengecek status &amp; kode OTP dari sebuah order. Panggil secara berkala (polling) sampai <code>status</code> menjadi <code>received</code>.</p>
+      <div class="ep-label">Query Parameter</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">order_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">ID order dari <code>/order</code></td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s3-req-status')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-req-status"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s3/nokos/status?order_id=NUSA-812345</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s3-res-status')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-res-status">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: {
+    <span class="c-key">"status"</span>: <span class="c-str">"received"</span>,
+    <span class="c-key">"otp_code"</span>: <span class="c-str">"482910"</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ep-card" id="s3-cancel">
+    <div class="ep-head">
+      <span class="ep-method post">POST</span>
+      <h3>Batalkan Order</h3>
+      <code class="ep-url">/s3/nokos/cancel</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Membatalkan order yang masih aktif. Saldo dikembalikan otomatis jika OTP belum pernah diterima. Order hanya bisa dibatalkan minimal 10 menit setelah dibuat.</p>
+      <div class="ep-label">Parameter Body</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">order_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">ID order yang akan dibatalkan</td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s3-req-can')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-req-can"><span class="c-method">POST</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s3/nokos/cancel</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span>
+<span class="c-hkey">Content-Type:</span> <span class="c-hval">application/json</span>
+
+{
+  <span class="c-key">"order_id"</span>: <span class="c-str">"NUSA-812345"</span>
+}</pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s3-res-can')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s3-res-can">{
+  <span class="c-key">"success"</span>:  <span class="c-bool">true</span>,
+  <span class="c-key">"message"</span>:  <span class="c-str">"Order berhasil dibatalkan"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-box" style="margin:0 0 28px;padding:14px 18px;border-radius:12px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);font-size:12.5px;color:var(--muted);line-height:1.6;">
+    <i class="fas fa-triangle-exclamation" style="color:#f59e0b;margin-right:6px"></i>
+    Endpoint <code style="font-family:var(--mono)">/s3/nokos/status</code> pada Server 3 mengecek status dari database internal kami (yang diperbarui otomatis tiap beberapa detik), bukan realtime langsung ke provider — jadi tetap lakukan polling seperti biasa.
+  </div>
+
+
+  <!-- ── SERVER 4 SECTION ─────────────── -->
+  <div class="section-heading"><i class="fas fa-server" style="color:var(--accent)"></i> Nokos — Server 4</div>
+
+  <div class="ep-card" id="s4-services">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Daftar Layanan</h3>
+      <code class="ep-url">/s4/nokos/services</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengambil daftar layanan/aplikasi yang tersedia di server ini.</p>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s4-req-svc')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-req-svc"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s4/nokos/services</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s4-res-svc')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-res-svc">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    { <span class="c-key">"id"</span>: <span class="c-str">"1"</span>, <span class="c-key">"code"</span>: <span class="c-str">"1"</span>, <span class="c-key">"name"</span>: <span class="c-str">"WhatsApp"</span> },
+    { <span class="c-key">"id"</span>: <span class="c-str">"2"</span>, <span class="c-key">"code"</span>: <span class="c-str">"2"</span>, <span class="c-key">"name"</span>: <span class="c-str">"Telegram"</span> }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ep-card" id="s4-countries">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Daftar Negara</h3>
+      <code class="ep-url">/s4/nokos/countries</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengambil daftar negara yang tersedia.</p>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s4-req-ctry')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-req-ctry"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s4/nokos/countries</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s4-res-ctry')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-res-ctry">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    { <span class="c-key">"number_id"</span>: <span class="c-num">6</span>, <span class="c-key">"name"</span>: <span class="c-str">"Indonesia"</span> },
+    { <span class="c-key">"number_id"</span>: <span class="c-num">1</span>, <span class="c-key">"name"</span>: <span class="c-str">"Malaysia"</span> }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ep-card" id="s4-numbers">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Provider &amp; Harga</h3>
+      <code class="ep-url">/s4/nokos/numbers</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengambil daftar provider/operator beserta harga untuk kombinasi layanan &amp; negara tertentu.</p>
+      <div class="ep-label">Query Parameter</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">service_code</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">Kode layanan dari <code>/services</code></td></tr>
+        <tr><td><span class="param-name">country_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc"><code>number_id</code> dari <code>/countries</code></td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s4-req-num')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-req-num"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s4/nokos/numbers?service_code=1&amp;country_id=6</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s4-res-num')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-res-num">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: [
+    {
+      <span class="c-key">"provider_id"</span>: <span class="c-str">"881"</span>,
+      <span class="c-key">"label"</span>: <span class="c-str">"Nomor Virtual"</span>,
+      <span class="c-key">"price"</span>: <span class="c-num">2500</span>,
+      <span class="c-key">"price_with_markup"</span>: <span class="c-num">3500</span>,
+      <span class="c-key">"available"</span>: <span class="c-bool">true</span>
+    }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ep-card" id="s4-order">
+    <div class="ep-head">
+      <span class="ep-method post">POST</span>
+      <h3>Order Nomor</h3>
+      <code class="ep-url">/s4/nokos/order</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Membuat order nomor virtual. Wajib menyertakan <code style="font-family:var(--mono);color:var(--accent)">provider_id</code> dari <code style="font-family:var(--mono);color:var(--accent)">/numbers</code>.</p>
+      <div class="ep-label">Parameter Body</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">service_code</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">Kode layanan</td></tr>
+        <tr><td><span class="param-name">service_name</span></td><td><span class="param-type">string</span></td><td><span class="param-req">❌ Opsional</span></td><td class="param-desc">Nama layanan (untuk histori)</td></tr>
+        <tr><td><span class="param-name">country_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">ID negara</td></tr>
+        <tr><td><span class="param-name">country_name</span></td><td><span class="param-type">string</span></td><td><span class="param-req">❌ Opsional</span></td><td class="param-desc">Nama negara (untuk histori)</td></tr>
+        <tr><td><span class="param-name">provider_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">Dari response <code>/numbers</code></td></tr>
+        <tr><td><span class="param-name">price_original</span></td><td><span class="param-type">number</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">Harga asli (sebelum markup) dari <code>/numbers</code></td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s4-req-order')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-req-order"><span class="c-method">POST</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s4/nokos/order</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span>
+<span class="c-hkey">Content-Type:</span> <span class="c-hval">application/json</span>
+
+{
+  <span class="c-key">"service_code"</span>: <span class="c-str">"1"</span>,
+  <span class="c-key">"service_name"</span>: <span class="c-str">"WhatsApp"</span>,
+  <span class="c-key">"country_id"</span>: <span class="c-str">"6"</span>,
+  <span class="c-key">"country_name"</span>: <span class="c-str">"Indonesia"</span>,
+  <span class="c-key">"provider_id"</span>: <span class="c-str">"881"</span>,
+  <span class="c-key">"price_original"</span>: <span class="c-num">2500</span>
+}</pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s4-res-order')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-res-order">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"order"</span>: {
+    <span class="c-key">"id"</span>: <span class="c-str">"SMSC-812345"</span>,
+    <span class="c-key">"phone_number"</span>: <span class="c-str">"+62812xxxxxxx"</span>,
+    <span class="c-key">"price"</span>: <span class="c-num">3500</span>,
+    <span class="c-key">"status"</span>: <span class="c-str">"pending"</span>,
+    <span class="c-key">"expires_at"</span>: <span class="c-num">1735900000000</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ep-card" id="s4-status">
+    <div class="ep-head">
+      <span class="ep-method get">GET</span>
+      <h3>Cek OTP</h3>
+      <code class="ep-url">/s4/nokos/status</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Mengecek status &amp; kode OTP dari sebuah order. Panggil secara berkala (polling) sampai <code>status</code> menjadi <code>received</code>.</p>
+      <div class="ep-label">Query Parameter</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">order_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">ID order dari <code>/order</code></td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s4-req-status')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-req-status"><span class="c-method">GET</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s4/nokos/status?order_id=SMSC-812345</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s4-res-status')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-res-status">{
+  <span class="c-key">"success"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"data"</span>: {
+    <span class="c-key">"status"</span>: <span class="c-str">"received"</span>,
+    <span class="c-key">"otp_code"</span>: <span class="c-str">"482910"</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ep-card" id="s4-cancel">
+    <div class="ep-head">
+      <span class="ep-method post">POST</span>
+      <h3>Batalkan Order</h3>
+      <code class="ep-url">/s4/nokos/cancel</code>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Membatalkan order yang masih aktif. Saldo dikembalikan otomatis jika OTP belum pernah diterima. Order hanya bisa dibatalkan minimal 10 menit setelah dibuat.</p>
+      <div class="ep-label">Parameter Body</div>
+      <table class="params-table">
+        <tr><th>Parameter</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+        <tr><td><span class="param-name">order_id</span></td><td><span class="param-type">string</span></td><td><span class="param-req">✅ Ya</span></td><td class="param-desc">ID order yang akan dibatalkan</td></tr>
+      </table>
+      <div class="rr-grid">
+        <div class="rr-panel request">
+          <div class="rr-panel-head"><span class="rr-panel-title">Request</span><button class="copy-btn" onclick="copyCode(this,'s4-req-can')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-req-can"><span class="c-method">POST</span> <span class="c-url">https://fnbnokos.web.id/api/v1/s4/nokos/cancel</span>
+<span class="c-hkey">x-api-key:</span> <span class="c-hval">dp_xxxxxxxxxxxxxx</span>
+<span class="c-hkey">Content-Type:</span> <span class="c-hval">application/json</span>
+
+{
+  <span class="c-key">"order_id"</span>: <span class="c-str">"SMSC-812345"</span>
+}</pre>
+        </div>
+        <div class="rr-panel response">
+          <div class="rr-panel-head"><span class="rr-panel-title">Response 200</span><button class="copy-btn" onclick="copyCode(this,'s4-res-can')"><i class="fas fa-copy"></i> Copy</button></div>
+          <pre class="code-inner" id="s4-res-can">{
+  <span class="c-key">"success"</span>:  <span class="c-bool">true</span>,
+  <span class="c-key">"message"</span>:  <span class="c-str">"Order berhasil dibatalkan"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── SYARAT & KETENTUAN ───────────────────────── -->
+  <div class="section-heading"><i class="fas fa-scale-balanced" style="color:var(--accent)"></i> Syarat &amp; Ketentuan</div>
+
+  <div class="ep-card" id="terms">
+    <div class="ep-head">
+      <h3><i class="fas fa-book" style="color:var(--accent);margin-right:8px"></i> Dokumentasi &amp; Ketentuan Layanan FNB NOKOS OTP</h3>
+    </div>
+    <div class="ep-body">
+      <div class="terms-section">
+        <h4>1. Tentang Layanan</h4>
+        <p>FNB NOKOS OTP menyediakan layanan penyewaan nomor virtual untuk menerima kode verifikasi (OTP) dari berbagai aplikasi yang didukung. Kami hanya bertindak sebagai penyedia nomor virtual dan tidak memiliki hubungan dengan aplikasi pihak ketiga.</p>
+      </div>
+
+      <div class="terms-section">
+        <h4>2. Ketentuan Akun</h4>
+        <ul>
+          <li>Setiap pengguna wajib mendaftar akun.</li>
+          <li>Pengguna bertanggung jawab atas keamanan akun dan password.</li>
+          <li>Dilarang membagikan API Key kepada pihak lain.</li>
+          <li>Aktivitas yang dilakukan menggunakan akun menjadi tanggung jawab pemilik akun.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>3. Saldo &amp; Deposit</h4>
+        <ul>
+          <li>Deposit yang telah berhasil masuk tidak dapat dikembalikan (Non Refundable).</li>
+          <li>Pastikan nominal deposit sesuai.</li>
+          <li>Kesalahan transfer akibat kelalaian pengguna bukan tanggung jawab FNB NOKOS OTP.</li>
+          <li>Deposit otomatis akan diproses apabila pembayaran berhasil terverifikasi.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>4. Pemesanan Nomor</h4>
+        <ul>
+          <li>Nomor hanya berlaku untuk satu transaksi sesuai layanan yang dipilih.</li>
+          <li>Masa aktif nomor mengikuti timer pada website.</li>
+          <li>Nomor yang telah dibeli tidak dapat diganti kecuali sistem gagal memberikan layanan.</li>
+          <li>Harga layanan dapat berubah sewaktu-waktu.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>5. Refund</h4>
+        <p>Refund hanya diberikan apabila:</p>
+        <ul>
+          <li>Nomor gagal menerima OTP.</li>
+          <li>Nomor dibatalkan oleh sistem.</li>
+          <li>Provider mengalami gangguan sebelum OTP diterima.</li>
+        </ul>
+        <p>Refund tidak berlaku apabila:</p>
+        <ul>
+          <li>Pengguna salah memilih negara/operator.</li>
+          <li>Pengguna membatalkan pesanan sendiri.</li>
+          <li>OTP sudah berhasil diterima.</li>
+          <li>Akun tujuan meminta verifikasi tambahan selain SMS.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>6. Penggunaan API</h4>
+        <ul>
+          <li>API hanya boleh digunakan untuk kebutuhan yang sah.</li>
+          <li>Dilarang melakukan spam request.</li>
+          <li>Dilarang menyebarkan API Key.</li>
+          <li>Gunakan fitur Whitelist IP agar API lebih aman.</li>
+          <li>Penyalahgunaan API dapat menyebabkan API dinonaktifkan.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>7. Larangan</h4>
+        <p>Pengguna dilarang menggunakan layanan untuk:</p>
+        <ul>
+          <li>Penipuan.</li>
+          <li>Spam.</li>
+          <li>Aktivitas ilegal.</li>
+          <li>Penyalahgunaan identitas.</li>
+          <li>Pelanggaran hukum yang berlaku.</li>
+        </ul>
+        <p>Pelanggaran dapat mengakibatkan akun diblokir permanen tanpa pengembalian saldo.</p>
+      </div>
+
+      <div class="terms-section">
+        <h4>8. Ketersediaan Layanan</h4>
+        <p>FNB NOKOS OTP berusaha menjaga uptime setinggi mungkin, namun tidak menjamin:</p>
+        <ul>
+          <li>Semua layanan selalu tersedia.</li>
+          <li>Semua aplikasi selalu menerima nomor virtual.</li>
+          <li>Semua OTP pasti masuk tepat waktu.</li>
+        </ul>
+        <p>Gangguan provider berada di luar kendali kami.</p>
+      </div>
+
+      <div class="terms-section">
+        <h4>9. API Rate Limit</h4>
+        <p>Untuk menjaga stabilitas server:</p>
+        <ul>
+          <li>Request berlebihan dapat dibatasi.</li>
+          <li>Aktivitas mencurigakan akan diblokir sementara.</li>
+          <li>Abuse API dapat menyebabkan suspend akun.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>10. Keamanan</h4>
+        <p>Disarankan:</p>
+        <ul>
+          <li>Aktifkan Whitelist IP.</li>
+          <li>Hubungkan akun Telegram agar mendapat notifikasi transaksi.</li>
+          <li>Jangan membagikan password maupun API Key.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>11. Perubahan Harga</h4>
+        <p>Harga layanan dapat berubah sewaktu-waktu mengikuti harga dari provider tanpa pemberitahuan sebelumnya.</p>
+      </div>
+
+      <div class="terms-section">
+        <h4>12. Perubahan Ketentuan</h4>
+        <p>FNB NOKOS OTP berhak mengubah syarat layanan kapan saja. Perubahan akan berlaku setelah dipublikasikan pada website.</p>
+      </div>
+
+      <div class="terms-section">
+        <h4>13. Bantuan</h4>
+        <p>Apabila mengalami kendala:</p>
+        <ul>
+          <li>Hubungi Customer Service melalui Telegram.</li>
+          <li>Sertakan ID Pesanan agar proses pengecekan lebih cepat.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>14. Disclaimer</h4>
+        <p>Dengan menggunakan FNB NOKOS OTP, pengguna dianggap telah membaca, memahami, dan menyetujui seluruh syarat dan ketentuan yang berlaku. FNB NOKOS OTP tidak bertanggung jawab atas penyalahgunaan layanan oleh pengguna maupun pelanggaran terhadap ketentuan platform pihak ketiga.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ─── SIDEBAR MOBILE ──────────────────────────────
+function toggleSidebar() {
+  const sb  = document.getElementById('sidebar');
+  const ov  = document.getElementById('overlay');
+  const ico = document.getElementById('mobIcon');
+  const open = sb.classList.toggle('open');
+  ov.classList.toggle('open', open);
+  ico.className = open ? 'fas fa-times' : 'fas fa-bars';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('mobIcon').className = 'fas fa-bars';
+}
+
+// ─── SIDEBAR SEARCH ──────────────────────────────
+function filterSidebar(q) {
+  q = q.trim().toLowerCase();
+  const sections = document.querySelectorAll('.sidebar .sb-section');
+  let anyMatch = false;
+  sections.forEach(sec => {
+    let sectionHasMatch = false;
+    sec.querySelectorAll('.sb-link').forEach(link => {
+      const text = link.textContent.toLowerCase();
+      const match = !q || text.includes(q);
+      link.style.display = match ? '' : 'none';
+      if (match) sectionHasMatch = true;
+    });
+    sec.style.display = sectionHasMatch ? '' : 'none';
+    if (sectionHasMatch) anyMatch = true;
+  });
+  document.getElementById('sbNoMatch').style.display = (q && !anyMatch) ? 'block' : 'none';
+}
+
+// ─── NAV CLICK ───────────────────────────────────
+function navClick(el) {
+  document.querySelectorAll('.sb-link').forEach(a => a.classList.remove('active'));
+  el.classList.add('active');
+  // smooth scroll
+  const href = el.getAttribute('href');
+  const target = document.querySelector(href);
+  if (target) {
+    e?.preventDefault?.();
+    setTimeout(() => {
+      target.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 10);
+  }
+  if (window.innerWidth <= 900) closeSidebar();
+}
+
+// ─── COPY CODE ───────────────────────────────────
+function copyCode(btn, id) {
+  const el  = document.getElementById(id);
+  const txt = el.innerText || el.textContent;
+  navigator.clipboard?.writeText(txt).then(() => {
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(() => {});
+}
+
+// ─── ACTIVE LINK ON SCROLL ───────────────────────
+const sections = document.querySelectorAll('.ep-card[id], .docs-hero');
+const links    = document.querySelectorAll('.sb-link');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id   = e.target.id;
+      const link = document.querySelector(`.sb-link[href="#${id}"]`);
+      if (link) {
+        links.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      }
+    }
+  });
+}, { threshold:0.4, rootMargin:'-10% 0px -55% 0px' });
+sections.forEach(s => io.observe(s));
+
+// ─── API KEY LIVE (dari akun yang sedang login) ──
+let myApiKeyUser = null;
+(function initMyApiKey() {
+  const s = localStorage.getItem('user');
+  if (!s) return;
+  try { myApiKeyUser = JSON.parse(s); } catch(e) { return; }
+  if (!myApiKeyUser || !myApiKeyUser.api_key) return;
+
+  document.getElementById('myKeyLoggedOutMsg').style.display = 'none';
+  document.getElementById('myKeyBox').style.display = 'block';
+  document.getElementById('myKeyVal').textContent = myApiKeyUser.api_key;
+
+  // Ganti semua placeholder dp_xxxxxx di contoh kode dengan API key asli
+  document.querySelectorAll('.c-hval').forEach(el => {
+    if (/^dp_x+$/i.test(el.textContent.trim())) el.textContent = myApiKeyUser.api_key;
+  });
+  document.querySelectorAll('code, .hero-pill').forEach(el => {
+    if (el.children.length === 0 && /dp_x{4,}/i.test(el.textContent)) {
+      el.textContent = el.textContent.replace(/dp_x{4,}/gi, myApiKeyUser.api_key);
+    }
+  });
+
+  loadMyWhitelist();
+})();
+
+function copyMyKey() {
+  if (!myApiKeyUser) return;
+  navigator.clipboard?.writeText(myApiKeyUser.api_key);
+  const btn = event.target.closest('.copy-btn');
+  if (btn) {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = orig; }, 1800);
+  }
+}
+
+async function loadMyWhitelist() {
+  try {
+    const res = await axios.get('/api/profile/ip-whitelist', { headers: { 'x-api-key': myApiKeyUser.api_key } });
+    renderMyWhitelist(res.data.data || []);
+  } catch(e) {
+    document.getElementById('myKeyWhitelist').innerHTML = '<div style="color:var(--muted)">Gagal memuat whitelist</div>';
+  }
+}
+function renderMyWhitelist(list) {
+  const el = document.getElementById('myKeyWhitelist');
+  if (!list.length) { el.innerHTML = '<div style="color:var(--muted);font-style:italic">Belum ada IP dibatasi — semua IP diizinkan</div>'; return; }
+  el.innerHTML = list.map(ip => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 11px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);border-radius:9px">
+      <span style="font-family:var(--mono)">${ip}${ip === '0.0.0.0' ? ' <span style="color:var(--muted);font-size:10.5px">(semua IP)</span>' : ''}</span>
+      <button onclick="removeMyKeyIp('${ip}')" style="background:none;border:none;color:#ef4444;cursor:pointer;padding:3px"><i class="fas fa-trash"></i></button>
+    </div>`).join('');
+}
+async function addMyKeyIp() {
+  const input = document.getElementById('myKeyNewIp');
+  const ip = input.value.trim();
+  if (!ip) return;
+  try {
+    const res = await axios.post('/api/profile/ip-whitelist', { ip }, { headers: { 'x-api-key': myApiKeyUser.api_key } });
+    if (res.data.success) { renderMyWhitelist(res.data.data); input.value = ''; }
+  } catch(e) { alert(e.response?.data?.error || 'Gagal menambah IP'); }
+}
+async function removeMyKeyIp(ip) {
+  if (!confirm(`Hapus ${ip} dari whitelist?`)) return;
+  try {
+    const res = await axios.delete('/api/profile/ip-whitelist', { data: { ip }, headers: { 'x-api-key': myApiKeyUser.api_key } });
+    if (res.data.success) renderMyWhitelist(res.data.data);
+  } catch(e) { alert('Gagal menghapus IP'); }
+}
+</script>
+</body>
+</html>

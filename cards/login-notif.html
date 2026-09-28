@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080, initial-scale=1">
+<title>FNB NOKOS OTP · Login Notification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --primary:#3B82F6; --accent:#38BDF8; --bg:#FFFFFF; --card:#F9FAFB;
+    --text:#111827; --muted:#6B7280; --border:#E5E7EB; --ok:#22C55E;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;}
+  html,body{width:1080px;height:1350px;}
+  body{
+    background:
+      radial-gradient(900px 600px at 15% -10%, rgba(56,189,248,.20), transparent 60%),
+      radial-gradient(900px 700px at 110% 10%, rgba(59,130,246,.18), transparent 55%),
+      var(--bg);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .card{
+    position:relative;width:940px;padding:64px 60px 48px;border-radius:40px;
+    background:linear-gradient(180deg, rgba(255,255,255,.85), rgba(249,250,251,.92));
+    border:1px solid rgba(255,255,255,.7);
+    box-shadow:0 40px 90px rgba(17,24,39,.14), 0 4px 14px rgba(17,24,39,.06);
+    backdrop-filter:blur(18px);
+  }
+  .card::before{
+    content:"";position:absolute;inset:0;border-radius:40px;padding:1.5px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:.35;pointer-events:none;
+  }
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;}
+  .brand{display:flex;align-items:center;gap:16px;}
+  .brand img{width:66px;height:66px;border-radius:18px;object-fit:cover;
+    box-shadow:0 10px 24px rgba(59,130,246,.35);}
+  .brand .n{font-size:26px;font-weight:900;letter-spacing:-.5px;color:var(--text);}
+  .brand .n span{background:linear-gradient(135deg,var(--primary),var(--accent));
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  .brand .s{font-size:14px;color:var(--muted);font-weight:600;margin-top:2px;}
+  .badge{display:inline-flex;align-items:center;gap:9px;padding:11px 20px;border-radius:999px;
+    background:rgba(34,197,94,.12);color:#15803D;font-weight:800;font-size:15px;
+    border:1px solid rgba(34,197,94,.30);}
+  .badge .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);
+    box-shadow:0 0 0 4px rgba(34,197,94,.20);}
+  .hero{text-align:center;margin:8px 0 42px;}
+  .avatar{width:132px;height:132px;border-radius:50%;object-fit:cover;margin:0 auto 24px;
+    display:block;border:5px solid #fff;
+    box-shadow:0 16px 40px rgba(59,130,246,.30), 0 0 0 3px rgba(56,189,248,.35);}
+  .title{font-size:38px;font-weight:900;letter-spacing:-.8px;color:var(--text);line-height:1.15;}
+  .subtitle{font-size:19px;color:var(--muted);font-weight:500;margin-top:12px;}
+  .rows{display:flex;flex-direction:column;gap:14px;}
+  .row{display:flex;align-items:center;gap:20px;padding:20px 24px;border-radius:20px;
+    background:#fff;border:1px solid var(--border);
+    box-shadow:0 2px 10px rgba(17,24,39,.04);}
+  .ico{width:52px;height:52px;flex:0 0 52px;border-radius:15px;display:grid;place-items:center;
+    font-size:21px;color:#fff;background:linear-gradient(135deg,var(--primary),var(--accent));
+    box-shadow:0 8px 18px rgba(59,130,246,.30);}
+  .rt{flex:1;min-width:0;}
+  .rl{font-size:14px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+  .rv{font-size:21px;color:var(--text);font-weight:700;margin-top:3px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .status{display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border-radius:999px;
+    background:rgba(34,197,94,.12);color:#15803D;font-weight:800;font-size:18px;margin-top:2px;}
+  .foot{text-align:center;margin-top:38px;font-size:16px;color:var(--muted);font-weight:600;
+    display:flex;align-items:center;justify-content:center;gap:10px;}
+  .foot .b{color:var(--primary);}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+      <div class="brand">
+        <img src="https://files.catbox.moe/je2gz1.jpg" alt="Logo">
+        <div>
+          <div class="n">FNB NOKOS<span> OTP</span></div>
+          <div class="s">Virtual Number Service</div>
+        </div>
+      </div>
+      <div class="badge"><span class="dot"></span>USER BARU MASUK</div>
+    </div>
+
+    <div class="hero">
+      <img class="avatar" src="{{FOTO_PROFIL}}" alt="Foto Profil"
+           onerror="this.src='https://files.catbox.moe/je2gz1.jpg'">
+      <div class="title">Selamat Datang di FNB NOKOS OTP</div>
+      <div class="subtitle">Aktivitas login berhasil terdeteksi</div>
+    </div>
+
+    <div class="rows">
+      <div class="row"><div class="ico"><i class="fab fa-telegram"></i></div>
+        <div class="rt"><div class="rl">Username Telegram</div><div class="rv">@{{USERNAME_TG}}</div></div></div>
+      <div class="row"><div class="ico"><i class="fa-solid fa-id-badge"></i></div>
+        <div class="rt"><div class="rl">ID Telegram</div><div class="rv">{{ID_TELEGRAM}}</div></div></div>
+      <div class="row"><div class="ico"><i class="fa-solid fa-user"></i></div>
+        <div class="rt"><div class="rl">ID User</div><div class="rv">{{ID_USER}}</div></div></div>
+      <div class="row"><div class="ico"><i class="fa-solid fa-clock"></i></div>
+        <div class="rt"><div class="rl">Waktu Login</div><div class="rv">{{WAKTU_LOGIN}}</div></div></div>
+      <div class="row"><div class="ico"><i class="fa-solid fa-location-dot"></i></div>
+        <div class="rt"><div class="rl">Alamat IP</div><div class="rv">{{ALAMAT_IP}}</div></div></div>
+      <div class="row"><div class="ico"><i class="fa-solid fa-mobile-screen-button"></i></div>
+        <div class="rt"><div class="rl">Perangkat</div><div class="rv">{{PERANGKAT}}</div></div></div>
+      <div class="row"><div class="ico"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="rt"><div class="rl">Status</div>
+          <div class="status"><i class="fa-solid fa-circle-check"></i>Login Berhasil</div></div></div>
+    </div>
+
+    <div class="foot"><i class="fa-solid fa-signal"></i>Virtual Number Service <span class="b">•</span> Login Notification</div>
+  </div>
+</body>
+</html>

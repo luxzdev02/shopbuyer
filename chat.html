@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<script src="/theme.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Chat - FNB NOKOS OTP</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="/theme-vars.css?v=3">
+<script src="/push-client.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+  body {
+    background:var(--bg); color:var(--text); height:100vh; overflow:hidden;
+    display:flex; flex-direction:column; transition:background .3s,color .3s;
+    max-width:720px; margin:0 auto;
+  }
+  @media (min-width:900px) {
+    body { max-width:900px; box-shadow:0 0 40px rgba(0,0,0,.08); }
+  }
+
+  .app-bar {
+    background:var(--surface); padding:14px 18px; display:flex; align-items:center; gap:14px;
+    border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;
+  }
+  .app-bar .back { display:none; color:var(--accent); font-size:20px; text-decoration:none; cursor:pointer; }
+  .app-bar h2 { flex:1; font-size:18px; font-weight:800; }
+  .app-bar .icon-btn { color:var(--muted); font-size:18px; background:none; border:none; cursor:pointer; padding:6px; }
+  .bar-avatar { width:34px; height:34px; border-radius:50%; object-fit:cover; flex-shrink:0; display:none; }
+  .bar-avatar.show { display:block; }
+
+  #home { flex:1; overflow-y:auto; }
+  .search-wrap { padding:12px 16px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .search-box {
+    display:flex; align-items:center; gap:10px; background:var(--surface2); border-radius:14px;
+    padding:11px 16px; border:1px solid var(--border);
+  }
+  .search-box i { color:var(--muted); }
+  .search-box input { flex:1; border:none; background:none; outline:none; font-size:14.5px; color:var(--text); }
+
+  .search-results { background:var(--surface); border-bottom:1px solid var(--border); }
+  .search-results .hint { padding:10px 16px; font-size:12px; color:var(--muted); }
+
+  .pinned-label, .dm-label {
+    padding:14px 16px 8px; font-size:12.5px; font-weight:800; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.5px;
+  }
+
+  .conv-row {
+    display:flex; align-items:center; gap:13px; padding:12px 16px; cursor:pointer;
+    transition:background .15s; border-bottom:1px solid var(--border);
+  }
+  .conv-row:active, .conv-row:hover { background:var(--surface2); }
+  .conv-avatar {
+    width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:20px; color:#fff; flex-shrink:0; font-weight:700; overflow:hidden;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+  }
+  .conv-avatar img { width:100%; height:100%; object-fit:cover; }
+  .conv-avatar.pin-cs { background:linear-gradient(135deg,#3B82F6,#38BDF8); }
+  .conv-avatar.pin-group { background:linear-gradient(135deg,#6366F1,#38BDF8); }
+  .conv-body { flex:1; min-width:0; }
+  .conv-top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .conv-name { font-weight:700; font-size:15px; display:flex; align-items:center; gap:6px; }
+  .conv-name .pin-ico { color:var(--accent); font-size:12px; }
+  .conv-time { font-size:11.5px; color:var(--muted); flex-shrink:0; }
+  .conv-preview {
+    font-size:13.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;
+  }
+  .conv-row.unread .conv-name { font-weight:900; color:var(--text); }
+  .conv-row.unread .conv-preview { color:var(--text); font-weight:600; }
+  .unread-badge {
+    background:var(--accent); color:#fff; font-size:11px; font-weight:800; min-width:20px; height:20px;
+    border-radius:10px; display:flex; align-items:center; justify-content:center; padding:0 6px; flex-shrink:0;
+  }
+  .empty-hint { text-align:center; padding:40px 20px; color:var(--muted); font-size:13.5px; }
+
+  .mention-tag {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:16px; height:16px; border-radius:50%; flex-shrink:0;
+    background:#ef4444; color:#fff; font-size:9.5px; font-weight:800;
+  }
+
+  #convo { flex:1; display:none; flex-direction:column; overflow:hidden; }
+  #convo.show { display:flex; }
+  #home.hide { display:none; }
+  #convo .messages { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; background:var(--bg); }
+
+  .bubble-row { display:flex; gap:8px; align-items:flex-end; }
+  .bubble-row.me { justify-content:flex-end; }
+  .bubble-avatar {
+    width:28px; height:28px; border-radius:50%; object-fit:cover; flex-shrink:0;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:800;
+  }
+  .bubble-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
+  .bubble-avatar.spacer { visibility:hidden; }
+  .bubble {
+    max-width:70%; padding:10px 14px; border-radius:16px; font-size:14.5px; line-height:1.4; word-break:break-word;
+  }
+  .bubble-row.me .bubble { background:var(--accent); color:#fff; border-bottom-right-radius:4px; }
+  .bubble-row:not(.me) .bubble { background:var(--surface2); color:var(--text); border:1px solid var(--border); border-bottom-left-radius:4px; }
+  .bubble .bname { font-size:11.5px; font-weight:800; opacity:.8; display:block; margin-bottom:2px; }
+  .bubble .bfoot { display:flex; align-items:center; gap:4px; margin-top:4px; justify-content:flex-end; }
+  .bubble .btime { font-size:10.5px; opacity:.65; }
+  .bubble .bticks { font-size:12px; opacity:.85; }
+  .bubble .bticks.read { color:#7DD3FC; opacity:1; }
+
+  .bquote {
+    background:rgba(0,0,0,.08); border-left:3px solid var(--accent);
+    border-radius:8px; padding:5px 9px; margin-bottom:6px; font-size:12px;
+    cursor:pointer;
+  }
+  .bubble-row.me .bquote { background:rgba(255,255,255,.18); border-left-color:#fff; }
+  .bquote .bq-name { font-weight:800; opacity:.9; }
+  .bquote .bq-text { opacity:.8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+
+  .reply-btn {
+    background:none; border:none; color:var(--muted); font-size:12px; cursor:pointer;
+    padding:6px; flex-shrink:0; align-self:center; opacity:.55; transition:.15s;
+  }
+  .reply-btn:hover { opacity:1; color:var(--accent); }
+
+  .reply-strip {
+    display:none; align-items:center; gap:10px; padding:8px 14px;
+    background:var(--surface2); border-top:1px solid var(--border);
+  }
+  .reply-strip.show { display:flex; }
+  .reply-strip-bar { width:3px; align-self:stretch; background:var(--accent); border-radius:2px; flex-shrink:0; }
+  .reply-strip-body { flex:1; min-width:0; }
+  .reply-strip-name { font-size:12px; font-weight:800; color:var(--accent); }
+  .reply-strip-text { font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .reply-strip-close { background:none; border:none; color:var(--muted); font-size:15px; cursor:pointer; padding:6px; flex-shrink:0; }
+
+  .input-bar {
+    display:flex; gap:10px; padding:12px 14px; background:var(--surface); border-top:1px solid var(--border);
+    align-items:flex-end;
+  }
+  .input-bar textarea {
+    flex:1; border:1px solid var(--border); background:var(--surface2); border-radius:20px; padding:11px 16px;
+    font-size:14.5px; color:var(--text); outline:none; resize:none; max-height:100px; font-family:inherit;
+  }
+  .send-btn {
+    width:42px; height:42px; border-radius:50%; border:none; background:var(--accent); color:#fff;
+    font-size:16px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  }
+  .send-btn:disabled { opacity:.5; }
+  .banned-notice {
+    padding:14px; text-align:center; background:#FEF2F2; color:#DC2626; font-size:13px; font-weight:600;
+  }
+
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:10px; }
+</style>
+</head>
+<body>
+<script src="/premium-loader.js?v=3"></script>
+
+  <div class="app-bar">
+    <a class="back" id="backBtn" onclick="goHome()"><i class="fas fa-arrow-left"></i></a>
+    <img class="bar-avatar" id="barAvatar" src="" alt="">
+    <h2 id="barTitle">Chat</h2>
+    <a class="icon-btn" href="/dashboard"><i class="fas fa-house"></i></a>
+  </div>
+
+  <div id="home">
+    <div class="search-wrap">
+      <div class="search-box">
+        <i class="fas fa-magnifying-glass"></i>
+        <input id="searchInput" placeholder="Cari username untuk mulai chat..." oninput="onSearch()">
+      </div>
+    </div>
+
+    <div id="searchResults" class="search-results" style="display:none"></div>
+
+    <div id="mainList">
+      <div class="pinned-label"><i class="fas fa-thumbtack"></i> Disematkan</div>
+      <div class="conv-row" id="csRow" onclick="openConvo('cs', null, 'CS FNB NOKOS', null)">
+        <div class="conv-avatar pin-cs"><i class="fas fa-headset"></i></div>
+        <div class="conv-body">
+          <div class="conv-top">
+            <div class="conv-name"><i class="fas fa-thumbtack pin-ico"></i> CS FNB NOKOS</div>
+            <div class="conv-time" id="csTime"></div>
+          </div>
+          <div class="conv-preview" id="csPreview">Chat langsung dengan admin</div>
+        </div>
+        <div class="unread-badge" id="csBadge" style="display:none"></div>
+      </div>
+      <div class="conv-row" id="groupRow" onclick="openConvo('group', null, 'Group Public', null)">
+        <div class="conv-avatar pin-group"><i class="fas fa-users"></i></div>
+        <div class="conv-body">
+          <div class="conv-top">
+            <div class="conv-name"><i class="fas fa-thumbtack pin-ico"></i> Group Public <span class="mention-tag" id="groupMentionTag" style="display:none">@</span></div>
+            <div class="conv-time" id="groupTime"></div>
+          </div>
+          <div class="conv-preview" id="groupPreview">Diskusi terbuka semua pengguna</div>
+        </div>
+        <div class="unread-badge" id="groupBadge" style="display:none"></div>
+      </div>
+
+      <div class="dm-label">Percakapan</div>
+      <div id="dmList"><div class="empty-hint">Memuat...</div></div>
+    </div>
+  </div>
+
+  <div id="convo">
+    <div class="messages" id="messages"></div>
+    <div id="bannedNotice" class="banned-notice" style="display:none"></div>
+    <div class="reply-strip" id="replyStrip">
+      <div class="reply-strip-bar"></div>
+      <div class="reply-strip-body">
+        <div class="reply-strip-name" id="replyStripName"></div>
+        <div class="reply-strip-text" id="replyStripText"></div>
+      </div>
+      <button class="reply-strip-close" onclick="cancelReply()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="input-bar" id="inputBar">
+      <textarea id="msgInput" rows="1" placeholder="Tulis pesan..." onkeydown="handleKey(event)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+<script>
+let currentUser = null;
+(function checkAuth() {
+  const s = localStorage.getItem('user');
+  if (!s) { location.href = '/login'; return; }
+  currentUser = JSON.parse(s);
+})();
+
+let activeMode = null;     // 'cs' | 'group' | 'dm'
+let activePartnerId = null;
+let pollTimer = null;
+let homePollTimer = null;
+let knownMessageIds = new Set();
+let isFirstLoadForThisConvo = true;
+let replyingTo = null;     // { id, user_id, username, message } — hanya dipakai di mode 'group'
+
+// Minta izin notifikasi browser begitu halaman dibuka (opsional, tidak memaksa).
+if ('Notification' in window && Notification.permission === 'default') {
+  document.addEventListener('click', function requestOnce() {
+    enablePushNotif(currentUser.id);
+    document.removeEventListener('click', requestOnce);
+  }, { once: true });
+}
+
+function notifyNewMessage(title, body) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  if (!document.hidden) return; // jangan ganggu kalau tab sedang aktif dilihat
+  try { new Notification(title, { body, icon: 'https://files.catbox.moe/je2gz1.jpg' }); } catch (e) {}
+}
+
+function avatarHtml(photo, name, sizeClass) {
+  if (photo) return `<img src="${photo}" alt="${escapeHtml(name||'')}">`;
+  return escapeHtml((name || '?').charAt(0).toUpperCase());
+}
+
+function goHome() {
+  clearInterval(pollTimer);
+  activeMode = null;
+  cancelReply();
+  document.getElementById('home').classList.remove('hide');
+  document.getElementById('convo').classList.remove('show');
+  document.getElementById('backBtn').style.display = 'none';
+  document.getElementById('barAvatar').classList.remove('show');
+  document.getElementById('barTitle').textContent = 'Chat';
+  loadDmList();
+  loadChatSummary();
+  clearInterval(homePollTimer);
+  homePollTimer = setInterval(() => { loadDmList(); loadChatSummary(); }, 6000);
+}
+
+function openConvo(mode, partnerId, title, photo) {
+  activeMode = mode;
+  activePartnerId = partnerId;
+  knownMessageIds = new Set();
+  isFirstLoadForThisConvo = true;
+  cancelReply();
+  clearInterval(homePollTimer);
+
+  document.getElementById('home').classList.add('hide');
+  document.getElementById('convo').classList.add('show');
+  document.getElementById('backBtn').style.display = 'block';
+  document.getElementById('barTitle').textContent = title;
+  const barAvatar = document.getElementById('barAvatar');
+  if (photo) { barAvatar.src = photo; barAvatar.classList.add('show'); }
+  else { barAvatar.classList.remove('show'); }
+
+  document.getElementById('messages').innerHTML = '<div class="empty-hint"><i class="fas fa-circle-notch fa-spin"></i></div>';
+  document.getElementById('bannedNotice').style.display = 'none';
+  document.getElementById('inputBar').style.display = 'flex';
+
+  if (mode === 'group') {
+    axios.post('/api/group/mark-read', { user_id: currentUser.id }).catch(() => {});
+  }
+
+  loadMessages();
+  clearInterval(pollTimer);
+  pollTimer = setInterval(loadMessages, 3000);
+}
+
+async function loadMessages() {
+  try {
+    let msgs = [];
+    if (activeMode === 'cs') {
+      const r = await axios.get('/api/chat/conversation/' + currentUser.id);
+      msgs = r.data.map(m => ({
+        id: m.id || m.timestamp, text: m.message, me: !m.from_owner,
+        name: m.from_owner ? 'Admin' : currentUser.username, photo: m.from_owner ? null : currentUser.profile_photo,
+        time: m.timestamp,
+      }));
+    } else if (activeMode === 'group') {
+      const r = await axios.get('/api/group/messages');
+      msgs = r.data.map(m => ({
+        id: m.id, text: m.message, me: String(m.user_id) === String(currentUser.id),
+        name: m.username, photo: m.profile_photo, time: m.timestamp,
+        user_id: m.user_id, reply_to: m.reply_to || null,
+      }));
+    } else if (activeMode === 'dm') {
+      const r = await axios.get('/api/dm/conversation/' + currentUser.id + '/' + activePartnerId);
+      msgs = r.data.data.map(m => ({
+        id: m.id, text: m.message, me: String(m.from_id) === String(currentUser.id),
+        name: m.from_username, photo: m.from_photo, time: m.timestamp, read: m.read,
+      }));
+    }
+
+    // Deteksi pesan baru dari lawan bicara untuk notifikasi browser (kalau tab tidak aktif).
+    if (!isFirstLoadForThisConvo) {
+      const incoming = msgs.filter(m => !m.me && !knownMessageIds.has(m.id));
+      if (incoming.length) {
+        const last = incoming[incoming.length - 1];
+        notifyNewMessage(last.name || 'Pesan baru', last.text || '');
+      }
+    }
+    knownMessageIds = new Set(msgs.map(m => m.id));
+    isFirstLoadForThisConvo = false;
+
+    renderMessages(msgs);
+  } catch (e) { /* diamkan, polling berikutnya coba lagi */ }
+}
+
+function renderMessages(msgs) {
+  const el = document.getElementById('messages');
+  const wasAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 40;
+  if (!msgs.length) {
+    el.innerHTML = '<div class="empty-hint">Belum ada pesan. Mulai percakapan!</div>';
+    return;
+  }
+  const showAvatar = activeMode === 'group'; // di CS/DM avatar cukup di header
+  el.innerHTML = msgs.map(m => {
+    const avatar = showAvatar
+      ? `<div class="bubble-avatar${m.me ? ' spacer' : ''}">${avatarHtml(m.photo, m.name)}</div>`
+      : '';
+    let ticks = '';
+    if (m.me && activeMode === 'dm') {
+      ticks = `<span class="bticks${m.read ? ' read' : ''}"><i class="fas fa-check${m.read ? '-double' : ''}"></i></span>`;
+    }
+    const quote = m.reply_to ? `
+        <div class="bquote">
+          <span class="bq-name">${escapeHtml(m.reply_to.username || 'User')}</span>
+          <span class="bq-text">${escapeHtml(m.reply_to.message || '')}</span>
+        </div>` : '';
+    const replyBtn = activeMode === 'group'
+      ? `<button class="reply-btn" onclick='startReply(${JSON.stringify(String(m.id))}, ${JSON.stringify(m.name || "User")}, ${JSON.stringify(m.text || "")}, ${JSON.stringify(String(m.user_id || ""))})' title="Balas"><i class="fas fa-reply"></i></button>`
+      : '';
+    return `
+    <div class="bubble-row ${m.me ? 'me' : ''}">
+      ${!m.me ? avatar : ''}
+      ${!m.me ? replyBtn : ''}
+      <div class="bubble">
+        ${!m.me && activeMode === 'group' ? `<span class="bname">${escapeHtml(m.name || 'User')}</span>` : ''}
+        ${quote}
+        ${escapeHtml(m.text || '')}
+        <div class="bfoot"><span class="btime">${formatTime(m.time)}</span>${ticks}</div>
+      </div>
+      ${m.me ? replyBtn : ''}
+      ${m.me && showAvatar ? avatar : ''}
+    </div>`;
+  }).join('');
+  if (wasAtBottom || msgs.length <= 2) el.scrollTop = el.scrollHeight;
+}
+
+function formatTime(ts) {
+  if (!ts) return '';
+  return new Date(ts).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function startReply(id, name, text, userId) {
+  replyingTo = { id, username: name, message: text, user_id: userId };
+  document.getElementById('replyStripName').textContent = name;
+  document.getElementById('replyStripText').textContent = text;
+  document.getElementById('replyStrip').classList.add('show');
+  document.getElementById('msgInput').focus();
+}
+
+function cancelReply() {
+  replyingTo = null;
+  const strip = document.getElementById('replyStrip');
+  if (strip) strip.classList.remove('show');
+}
+
+async function sendMessage() {
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+
+  try {
+    if (activeMode === 'cs') {
+      await axios.post('/api/chat/send', { user_id: currentUser.id, username: currentUser.username, message: text });
+    } else if (activeMode === 'group') {
+      const payload = { user_id: currentUser.id, username: currentUser.username, message: text };
+      if (replyingTo) payload.reply_to = replyingTo;
+      await axios.post('/api/group/send', payload);
+      cancelReply();
+    } else if (activeMode === 'dm') {
+      await axios.post('/api/dm/send', { from_id: currentUser.id, from_username: currentUser.username, to_id: activePartnerId, message: text });
+    }
+    input.value = '';
+    loadMessages();
+  } catch (e) {
+    const errMsg = e.response?.data?.error || 'Gagal mengirim pesan';
+    if (e.response?.status === 403) {
+      document.getElementById('bannedNotice').innerHTML = '<i class="fas fa-ban"></i> ' + errMsg;
+      document.getElementById('bannedNotice').style.display = 'block';
+      document.getElementById('inputBar').style.display = 'none';
+    } else {
+      alert(errMsg);
+    }
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── DM LIST (beranda) ──
+async function loadDmList() {
+  const el = document.getElementById('dmList');
+  try {
+    const r = await axios.get('/api/dm/list/' + currentUser.id);
+    const list = r.data.data;
+    if (!list.length) {
+      el.innerHTML = '<div class="empty-hint">Belum ada percakapan. Cari username di atas untuk mulai chat.</div>';
+      return;
+    }
+    el.innerHTML = list.map(c => {
+      const unread = !c.from_me && c.unread_count > 0;
+      const ticks = c.from_me
+        ? `<i class="fas fa-check${c.last_read ? '-double' : ''}" style="margin-right:4px;opacity:.6"></i>` : '';
+      return `
+      <div class="conv-row ${unread ? 'unread' : ''}" onclick="openConvo('dm', '${c.partner_id}', '@${escapeHtml(c.partner_username)}', ${c.partner_photo ? `'${c.partner_photo}'` : 'null'})">
+        <div class="conv-avatar">${avatarHtml(c.partner_photo, c.partner_username)}</div>
+        <div class="conv-body">
+          <div class="conv-top">
+            <div class="conv-name">@${escapeHtml(c.partner_username)}</div>
+            <div class="conv-time">${formatTime(c.last_timestamp)}</div>
+          </div>
+          <div class="conv-preview">${ticks}${c.from_me ? 'Anda: ' : ''}${escapeHtml(c.last_message)}</div>
+        </div>
+        ${unread ? `<div class="unread-badge">${c.unread_count}</div>` : ''}
+      </div>`;
+    }).join('');
+  } catch (e) {
+    el.innerHTML = '<div class="empty-hint">Gagal memuat percakapan</div>';
+  }
+}
+
+// ── SEARCH USER ──
+let searchDebounce = null;
+function onSearch() {
+  clearTimeout(searchDebounce);
+  const q = document.getElementById('searchInput').value.trim();
+  const resultsEl = document.getElementById('searchResults');
+  const mainListEl = document.getElementById('mainList');
+
+  if (!q) {
+    resultsEl.style.display = 'none';
+    mainListEl.style.display = 'block';
+    return;
+  }
+  searchDebounce = setTimeout(async () => {
+    try {
+      const r = await axios.get('/api/users/search', { params: { q, exclude: currentUser.id } });
+      const users = r.data.data;
+      mainListEl.style.display = 'none';
+      resultsEl.style.display = 'block';
+      if (!users.length) {
+        resultsEl.innerHTML = '<div class="hint">Tidak ada user ditemukan</div>';
+        return;
+      }
+      resultsEl.innerHTML = users.map(u => `
+        <div class="conv-row" onclick="startDm('${u.id}', '${escapeHtml(u.username)}', ${u.profile_photo ? `'${u.profile_photo}'` : 'null'})">
+          <div class="conv-avatar">${avatarHtml(u.profile_photo, u.username)}</div>
+          <div class="conv-body"><div class="conv-name">@${escapeHtml(u.username)}</div></div>
+        </div>
+      `).join('');
+    } catch (e) {}
+  }, 300);
+}
+
+function startDm(userId, username, photo) {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').style.display = 'none';
+  document.getElementById('mainList').style.display = 'block';
+  openConvo('dm', userId, '@' + username, photo);
+}
+
+// ── RINGKASAN CS & GRUP (beranda, kyk WA) ──
+async function loadChatSummary() {
+  try {
+    const r = await axios.get('/api/chat/summary/' + currentUser.id);
+    const { cs, group } = r.data;
+
+    if (cs) {
+      document.getElementById('csTime').textContent = formatTime(cs.last_timestamp);
+      document.getElementById('csPreview').textContent = (cs.from_owner ? 'Admin: ' : 'Anda: ') + (cs.last_message || '');
+      const badge = document.getElementById('csBadge');
+      const row = document.getElementById('csRow');
+      if (cs.unread_count > 0) {
+        badge.textContent = cs.unread_count > 99 ? '99+' : cs.unread_count;
+        badge.style.display = 'flex';
+        row.classList.add('unread');
+      } else {
+        badge.style.display = 'none';
+        row.classList.remove('unread');
+      }
+    }
+
+    if (group) {
+      document.getElementById('groupTime').textContent = formatTime(group.last_timestamp);
+      document.getElementById('groupPreview').textContent =
+        (group.last_from_me ? 'Anda: ' : escapeHtml(group.last_username || 'User') + ': ') + (group.last_message || '');
+      const badge = document.getElementById('groupBadge');
+      const row = document.getElementById('groupRow');
+      document.getElementById('groupMentionTag').style.display = group.mentioned ? 'inline-flex' : 'none';
+      if (group.unread_count > 0) {
+        badge.textContent = group.unread_count > 99 ? '99+' : group.unread_count;
+        badge.style.display = 'flex';
+        row.classList.add('unread');
+      } else {
+        badge.style.display = 'none';
+        row.classList.remove('unread');
+      }
+    }
+  } catch (e) { /* diamkan, coba lagi di polling berikutnya */ }
+}
+
+loadDmList();
+loadChatSummary();
+homePollTimer = setInterval(() => { loadDmList(); loadChatSummary(); }, 6000);
+</script>
+</body>
+</html>

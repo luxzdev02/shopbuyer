@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<script src="/theme.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>FNB NOKOS – Beli Nomor</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --g900: #1E3A8A;
+            --g800: #1E40AF;
+            --g700: #1D4ED8;
+            --g600: #2563EB;
+            --g500: #3B82F6;
+            --g400: #60A5FA;
+            --g300: #93C5FD;
+            --g100: #DBEAFE;
+            --g50:  #EFF6FF;
+            --surface: #ffffff;
+            --surface2: #f8fafc;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --muted: #6b7280;
+            --danger: #dc2626;
+            --danger-soft: #fef2f2;
+            --amber: #d97706;
+            --amber-soft: #fffbeb;
+        }
+        [data-theme="dark"] {
+            --g50:  #182234;
+            --g100: #1F2C42;
+            --g300: #2E3F5C;
+            --g900: #93C5FD;
+            --surface: #111827;
+            --surface2: #1a2332;
+            --border: #253044;
+            --text: #E6EDF3;
+            --muted: #94A3B8;
+            --danger-soft: #3B1418;
+            --amber-soft: #3A2A0D;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Sora', sans-serif; }
+
+        body { transition: background .3s, color .3s;
+            background: var(--g50);
+            color: var(--text);
+            padding-bottom: 90px;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
+            max-width: 720px;
+            margin: 0 auto;
+            position: relative;
+        }
+        @media (min-width:900px){
+            body{ box-shadow:0 0 50px rgba(0,0,0,.10); }
+            .bottom-nav{ max-width:720px; left:50%; transform:translateX(-50%); right:auto; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .navbar {
+            background: var(--header-bg, rgba(255,255,255,0.88));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky; top: 0; z-index: 200;
+        }
+        .logo {
+            font-weight: 800;
+            font-size: 17px;
+            letter-spacing: -0.8px;
+            color: var(--g900);
+        }
+        .logo span { color: var(--g600); }
+
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+
+        .balance-chip {
+            background: var(--g100);
+            border: 1px solid var(--g300);
+            color: var(--g700);
+            padding: 7px 13px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex; align-items: center; gap: 6px;
+            font-family: 'DM Mono', monospace;
+        }
+        .balance-chip i { font-size: 11px; }
+
+        .avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--g300);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .avatar:active { transform: scale(0.92); }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px 16px;
+            position: relative; z-index: 1;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+        }
+        .page-header h1 {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            color: var(--g900);
+            line-height: 1.2;
+        }
+        .page-header p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .steps {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 24px;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: var(--border);
+            z-index: 0;
+        }
+        .step.done:not(:last-child)::after { background: var(--g400); }
+
+        .step-dot {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            z-index: 1;
+            transition: all 0.3s;
+        }
+        .step.active .step-dot {
+            background: var(--g600);
+            border-color: var(--g600);
+            color: white;
+            box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.2);
+        }
+        .step.done .step-dot {
+            background: var(--g500);
+            border-color: var(--g500);
+            color: white;
+        }
+        .step-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--muted);
+            margin-top: 5px;
+            text-align: center;
+        }
+        .step.active .step-label { color: var(--g700); }
+        .step.done .step-label { color: var(--g600); }
+
+        .card {
+            background: var(--surface);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(5, 46, 22, 0.04);
+            margin-bottom: 14px;
+        }
+        .card-body { padding: 22px; }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--g800);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title i { color: var(--g500); font-size: 14px; }
+
+        #serverScreen { animation: fadeUp 0.35s ease; }
+
+        #orderScreen { animation: fadeUp 0.35s ease; }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--g700);
+            background: var(--g50);
+            border: 1px solid var(--g200, #bbf7d0);
+            border-radius: 100px;
+            padding: 8px 16px;
+            cursor: pointer;
+            margin-bottom: 18px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: var(--g100); }
+        .back-btn:active { transform: scale(0.97); }
+
+        .server-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--g900);
+            color: white;
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+        .server-badge i { font-size: 11px; color: var(--g400); }
+
+        .maint-alert {
+            background: var(--amber-soft);
+            border: 1.5px dashed #fbbf24;
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 16px;
+            animation: pulse-warn 2s ease infinite alternate;
+        }
+        @keyframes pulse-warn {
+            from { box-shadow: none; }
+            to { box-shadow: 0 0 16px rgba(251, 191, 36, 0.18); }
+        }
+        .maint-alert i { color: var(--amber); margin-top: 1px; flex-shrink: 0; }
+        .maint-alert p { font-size: 12.5px; font-weight: 600; color: #92400e; line-height: 1.5; }
+
+        .form-group { margin-bottom: 18px; }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--g800);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .form-label i { color: var(--g500); }
+
+        .input-wrap {
+            position: relative;
+        }
+        .input-wrap .prefix-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 12px;
+            pointer-events: none;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 14px 12px 36px;
+            border: 1.5px solid var(--border);
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            background: var(--g50);
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'Sora', sans-serif;
+            outline: none;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            border-color: var(--g400);
+            background: var(--surface);
+        }
+        .search-input::placeholder { color: #9ca3af; }
+
+        .select-wrap { position: relative; }
+        .select-wrap::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--muted);
+            font-size: 10px;
+        }
+        .form-select {
+            width: 100%;
+            padding: 13px 36px 13px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 0 0 12px 12px;
+            background: var(--surface);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Sora', sans-serif;
+            color: var(--text);
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-select:focus { border-color: var(--g400); }
+        .form-select:disabled { background: var(--g50); color: var(--muted); cursor: not-allowed; }
+
+        .provider-section { margin-bottom: 18px; }
+        .provider-scroll {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            background: var(--g50);
+            padding: 6px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--g300) transparent;
+        }
+
+        .provider-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 14px;
+            border-radius: 10px;
+            background: var(--surface);
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+        .provider-item:last-child { margin-bottom: 0; }
+        .provider-item:hover { border-color: var(--g300); background: var(--g50); }
+        .provider-item.selected {
+            background: var(--g50);
+            border-color: var(--g500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .provider-left { display: flex; align-items: center; gap: 10px; }
+        .provider-icon {
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            background: var(--g100);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--g600);
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .provider-item.selected .provider-icon {
+            background: var(--g600);
+            color: white;
+        }
+        .provider-name { font-size: 13px; font-weight: 700; color: var(--text); }
+        .provider-sub { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 1px; }
+
+        .provider-price {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--g700);
+            font-family: 'DM Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .check-icon {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: var(--g500);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 9px;
+            flex-shrink: 0;
+        }
+        .provider-item.selected .check-icon { display: flex; }
+
+        .loading-state {
+            text-align: center;
+            padding: 22px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .loading-state i { color: var(--g400); margin-bottom: 8px; font-size: 18px; display: block; }
+
+        .summary-card {
+            background: linear-gradient(135deg, var(--g900) 0%, var(--g800) 100%);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+        .summary-card.visible { display: block; }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .summary-label { font-size: 12px; color: rgba(255,255,255,0.55); font-weight: 500; }
+        .summary-value { font-size: 12px; color: rgba(255,255,255,0.9); font-weight: 700; text-align: right; max-width: 180px; }
+        .summary-total .summary-label { color: rgba(255,255,255,0.7); font-size: 13px; }
+        .summary-total .summary-value { color: var(--g400); font-size: 16px; font-family: 'DM Mono', monospace; font-weight: 800; }
+
+        .btn-order {
+            width: 100%;
+            padding: 17px;
+            background: var(--g600);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            font-family: 'Sora', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(22, 163, 74, 0.3);
+            letter-spacing: -0.2px;
+        }
+        .btn-order:hover:not(:disabled) {
+            background: var(--g700);
+            box-shadow: 0 6px 28px rgba(22, 163, 74, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-order:active:not(:disabled) { transform: scale(0.98); }
+        .btn-order:disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 20px;
+            z-index: 200;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: #9ca3af;
+            font-size: 10px;
+            font-weight: 700;
+            transition: color 0.2s;
+            min-width: 60px;
+        }
+        .nav-item i { font-size: 19px; transition: transform 0.2s; }
+        .nav-item.active { color: var(--g600); }
+        .nav-item.active i { transform: scale(1.1); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .fa-spin { animation: spin 0.8s linear infinite; }
+
+        .empty-state {
+            text-align: center;
+            padding: 28px 20px;
+            color: var(--muted);
+        }
+        .empty-state i { font-size: 28px; color: var(--g300); margin-bottom: 8px; display: block; }
+        .empty-state p { font-size: 13px; font-weight: 600; }
+        .empty-state small { font-size: 11px; color: #9ca3af; }
+
+        /* ===== PEMILIHAN SERVER ===== */
+        .server-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .server-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            text-align: left;
+        }
+        .server-card:hover { border-color: var(--g400); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(5,46,22,0.06); }
+        .server-card:active { transform: scale(0.98); }
+        .server-card.disabled { opacity: 0.55; cursor: not-allowed; }
+        .server-card.disabled:hover { transform: none; box-shadow: none; border-color: var(--border); }
+        .server-icon {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            background: var(--g100);
+            color: var(--g600);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .server-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .server-card-title { font-size: 14px; font-weight: 800; color: var(--text); }
+        .server-card-label { font-size: 11px; font-weight: 700; color: var(--g600); margin: 2px 0 6px; }
+        .server-card-desc { font-size: 11px; color: var(--muted); font-weight: 500; line-height: 1.4; }
+        .server-maint-badge {
+            position: absolute; top: 12px; right: 12px;
+            background: var(--danger-soft); color: var(--danger);
+            font-size: 9px; font-weight: 800; padding: 3px 8px;
+            border-radius: 100px; text-transform: uppercase;
+        }
+
+        /* ===== GRID LAYANAN (dengan ikon) ===== */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1.5px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            background: var(--surface);
+            scrollbar-width: thin;
+            scrollbar-color: var(--g300) transparent;
+        }
+        .service-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 4px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--g50);
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: center;
+        }
+        .service-item:hover { border-color: var(--g400); background: var(--surface); }
+        .service-item.selected {
+            border-color: var(--g500);
+            background: var(--surface);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+        .service-item img {
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: white;
+        }
+        .service-item span {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+        .country-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1.5px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            background: var(--surface);
+            scrollbar-width: thin;
+            scrollbar-color: var(--g300) transparent;
+        }
+        .country-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--g50);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .country-item:hover { border-color: var(--g400); background: var(--surface); }
+        .country-item.selected {
+            border-color: var(--g500);
+            background: var(--surface);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+        .country-item .flag { font-size: 17px; flex-shrink: 0; }
+        .country-item span {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    
+.terms-modal-overlay{display:none;position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.55);align-items:flex-end;justify-content:center;backdrop-filter:blur(2px);}
+.terms-modal-overlay.open{display:flex;}
+.terms-modal-box{background:var(--surface);width:100%;max-width:520px;max-height:82vh;border-radius:22px 22px 0 0;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(0,0,0,.25);}
+.terms-modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.terms-modal-head h3{font-size:15px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;}
+.terms-modal-head h3 i{color:var(--g600);}
+.terms-modal-close{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.terms-modal-body{padding:18px 20px 26px;overflow-y:auto;}
+.terms-section{margin-bottom:20px;}
+.terms-section:last-child{margin-bottom:0;}
+.terms-section h4{font-size:13.5px;font-weight:800;color:var(--text);margin-bottom:7px;}
+.terms-section p{font-size:12.5px;color:var(--muted);line-height:1.65;margin-bottom:7px;}
+.terms-section ul{margin:0 0 7px;padding-left:18px;}
+.terms-section li{font-size:12.5px;color:var(--muted);line-height:1.7;}
+</style>
+<link rel="stylesheet" href="/theme-vars.css?v=3">
+</head>
+<body>
+<script src="/premium-loader.js?v=3"></script>
+
+<nav class="navbar">
+    <div class="logo"><img src="https://files.catbox.moe/je2gz1.jpg" style="width:32px;height:32px;border-radius:9px;object-fit:cover;vertical-align:middle;margin-right:7px;" alt="Logo">DIGITAL<span>PEDIA</span></div>
+    <div class="nav-right">
+        <div class="balance-chip">
+            <i class="fas fa-leaf"></i>
+            <span id="userBalance">0</span>
+        </div>
+        <img src="https://files.catbox.moe/je2gz1.jpg" class="avatar" onclick="location.href='profile'">
+    </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Beli Nomor Virtual</h1>
+        <p>Pilih layanan, negara, dan operator favoritmu</p>
+        <a href="javascript:void(0)" onclick="openTermsModal()" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:11.5px;color:var(--muted);text-decoration:none;">
+            <i class="fas fa-scale-balanced"></i> Baca <span style="color:var(--g500);font-weight:700;text-decoration:underline;">Syarat &amp; Ketentuan</span> layanan
+        </a>
+
+  <!-- THEME PICKER -->
+  <div style="position:relative;display:inline-block" id="theme-wrap">
+    <button onclick="document.getElementById('theme-dd').classList.toggle('open')" style="width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border,#e2e8f0);background:var(--surface2,#f0f4f8);color:var(--muted,#64748b);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;" id="theme-icon-btn">
+      <i class="fas fa-circle-half-stroke" id="t-ico"></i>
+    </button>
+    <div id="theme-dd" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--surface,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:6px;box-shadow:0 12px 36px rgba(0,0,0,.15);min-width:150px;z-index:9999;animation:dropIn .2s ease;">
+      <div style="font-size:10px;font-weight:800;color:var(--muted,#64748b);padding:4px 8px 6px;text-transform:uppercase;letter-spacing:.06em">Tema</div>
+      <button onclick="setThemePage('dark')" data-t="dark" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:8px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--text,#0f172a);font-family:inherit;">🌙 Mode Gelap <i class="fas fa-check t-chk" style="margin-left:auto;opacity:0;color:#3B82F6"></i></button>
+      <button onclick="setThemePage('light')" data-t="light" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:8px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--text,#0f172a);font-family:inherit;">☀️ Mode Terang <i class="fas fa-check t-chk" style="margin-left:auto;opacity:0;color:#3B82F6"></i></button>
+    </div>
+  </div>
+  <style>
+  @keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+  <script>
+  function setThemePage(t){ window.DP_THEME.set(t); updateThemePageUI(); document.getElementById('theme-dd').classList.remove('open'); }
+  function updateThemePageUI(){ var t=window.DP_THEME.get(); document.getElementById('t-ico').className=t==='dark'?'fas fa-moon':'fas fa-sun'; document.querySelectorAll('[data-t]').forEach(function(el){ var chk=el.querySelector('.t-chk'); if(chk) chk.style.opacity=el.dataset.t===t?'1':'0'; }); }
+  document.addEventListener('click',function(e){ if(!e.target.closest('#theme-wrap')) document.getElementById('theme-dd')?.classList.remove('open'); });
+  updateThemePageUI();
+  </script></div>
+
+    <div class="steps">
+        <div class="step active" id="step1"><div class="step-dot">1</div><div class="step-label">Server</div></div>
+        <div class="step" id="step2"><div class="step-dot">2</div><div class="step-label">Layanan</div></div>
+        <div class="step" id="step3"><div class="step-dot">3</div><div class="step-label">Negara</div></div>
+        <div class="step" id="step4"><div class="step-dot">4</div><div class="step-label">Order</div></div>
+    </div>
+
+    <!-- SERVER SELECTION SCREEN -->
+    <div id="serverScreen">
+        <div class="card">
+            <div class="card-body">
+                <div class="section-title"><i class="fas fa-server"></i> Pilih Server</div>
+                <div class="server-grid" id="serverGrid">
+                    <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Memuat server...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="orderScreen" style="display:none;">
+        <div class="back-btn" id="backToServerBtn"><i class="fas fa-arrow-left"></i> Ganti Server</div>
+
+        <div class="server-badge" id="serverBadge">
+            <i class="fas fa-server"></i> <span id="serverBadgeText">Server</span>
+        </div>
+
+        <div class="maint-alert" id="maintAlert" style="display:none;">
+            <i class="fas fa-triangle-exclamation"></i>
+            <p>Server sedang dalam <strong>pemeliharaan (maintenance)</strong>. Silakan coba lagi nanti.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="section-title"><i class="fas fa-mobile-screen-button"></i> Layanan Aplikasi</div>
+                <div class="form-group">
+                    <div class="input-wrap"><i class="fas fa-search prefix-icon"></i><input type="text" id="serviceSearch" class="search-input" placeholder="Cari aplikasi…" oninput="filterServiceGrid(this.value)"></div>
+                    <div id="serviceGrid" class="service-grid"></div>
+                    <div id="loadingService" class="loading-state" style="display:none;"><i class="fas fa-spinner fa-spin"></i> Memuat layanan...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="countryCard" style="display:none;">
+            <div class="card-body">
+                <div class="section-title"><i class="fas fa-globe"></i> Negara Asal Nomor</div>
+                <div class="form-group">
+                    <div class="input-wrap"><i class="fas fa-search prefix-icon"></i><input type="text" id="countrySearch" class="search-input" placeholder="Cari negara…" oninput="filterCountryGrid(this.value)"></div>
+                    <div id="countryGrid" class="country-grid"></div>
+                    <div id="loadingCountry" class="loading-state" style="display:none;"><i class="fas fa-spinner fa-spin"></i> Memuat negara...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="providerCard" style="display:none;">
+            <div class="card-body">
+                <div class="section-title"><i class="fas fa-tags"></i> Provider & Harga</div>
+                <div class="provider-section"><div class="provider-scroll" id="providerList"><div class="loading-state"><i class="fas fa-circle-dot"></i> Pilih negara terlebih dahulu</div></div></div>
+            </div>
+        </div>
+
+        <div class="summary-card" id="summaryCard">
+            <div class="summary-row"><span class="summary-label">Layanan</span><span class="summary-value" id="sumService">—</span></div>
+            <div class="summary-row"><span class="summary-label">Negara</span><span class="summary-value" id="sumCountry">—</span></div>
+            <div class="summary-row"><span class="summary-label">Provider</span><span class="summary-value" id="sumProvider">—</span></div>
+            <div class="summary-row summary-total"><span class="summary-label">Total Bayar</span><span class="summary-value" id="sumPrice">—</span></div>
+        </div>
+
+        <button class="btn-order" id="orderBtn" disabled><i class="fas fa-bolt"></i> Beli Nomor Sekarang</button>
+        <div style="text-align:center;margin-top:10px;">
+            <a href="javascript:void(0)" onclick="openTermsModal()" style="font-size:11.5px;color:var(--muted);text-decoration:none;">
+                <i class="fas fa-scale-balanced"></i> Dengan memesan, kamu setuju dengan <span style="color:var(--g500);font-weight:700;text-decoration:underline;">Syarat &amp; Ketentuan</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="dashboard" class="nav-item"><i class="fas fa-house"></i>Home</a>
+    <a href="nokos" class="nav-item active"><i class="fas fa-phone-volume"></i>Order</a>
+    <a href="riwayat" class="nav-item"><i class="fas fa-clock-rotate-left"></i>Riwayat</a>
+    <a href="profile" class="nav-item"><i class="fas fa-circle-user"></i>Profil</a>
+</nav>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let currentUser = null;
+let selectedServer = null;
+let selectedServerInfo = null;
+let selectedService = null;
+let selectedCountry = null;
+let selectedProvider = null;
+let allServices = [];
+
+// ============================================================
+// INIT
+// ============================================================
+window.onload = async () => {
+    await loadUser();
+    await loadServerScreen();
+};
+
+async function loadUser() {
+    const raw = localStorage.getItem('user');
+    if (!raw) { window.location.href = 'login'; return; }
+    currentUser = JSON.parse(raw);
+    document.getElementById('userBalance').textContent = 'Rp ' + currentUser.balance.toLocaleString('id-ID');
+}
+
+function setStep(active) {
+    for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById('step' + i);
+        el.classList.remove('active', 'done');
+        if (i < active) el.classList.add('done');
+        if (i === active) el.classList.add('active');
+    }
+}
+
+// ============================================================
+// LANGKAH 1 — PILIH SERVER (DENGAN GAMBAR LOGO)
+// ============================================================
+async function loadServerScreen() {
+    setStep(1);
+    document.getElementById('serverScreen').style.display = 'block';
+    document.getElementById('orderScreen').style.display = 'none';
+    const grid = document.getElementById('serverGrid');
+    grid.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Memuat server...</div>';
+    
+    try {
+        const res = await axios.get('/api/nokos/servers');
+        let servers = res.data.data || [];
+        
+        // Jika API kosong atau error, gunakan mock data dengan gambar logo
+        if (servers.length === 0) {
+            servers = [
+                { 
+                    key: 'server1', 
+                    name: 'Server 1', 
+                    label: 'otp tercepat',
+                    desc: 'Kualitas premium, banyak operator',
+                    icon: 'https://files.catbox.moe/tsvbs5.jpg',
+                    maintenance: false 
+                },
+                { 
+                    key: 'server2', 
+                    name: 'Server 2', 
+                    label: 'OTP murah',
+                    desc: 'Proses tercepat & paling hemat',
+                    icon: 'https://files.catbox.moe/slx93y.jpg',
+                    maintenance: false 
+                }
+            ];
+        }
+        
+        grid.innerHTML = servers.map(s => `
+            <div class="server-card ${s.maintenance ? 'disabled' : ''}" data-key="${s.key}">
+                ${s.maintenance ? '<div class="server-maint-badge">Maintenance</div>' : ''}
+                <div class="server-icon">
+                    ${s.icon && s.icon.startsWith('http') 
+                        ? `<img src="${s.icon}" alt="${s.name}">` 
+                        : `<i class="fas ${s.icon || 'fa-server'}"></i>`
+                    }
+                </div>
+                <div class="server-card-title">${s.name}</div>
+                <div class="server-card-label">${s.label || ''}</div>
+                <div class="server-card-desc">${s.desc || ''}</div>
+            </div>
+        `).join('');
+        
+        grid.querySelectorAll('.server-card').forEach(el => {
+            el.addEventListener('click', () => {
+                if (el.classList.contains('disabled')) {
+                    alert('Server ini sedang maintenance. Silakan pilih server lain.');
+                    return;
+                }
+                const info = servers.find(s => s.key === el.dataset.key);
+                selectServer(info);
+            });
+        });
+    } catch(e) {
+        console.error('Error loading servers:', e);
+        // Fallback mock data jika API error
+        const fallbackServers = [
+            { key: 'server1', name: 'Server 1', label: 'otp tercepat', desc: 'Kualitas premium, banyak operator', icon: 'https://files.catbox.moe/tsvbs5.jpg', maintenance: false },
+            { key: 'server2', name: 'Server 2', label: 'OTP murah', desc: 'Proses tercepat & paling hemat', icon: 'https://files.catbox.moe/slx93y.jpg', maintenance: false }
+        ];
+        grid.innerHTML = fallbackServers.map(s => `
+            <div class="server-card" data-key="${s.key}">
+                <div class="server-icon">
+                    <img src="${s.icon}" alt="${s.name}">
+                </div>
+                <div class="server-card-title">${s.name}</div>
+                <div class="server-card-label">${s.label}</div>
+                <div class="server-card-desc">${s.desc}</div>
+            </div>
+        `).join('');
+        grid.querySelectorAll('.server-card').forEach(el => {
+            el.addEventListener('click', () => {
+                const info = fallbackServers.find(s => s.key === el.dataset.key);
+                selectServer(info);
+            });
+        });
+    }
+}
+
+function selectServer(info) {
+    selectedServer = info.key;
+    selectedServerInfo = info;
+    selectedService = null;
+    selectedCountry = null;
+    selectedProvider = null;
+
+    document.getElementById('serverScreen').style.display = 'none';
+    document.getElementById('orderScreen').style.display = 'block';
+    document.getElementById('serverBadgeText').textContent = `${info.name} (${info.label || ''})`;
+    document.getElementById('maintAlert').style.display = 'none';
+    document.getElementById('countryCard').style.display = 'none';
+    document.getElementById('providerCard').style.display = 'none';
+    document.getElementById('summaryCard').classList.remove('visible');
+    document.getElementById('orderBtn').disabled = true;
+    document.getElementById('orderBtn').innerHTML = '<i class="fas fa-bolt"></i> Beli Nomor Sekarang';
+
+    setStep(2);
+    loadServices();
+}
+
+document.getElementById('backToServerBtn').onclick = () => {
+    loadServerScreen();
+};
+
+// ============================================================
+// LANGKAH 2 — PILIH LAYANAN (dengan ikon)
+// ============================================================
+async function loadServices() {
+    const grid = document.getElementById('serviceGrid');
+    const loader = document.getElementById('loadingService');
+    loader.style.display = 'block';
+    grid.innerHTML = '';
+    try {
+        const res = await axios.get(`/api/nokos/services?server=${selectedServer}`);
+        allServices = res.data.data || [];
+        renderServiceGrid(allServices);
+    } catch(e) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-circle-exclamation"></i><p>Gagal memuat layanan</p><small>${e.message}</small></div>`;
+    } finally {
+        loader.style.display = 'none';
+    }
+}
+
+function renderServiceGrid(services) {
+    const grid = document.getElementById('serviceGrid');
+    if (!services.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-ban"></i><p>Tidak ada hasil</p></div>`;
+        return;
+    }
+    grid.innerHTML = services.map(s => `
+        <div class="service-item ${selectedService && String(selectedService.id) === String(s.id) ? 'selected' : ''}" data-id="${s.id}" data-name="${(s.name||'').replace(/"/g,'&quot;')}">
+            <img src="${s.img || ''}" alt="${s.name}" onerror="this.src='https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(s.name||'?')}&backgroundColor=3b82f6&fontFamily=Arial'">
+            <span>${s.name}</span>
+        </div>
+    `).join('');
+    grid.querySelectorAll('.service-item').forEach(el => {
+        el.addEventListener('click', () => selectService(el.dataset.id, el.dataset.name));
+    });
+}
+
+function filterServiceGrid(term) {
+    const t = term.toLowerCase();
+    renderServiceGrid(allServices.filter(s => (s.name || '').toLowerCase().includes(t)));
+}
+
+function selectService(id, name) {
+    selectedService = { id, name };
+    selectedCountry = null;
+    selectedProvider = null;
+    document.querySelectorAll('#serviceGrid .service-item').forEach(i => i.classList.remove('selected'));
+    const target = document.querySelector(`#serviceGrid .service-item[data-id="${id}"]`);
+    if (target) target.classList.add('selected');
+    document.getElementById('providerCard').style.display = 'none';
+    document.getElementById('summaryCard').classList.remove('visible');
+    document.getElementById('orderBtn').disabled = true;
+    setStep(3);
+    loadCountries();
+}
+
+// ============================================================
+// LANGKAH 3 — PILIH NEGARA
+// ============================================================
+let allCountries = [];
+
+async function loadCountries() {
+    const grid = document.getElementById('countryGrid');
+    const loader = document.getElementById('loadingCountry');
+    document.getElementById('countryCard').style.display = 'block';
+    document.getElementById('providerCard').style.display = 'none';
+    loader.style.display = 'block';
+    grid.innerHTML = '';
+    document.getElementById('countrySearch').value = '';
+    try {
+        const res = await axios.get(`/api/nokos/countries?server=${selectedServer}&service_id=${selectedService.id}`);
+        allCountries = res.data.data || [];
+        renderCountryGrid(allCountries);
+    } catch(e) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-circle-exclamation"></i><p>Gagal memuat negara</p><small>${e.message}</small></div>`;
+    } finally {
+        loader.style.display = 'none';
+    }
+}
+
+function renderCountryGrid(countries) {
+    const grid = document.getElementById('countryGrid');
+    if (!countries.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-ban"></i><p>Tidak ada hasil</p></div>`;
+        return;
+    }
+    grid.innerHTML = countries.map(c => `
+        <div class="country-item ${selectedCountry && String(selectedCountry.id) === String(c.number_id) ? 'selected' : ''}" data-id="${c.number_id}" data-name="${(c.name||'').replace(/"/g,'&quot;')}">
+            <span class="flag">${c.emoji || '🌍'}</span>
+            <span>${c.name}</span>
+        </div>
+    `).join('');
+    grid.querySelectorAll('.country-item').forEach(el => {
+        el.addEventListener('click', () => selectCountry(el.dataset.id, el.dataset.name));
+    });
+}
+
+function filterCountryGrid(term) {
+    const t = term.toLowerCase();
+    renderCountryGrid(allCountries.filter(c => (c.name || '').toLowerCase().includes(t)));
+}
+
+async function selectCountry(id, name) {
+    selectedCountry = { id, name };
+    selectedProvider = null;
+    document.querySelectorAll('#countryGrid .country-item').forEach(i => i.classList.remove('selected'));
+    const target = document.querySelector(`#countryGrid .country-item[data-id="${id}"]`);
+    if (target) target.classList.add('selected');
+    document.getElementById('orderBtn').disabled = true;
+    document.getElementById('summaryCard').classList.remove('visible');
+    setStep(4);
+    await loadProviders();
+}
+
+// ============================================================
+// LANGKAH 4 — PILIH PROVIDER / OPERATOR & HARGA
+// ============================================================
+async function loadProviders() {
+    const container = document.getElementById('providerList');
+    document.getElementById('providerCard').style.display = 'block';
+    container.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Memuat provider...</div>';
+    try {
+        const url = `/api/nokos/numbers?server=${selectedServer}&country_id=${selectedCountry.id}&service_code=${selectedService.id}`;
+        const res = await axios.get(url);
+        let items = res.data.data || [];
+        if (!items.length) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-ban"></i><p>Tidak ada provider tersedia</p><small>Coba negara lain</small></div>`;
+            return;
+        }
+        items.sort((a,b) => (a.price || 0) - (b.price || 0));
+        container.innerHTML = items.map(item => {
+            const finalPrice = (item.price_with_markup !== undefined) ? item.price_with_markup : (item.price + 1000);
+            const label = item.label || ('Provider ' + (item.provider_id || ''));
+            const sub = (item.available !== undefined && item.available !== null) ? `Stok: ${item.available}` : 'Provider';
+            return `<div class="provider-item"
+                        data-provider-id="${item.provider_id || ''}"
+                        data-operator-id="${item.operator_id || ''}"
+                        data-price-original="${item.price}"
+                        data-price="${finalPrice}"
+                        data-label="${label.replace(/"/g, '&quot;')}">
+                        <div class="provider-left"><div class="provider-icon"><i class="fas fa-tower-cell"></i></div>
+                        <div><div class="provider-name">${label}</div><div class="provider-sub">${sub}</div></div></div>
+                        <div style="display:flex;align-items:center;gap:8px;"><div class="provider-price">Rp ${finalPrice.toLocaleString('id-ID')}</div><div class="check-icon"><i class="fas fa-check"></i></div></div>
+                    </div>`;
+        }).join('');
+        container.querySelectorAll('.provider-item').forEach(el => {
+            el.addEventListener('click', () => {
+                container.querySelectorAll('.provider-item').forEach(i => i.classList.remove('selected'));
+                el.classList.add('selected');
+                selectedProvider = {
+                    provider_id: el.dataset.providerId,
+                    operator_id: el.dataset.operatorId,
+                    label: el.dataset.label,
+                    price_original: parseInt(el.dataset.priceOriginal),
+                    price: parseInt(el.dataset.price)
+                };
+                document.getElementById('sumService').textContent = selectedService.name;
+                document.getElementById('sumCountry').textContent = selectedCountry.name;
+                document.getElementById('sumProvider').textContent = selectedProvider.label;
+                document.getElementById('sumPrice').textContent = 'Rp ' + selectedProvider.price.toLocaleString('id-ID');
+                document.getElementById('summaryCard').classList.add('visible');
+                document.getElementById('orderBtn').disabled = false;
+            });
+        });
+    } catch(e) {
+        container.innerHTML = `<div class="empty-state"><i class="fas fa-circle-exclamation"></i><p>Gagal memuat daftar</p><small>${e.message}</small></div>`;
+    }
+}
+
+// ============================================================
+// ORDER
+// ============================================================
+document.getElementById('orderBtn').onclick = async () => {
+    if (!selectedServer || !selectedService || !selectedCountry || !selectedProvider) {
+        alert('Lengkapi semua pilihan!');
+        return;
+    }
+    if (currentUser.balance < selectedProvider.price) {
+        alert(`Saldo tidak cukup!\nButuh: Rp ${selectedProvider.price.toLocaleString('id-ID')}\nSaldo: Rp ${currentUser.balance.toLocaleString('id-ID')}`);
+        return;
+    }
+    const btn = document.getElementById('orderBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+    try {
+        const maint = await axios.get('/api/maintenance/status');
+        if (maint.data && maint.data[selectedServer]) {
+            document.getElementById('maintAlert').style.display = 'flex';
+            alert('Server sedang maintenance. Silakan pilih server lain.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-bolt"></i> Beli Nomor Sekarang';
+            return;
+        }
+        const payload = {
+            user_id: currentUser.id,
+            server: selectedServer,
+            service_code: selectedService.id,
+            service_name: selectedService.name,
+            country_id: selectedCountry.id,
+            country_name: selectedCountry.name,
+            provider_id: selectedProvider.provider_id,
+            operator_id: selectedProvider.operator_id || null,
+            price_original: selectedProvider.price_original
+        };
+        const res = await axios.post('/api/nokos/order', payload);
+        if (res.data.success) {
+            alert('✅ Order Berhasil! Nomor akan tersedia di Riwayat.');
+            window.location.href = 'riwayat';
+        } else {
+            alert('❌ Gagal: ' + (res.data.error || 'Unknown error'));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-bolt"></i> Beli Nomor Sekarang';
+        }
+    } catch(e) {
+        alert('❌ Error: ' + (e.response?.data?.error || e.message));
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-bolt"></i> Beli Nomor Sekarang';
+    }
+};
+
+function filterSelect(selectEl, term) {
+    const t = term.toLowerCase();
+    Array.from(selectEl.options).forEach(opt => {
+        if (!opt.value) return;
+        opt.style.display = opt.text.toLowerCase().includes(t) ? '' : 'none';
+    });
+}
+</script>
+<script src="/auth-guard.js"></script>
+<script>
+function openTermsModal(){ document.getElementById('termsModalOverlay').classList.add('open'); }
+function closeTermsModal(){ document.getElementById('termsModalOverlay').classList.remove('open'); }
+</script>
+
+<div class="terms-modal-overlay" id="termsModalOverlay" onclick="if(event.target===this) closeTermsModal()">
+  <div class="terms-modal-box">
+    <div class="terms-modal-head">
+      <h3><i class="fas fa-scale-balanced"></i> Syarat &amp; Ketentuan</h3>
+      <button class="terms-modal-close" onclick="closeTermsModal()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="terms-modal-body">
+<div class="terms-section">
+        <h4>1. Tentang Layanan</h4>
+        <p>FNB NOKOS OTP menyediakan layanan penyewaan nomor virtual untuk menerima kode verifikasi (OTP) dari berbagai aplikasi yang didukung. Kami hanya bertindak sebagai penyedia nomor virtual dan tidak memiliki hubungan dengan aplikasi pihak ketiga.</p>
+      </div>
+
+      <div class="terms-section">
+        <h4>2. Ketentuan Akun</h4>
+        <ul>
+          <li>Setiap pengguna wajib mendaftar akun.</li>
+          <li>Pengguna bertanggung jawab atas keamanan akun dan password.</li>
+          <li>Dilarang membagikan API Key kepada pihak lain.</li>
+          <li>Aktivitas yang dilakukan menggunakan akun menjadi tanggung jawab pemilik akun.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>3. Saldo &amp; Deposit</h4>
+        <ul>
+          <li>Deposit yang telah berhasil masuk tidak dapat dikembalikan (Non Refundable).</li>
+          <li>Pastikan nominal deposit sesuai.</li>
+          <li>Kesalahan transfer akibat kelalaian pengguna bukan tanggung jawab FNB NOKOS OTP.</li>
+          <li>Deposit otomatis akan diproses apabila pembayaran berhasil terverifikasi.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>4. Pemesanan Nomor</h4>
+        <ul>
+          <li>Nomor hanya berlaku untuk satu transaksi sesuai layanan yang dipilih.</li>
+          <li>Masa aktif nomor mengikuti timer pada website.</li>
+          <li>Nomor yang telah dibeli tidak dapat diganti kecuali sistem gagal memberikan layanan.</li>
+          <li>Harga layanan dapat berubah sewaktu-waktu.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>5. Refund</h4>
+        <p>Refund hanya diberikan apabila:</p>
+        <ul>
+          <li>Nomor gagal menerima OTP.</li>
+          <li>Nomor dibatalkan oleh sistem.</li>
+          <li>Provider mengalami gangguan sebelum OTP diterima.</li>
+        </ul>
+        <p>Refund tidak berlaku apabila:</p>
+        <ul>
+          <li>Pengguna salah memilih negara/operator.</li>
+          <li>Pengguna membatalkan pesanan sendiri.</li>
+          <li>OTP sudah berhasil diterima.</li>
+          <li>Akun tujuan meminta verifikasi tambahan selain SMS.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>6. Penggunaan API</h4>
+        <ul>
+          <li>API hanya boleh digunakan untuk kebutuhan yang sah.</li>
+          <li>Dilarang melakukan spam request.</li>
+          <li>Dilarang menyebarkan API Key.</li>
+          <li>Gunakan fitur Whitelist IP agar API lebih aman.</li>
+          <li>Penyalahgunaan API dapat menyebabkan API dinonaktifkan.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>7. Larangan</h4>
+        <p>Pengguna dilarang menggunakan layanan untuk:</p>
+        <ul>
+          <li>Penipuan.</li>
+          <li>Spam.</li>
+          <li>Aktivitas ilegal.</li>
+          <li>Penyalahgunaan identitas.</li>
+          <li>Pelanggaran hukum yang berlaku.</li>
+        </ul>
+        <p>Pelanggaran dapat mengakibatkan akun diblokir permanen tanpa pengembalian saldo.</p>
+      </div>
+
+      <div class="terms-section">
+        <h4>8. Ketersediaan Layanan</h4>
+        <p>FNB NOKOS OTP berusaha menjaga uptime setinggi mungkin, namun tidak menjamin:</p>
+        <ul>
+          <li>Semua layanan selalu tersedia.</li>
+          <li>Semua aplikasi selalu menerima nomor virtual.</li>
+          <li>Semua OTP pasti masuk tepat waktu.</li>
+        </ul>
+        <p>Gangguan provider berada di luar kendali kami.</p>
+      </div>
+
+      <div class="terms-section">
+        <h4>9. API Rate Limit</h4>
+        <p>Untuk menjaga stabilitas server:</p>
+        <ul>
+          <li>Request berlebihan dapat dibatasi.</li>
+          <li>Aktivitas mencurigakan akan diblokir sementara.</li>
+          <li>Abuse API dapat menyebabkan suspend akun.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>10. Keamanan</h4>
+        <p>Disarankan:</p>
+        <ul>
+          <li>Aktifkan Whitelist IP.</li>
+          <li>Hubungkan akun Telegram agar mendapat notifikasi transaksi.</li>
+          <li>Jangan membagikan password maupun API Key.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>11. Perubahan Harga</h4>
+        <p>Harga layanan dapat berubah sewaktu-waktu mengikuti harga dari provider tanpa pemberitahuan sebelumnya.</p>
+      </div>
+
+      <div class="terms-section">
+        <h4>12. Perubahan Ketentuan</h4>
+        <p>FNB NOKOS OTP berhak mengubah syarat layanan kapan saja. Perubahan akan berlaku setelah dipublikasikan pada website.</p>
+      </div>
+
+      <div class="terms-section">
+        <h4>13. Bantuan</h4>
+        <p>Apabila mengalami kendala:</p>
+        <ul>
+          <li>Hubungi Customer Service melalui Telegram.</li>
+          <li>Sertakan ID Pesanan agar proses pengecekan lebih cepat.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h4>14. Disclaimer</h4>
+        <p>Dengan menggunakan FNB NOKOS OTP, pengguna dianggap telah membaca, memahami, dan menyetujui seluruh syarat dan ketentuan yang berlaku. FNB NOKOS OTP tidak bertanggung jawab atas penyalahgunaan layanan oleh pengguna maupun pelanggaran terhadap ketentuan platform pihak ketiga.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

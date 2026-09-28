@@ -1,0 +1,693 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #f0f7f0;
+    padding-bottom: 80px;
+}
+
+/* ========== HALAMAN LOGIN ========== */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #1e3c1e, #2e7d32);
+}
+
+.login-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 300px;
+}
+
+.logo-login {
+    width: 100px;
+    margin-bottom: 1rem;
+    border-radius: 50%;
+}
+
+.login-container input,
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.login-container button {
+    background: #2e7d32;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* ========== DASHBOARD LAYOUT ========== */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background: #1b5e20;
+    color: white;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar .logo {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.sidebar .logo img {
+    width: 80px;
+    border-radius: 50%;
+    background: white;
+    padding: 5px;
+}
+
+.sidebar nav a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 12px;
+    margin: 5px 0;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background: #2e7d32;
+}
+
+.user-info {
+    margin-top: auto;
+    padding: 1rem;
+    background: #0d3b0f;
+    border-radius: 10px;
+}
+
+.content {
+    flex: 1;
+    padding: 2rem;
+    background: #f9fff9;
+}
+
+/* ========== PAGE ACTIVE ========== */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+/* ========== CARD & FORM ========== */
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+select,
+input,
+textarea,
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background: #2e7d32;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #1b5e20;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+.success {
+    color: green;
+    margin-top: 10px;
+}
+
+.stats {
+    display: flex;
+    gap: 1rem;
+}
+
+/* ========== HEADER PREMIUM DASHBOARD ========== */
+.header-premium {
+    background: linear-gradient(135deg, #0f3b1a 0%, #1b6b2f 100%);
+    padding: 20px;
+    border-radius: 0 0 30px 30px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.greeting-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.user-greeting h4 {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.user-greeting h2 {
+    font-size: 22px;
+    margin-top: 5px;
+}
+
+.balance-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 15px;
+}
+
+.balance-amount {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.stats-mini {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.stat-mini-item {
+    flex: 1;
+}
+
+.stat-mini-label {
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+.stat-mini-value {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* ========== ACTION BUTTONS ========== */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    padding: 0 20px;
+    margin-bottom: 25px;
+}
+
+.btn-action {
+    flex: 1;
+    background: white;
+    border: none;
+    padding: 12px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+}
+
+.btn-action:first-child {
+    background: #2e7d32;
+    color: white;
+}
+
+.btn-action:last-child {
+    background: white;
+    color: #2e7d32;
+    border: 1px solid #2e7d32;
+}
+
+.btn-action:active {
+    transform: scale(0.97);
+}
+
+/* ========== BANNER SCROLL ========== */
+.banner-scroll {
+    padding: 0 20px;
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    margin-bottom: 25px;
+    scrollbar-width: thin;
+}
+
+.banner-card {
+    min-width: 120px;
+    background: white;
+    border-radius: 20px;
+    padding: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eef2ee;
+}
+
+.banner-icon {
+    font-size: 28px;
+    margin-bottom: 6px;
+}
+
+.banner-title {
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.banner-desc {
+    font-size: 10px;
+    color: #2e7d32;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* ========== SECTION HEADER ========== */
+.section-header {
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 15px;
+}
+
+.section-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a2e1a;
+}
+
+/* ========== SERVICE GRID ========== */
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    padding: 0 20px;
+    margin-bottom: 30px;
+}
+
+.service-card {
+    background: white;
+    border-radius: 20px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #eef2ee;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.service-card.active {
+    border-color: #2e7d32;
+    background: #f0fff0;
+    transform: translateY(-2px);
+}
+
+.service-icon {
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+.service-name {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.service-status {
+    font-size: 9px;
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.service-status.inactive {
+    color: #aaa;
+}
+
+/* ========== BOTTOM NAVIGATION ========== */
+.bottom-navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 20px 20px;
+    border-top: 1px solid #e8ece8;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04);
+    z-index: 100;
+}
+
+.nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: all 0.2s;
+}
+
+.nav-link.active {
+    opacity: 1;
+    color: #2e7d32;
+}
+
+.nav-link i {
+    font-size: 22px;
+}
+
+.nav-link span {
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* ========== FORM CARD ========== */
+.form-card {
+    background: white;
+    border-radius: 28px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid #eef2ee;
+}
+
+/* ========== BUTTON PRIMARY & SECONDARY ========== */
+.btn-primary {
+    background: linear-gradient(135deg, #1b6b2f, #2e8b3e);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 60px;
+    font-weight: 700;
+    font-size: 16px;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+}
+
+.btn-primary:active {
+    transform: scale(0.97);
+}
+
+.btn-secondary {
+    background: #eef2ee;
+    color: #1a2e1a;
+    border: none;
+    padding: 12px;
+    border-radius: 60px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+/* ========== TOMBOL CEK STATUS (HIJAU) ========== */
+.btn-check {
+    flex: 1;
+    background: linear-gradient(135deg, #1b6b2f, #2e8b3e);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(27, 107, 47, 0.3);
+}
+
+.btn-check:hover {
+    background: linear-gradient(135deg, #2e8b3e, #3ca55c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(27, 107, 47, 0.4);
+}
+
+/* ========== TOMBOL BATALKAN (MERAH) ========== */
+.btn-cancel {
+    flex: 1;
+    background: linear-gradient(135deg, #c62828, #ef5350);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(198, 40, 40, 0.3);
+}
+
+.btn-cancel:hover {
+    background: linear-gradient(135deg, #ef5350, #ff6b6b);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(198, 40, 40, 0.4);
+}
+
+/* ========== DEPOSIT CARD ========== */
+.deposit-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f7f5 100%);
+    border-radius: 24px;
+    padding: 20px;
+    margin-top: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(27, 107, 47, 0.1);
+}
+
+.deposit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px dashed #e0e8e0;
+}
+
+.deposit-id {
+    font-family: monospace;
+    font-size: 12px;
+    background: #f0f4f0;
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: #1b6b2f;
+}
+
+.deposit-amount {
+    font-size: 28px;
+    font-weight: bold;
+    color: #1b6b2f;
+    margin: 16px 0;
+}
+
+.deposit-fee {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 16px;
+}
+
+.qr-wrapper {
+    background: white;
+    padding: 16px;
+    border-radius: 20px;
+    text-align: center;
+    margin: 16px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.qr-image {
+    max-width: 200px;
+    margin: 0 auto;
+    display: block;
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* ========== QUICK NOMINAL ========== */
+.quick-nominal {
+    transition: all 0.2s ease;
+    width: auto !important;
+    display: inline-block !important;
+}
+
+.quick-nominal:hover {
+    background: #1b6b2f !important;
+    color: white !important;
+    border-color: #1b6b2f !important;
+    transform: translateY(-2px);
+}
+
+/* ========== RESULT BOX ========== */
+.result-box {
+    background: #e8f5e9;
+    border-radius: 16px;
+    padding: 14px;
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+/* ========== TRANSACTION ITEM ========== */
+.transaction-item {
+    background: white;
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #eef2ee;
+    transition: all 0.2s;
+}
+
+.transaction-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ========== CHAT CONTAINER ========== */
+.chat-container {
+    background: white;
+    border-radius: 28px;
+    padding: 16px;
+    height: 380px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    border: 1px solid #eef2ee;
+}
+
+.message-bubble {
+    max-width: 85%;
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.message-user {
+    background: #e8f5e9;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+}
+
+.message-admin {
+    background: #f0f2f0;
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+}
+
+/* ========== LOGOUT FAB ========== */
+.logout-fab {
+    position: fixed;
+    bottom: 90px;
+    right: 16px;
+    background: #ff4444;
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 200;
+    font-size: 20px;
+}
+
+.logout-fab:active {
+    transform: scale(0.95);
+}
+
+/* ========== COMING SOON ========== */
+.coming-soon {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+    
+    .service-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        display: none;
+    }
+    
+    .service-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .service-name {
+        font-size: 10px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+}

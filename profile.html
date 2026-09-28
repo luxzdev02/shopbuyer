@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<script src="/theme.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Profil Saya — FNB NOKOS</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --green: #3B82F6;
+  --green-d: #2563EB;
+  --green-xl: #DBEAFE;
+  --bg: #FFFFFF;
+  --surface: #F9FAFB;
+  --border: #E5E7EB;
+  --text: #111827;
+  --muted: #6B7280;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --blue: #3B82F6;
+  --shadow: 0 4px 20px rgba(17,24,39,0.05);
+  --shadow-lg: 0 10px 40px rgba(17,24,39,0.09);
+  --mono: 'JetBrains Mono', monospace;
+}
+[data-theme="dark"] {
+  --green: #3B82F6;
+  --green-d: #60A5FA;
+  --green-xl: #1E3A5F;
+  --bg: #0B1220;
+  --surface: #111827;
+  --border: #253044;
+  --text: #E6EDF3;
+  --muted: #94A3B8;
+  --red: #F87171;
+  --amber: #FBBF24;
+  --blue: #3B82F6;
+  --shadow: 0 4px 20px rgba(0,0,0,0.35);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.5);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  transition: background .3s, color .3s;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:var(--bg); color:var(--text);
+  padding-bottom:110px; min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+.page-header {
+  position:sticky; top:0; z-index:100;
+  background:var(--header-bg, var(--surface));
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:13px 18px;
+  display:flex; align-items:center; gap:12px;
+}
+.page-header h1 { font-size:17px; font-weight:800; flex:1; text-align:center; letter-spacing:-.3px; }
+.back-btn {
+  width:34px; height:34px; border-radius:10px;
+  background:var(--bg); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text); font-size:14px; text-decoration:none;
+}
+.header-spacer { width:34px; flex-shrink:0; }
+
+.wrap { max-width:480px; margin:0 auto; padding:16px; }
+
+.profile-hero {
+  background:linear-gradient(140deg,#0f2b5c 0%,#1e3a8a 55%,#1d4ed8 100%);
+  border-radius:22px; padding:28px 22px;
+  color:#fff; text-align:center; margin-bottom:14px;
+  box-shadow:0 14px 34px rgba(29,78,216,.3);
+  position:relative; overflow:hidden;
+}
+.profile-hero::before {
+  content:''; position:absolute; top:-50px; right:-50px;
+  width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.05);
+}
+.profile-hero::after {
+  content:''; position:absolute; bottom:-60px; left:-30px;
+  width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.03);
+}
+.ph-avatar { width:86px; height:86px; border-radius:50%; margin:0 auto 14px;
+  border:2.5px solid rgba(255,255,255,.25);
+  overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.2);
+  position:relative; z-index:1; cursor:pointer;
+}
+.ph-avatar img { width:100%; height:100%; object-fit:cover; }
+.ph-avatar-cam {
+  position:absolute; bottom:-2px; right:-2px; width:28px; height:28px; border-radius:50%;
+  background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center;
+  font-size:12px; border:2.5px solid #fff; z-index:2; box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+.ph-avatar-upl { position:absolute; inset:0; background:rgba(0,0,0,.5); display:none;
+  align-items:center; justify-content:center; color:#fff; font-size:18px; z-index:3;
+}
+.ph-avatar-upl.show { display:flex; }
+.ph-name { font-size:21px; font-weight:800; position:relative; z-index:1; }
+.ph-id { font-size:12px; opacity:.65; font-family:var(--mono); margin-top:3px; position:relative; z-index:1; }
+.ph-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.12);
+  border-radius:10px; padding:7px 14px;
+  font-size:11px; font-weight:700; margin-top:14px;
+  position:relative; z-index:1;
+  backdrop-filter:blur(4px);
+}
+.ph-badge .dot { width:6px; height:6px; border-radius:50%; background:#4ade80; box-shadow:0 0 6px #4ade80; }
+
+.stats-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;
+}
+.stat-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; padding:16px; box-shadow:var(--shadow);
+}
+.stat-lbl { font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:7px; }
+.stat-val { font-size:16px; font-weight:800; color:var(--green-d); font-family:var(--mono); }
+
+.card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:20px; padding:20px; margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.card-title {
+  font-size:13px; font-weight:800; color:var(--text);
+  margin-bottom:18px; display:flex; align-items:center; gap:9px;
+  text-transform:uppercase; letter-spacing:.04em;
+}
+.card-title i { color:var(--green); }
+
+.apikey-box {
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:14px; padding:14px; margin-bottom:14px;
+}
+.apikey-val {
+  font-family:var(--mono); font-size:11.5px; color:var(--text);
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:12px 14px;
+  word-break:break-all; margin-bottom:12px; font-weight:600;
+  line-height:1.6;
+}
+.btn-row { display:flex; gap:8px; }
+.btn-copy {
+  flex:1; padding:11px; border-radius:11px; border:none;
+  background:var(--green); color:#fff;
+  font-size:12px; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  box-shadow:0 4px 12px rgba(59,130,246,.25); transition:.2s;
+}
+.btn-copy:active { transform:scale(.97); background:var(--green-d); }
+.btn-regen {
+  flex:1; padding:11px; border-radius:11px;
+  background:var(--surface); color:var(--amber);
+  border:1.5px solid rgba(245,158,11,.25);
+  font-size:12px; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  transition:.2s;
+}
+.btn-regen:active { background:#fffbeb; transform:scale(.97); }
+.btn-docs {
+  width:100%; margin-top:12px; padding:12px;
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:11px; color:var(--text);
+  font-size:13px; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  text-decoration:none; transition:.2s;
+}
+.btn-docs:hover { background:var(--text); color:#fff; border-color:var(--text); }
+
+.info-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 0; border-bottom:1px solid var(--bg);
+}
+.info-row:last-child { border-bottom:none; padding-bottom:0; }
+.info-key { font-size:13px; color:var(--muted); font-weight:500; }
+.info-val { font-size:13px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px; }
+.edit-chip {
+  background:rgba(59,130,246,.1); color:var(--green-d);
+  border:none; border-radius:7px; padding:4px 10px;
+  font-size:11px; font-weight:700; cursor:pointer;
+  transition:.2s;
+}
+.edit-chip:active { background:rgba(59,130,246,.2); }
+
+.input-grp { margin-bottom:12px; }
+.input-grp label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:7px; }
+.input-box {
+  display:flex; align-items:center; gap:11px;
+  background:var(--bg); border:1.5px solid var(--border);
+  border-radius:13px; padding:13px 15px; transition:.2s;
+}
+.input-box:focus-within {
+  border-color:var(--green); background:var(--surface);
+  box-shadow:0 0 0 4px rgba(59,130,246,.1);
+}
+.input-box i { color:#cbd5e1; font-size:15px; flex-shrink:0; transition:.2s; }
+.input-box:focus-within i { color:var(--green); }
+.input-box input, .input-box select {
+  border:none; background:transparent; outline:none; width:100%;
+  font-size:14px; font-weight:500; color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.input-box select { cursor:pointer; }
+.input-box input::placeholder { color:#cbd5e1; }
+
+.btn-main {
+  width:100%; padding:14px; border-radius:13px;
+  background:var(--text); color:#fff; border:none;
+  font-size:14px; font-weight:700; cursor:pointer;
+  box-shadow:0 6px 20px rgba(15,23,42,.12); transition:.2s;
+  margin-top:6px;
+}
+.btn-main:active { transform:scale(.98); opacity:.92; }
+
+.btn-logout {
+  width:100%; padding:14px; border-radius:13px;
+  background:transparent; color:var(--red);
+  border:1.5px solid #fee2e2;
+  font-size:14px; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  margin-top:4px;
+}
+.btn-logout:active { background:#fff5f5; }
+
+/* WITHDRAW BUTTON TELEGRAM */
+.btn-telegram-wd {
+  width:100%; padding:16px; border-radius:13px;
+  background:linear-gradient(135deg, #0088cc, #00a3e0);
+  color:#fff; border:none;
+  font-size:16px; font-weight:800; cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,136,204,.25); transition:.2s;
+  margin-top:6px; display:flex; align-items:center; justify-content:center; gap:10px;
+}
+.btn-telegram-wd:active { transform:scale(.98); opacity:.92; }
+.btn-telegram-wd i { font-size:20px; }
+
+.wd-note {
+  text-align:center; font-size:11px; color:var(--muted);
+  margin-top:12px; padding:8px;
+  background:var(--bg); border-radius:10px;
+}
+.wd-note i { color:#0088cc; margin-right:4px; }
+
+.modal-bg {
+  display:none; position:fixed; inset:0; z-index:500;
+  background:rgba(15,23,42,.5); backdrop-filter:blur(6px);
+  align-items:center; justify-content:center; padding:20px;
+}
+.modal-bg.open { display:flex; }
+.modal-box {
+  background:var(--surface); border-radius:26px;
+  padding:28px 22px; width:100%; max-width:340px; text-align:center;
+  box-shadow:var(--shadow-lg);
+  animation:popIn .3s cubic-bezier(.32,1,.5,1);
+}
+@keyframes popIn { from{opacity:0;transform:scale(.9);} to{opacity:1;transform:scale(1);} }
+.modal-icon { font-size:38px; margin-bottom:12px; }
+.modal-box h3 { font-size:18px; font-weight:800; margin-bottom:6px; }
+.modal-box p { font-size:13px; color:var(--muted); margin-bottom:22px; line-height:1.55; }
+.modal-btns { display:flex; gap:8px; }
+.modal-btns .btn-main { margin:0; }
+.modal-btns .btn-cancel {
+  flex:1; padding:14px; border-radius:13px;
+  background:var(--bg); border:1px solid var(--border); color:var(--muted);
+  font-size:14px; font-weight:700; cursor:pointer;
+  transition:.2s;
+}
+.email-input {
+  width:100%; padding:13px 15px; border-radius:12px;
+  border:1.5px solid var(--border); background:var(--bg);
+  font-size:14px; font-weight:500; color:var(--text);
+  outline:none; margin-bottom:16px; transition:.2s;
+}
+.email-input:focus { border-color:var(--green); background:var(--surface); box-shadow:0 0 0 4px rgba(59,130,246,.1); }
+.modal-alert { font-size:12px; font-weight:600; color:var(--red); margin-bottom:10px; display:none; }
+
+#toast {
+  position:fixed; top:76px; left:50%; transform:translateX(-50%);
+  background:var(--text); color:#fff;
+  padding:10px 22px; border-radius:100px;
+  font-size:12px; font-weight:700;
+  box-shadow:0 8px 24px rgba(0,0,0,.15); z-index:999;
+  display:none; white-space:nowrap;
+}
+#toast.err { background:var(--red); }
+
+.bottom-nav {
+  position:fixed; bottom:14px; left:14px; right:14px; z-index:400;
+  background:var(--nav-bg, var(--surface));
+  backdrop-filter:blur(18px);
+  border-radius:26px; padding:8px 4px;
+  display:flex; align-items:center; justify-content:space-around;
+  box-shadow:0 8px 30px rgba(0,0,0,.10); border:1px solid var(--border);
+}
+.nav-btn {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  color:#94a3b8; font-size:10px; font-weight:700;
+  background:none; border:none; cursor:pointer; padding:5px 10px;
+  border-radius:14px; transition:.2s;
+  text-decoration:none; font-family:'Plus Jakarta Sans',sans-serif;
+}
+.nav-btn i { font-size:20px; display:block; }
+.nav-btn.active { color:var(--green); }
+.fab-wrap { margin-top:-26px; }
+.fab {
+  width:54px; height:54px; border-radius:50%;
+  background:linear-gradient(135deg,var(--green),#38BDF8);
+  color:#fff; font-size:22px;
+  display:flex; align-items:center; justify-content:center;
+  border:5px solid var(--bg); box-shadow:0 6px 20px rgba(59,130,246,.4);
+  cursor:pointer; transition:.2s;
+}
+.fab:active { transform:scale(.93); }
+
+.wd-info-row {
+  display:flex; justify-content:space-between;
+  padding:8px 12px; background:var(--bg);
+  border-radius:10px; margin-bottom:8px;
+  font-size:12px;
+}
+.wd-info-row span:first-child { color:var(--muted); font-weight:500; }
+.wd-info-row span:last-child { font-weight:700; color:var(--text); }
+</style>
+</head>
+<body>
+<script src="/premium-loader.js?v=3"></script>
+
+<div class="page-header">
+  <a href="dashboard" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+  <h1>Profil Saya</h1>
+  <div class="header-spacer"></div>
+</div>
+
+<div class="wrap">
+
+  <div class="profile-hero">
+    <div class="ph-avatar" onclick="document.getElementById('photoInput').click()">
+      <img src="https://files.catbox.moe/je2gz1.jpg" alt="Avatar" id="profileAvatarImg">
+      <div class="ph-avatar-upl" id="avatarUplOverlay"><i class="fas fa-circle-notch fa-spin"></i></div>
+      <div class="ph-avatar-cam"><i class="fas fa-camera"></i></div>
+    </div>
+    <input type="file" id="photoInput" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="uploadProfilePhoto(this)">
+    <div class="ph-name" id="displayUsername">Memuat...</div>
+    <div class="ph-id" id="profileUserId">#IDMEMBER</div>
+    <div class="ph-badge">
+      <div class="dot"></div>
+      Verified Member sejak <span id="profileJoinDate">—</span>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-lbl">Saldo Aktif</span>
+      <div class="stat-val" id="userBalance">Rp 0</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-lbl">Total Transaksi</span>
+      <div class="stat-val" id="totalOrders">0</div>
+    </div>
+  </div>
+
+  <!-- API KEY -->
+  <div class="card">
+    <div class="card-title"><i class="fas fa-bolt"></i> Developer API Settings</div>
+    <div class="apikey-box">
+      <div class="apikey-val" id="apiKeyDisplay">Memuat API Key...</div>
+      <div class="btn-row">
+        <button class="btn-copy" onclick="copyApiKey()"><i class="fas fa-copy"></i> Salin Key</button>
+        <button class="btn-regen" onclick="regenerateApiKey()"><i class="fas fa-rotate-right"></i> Reset</button>
+      </div>
+    </div>
+    <a href="dokumentasi" class="btn-docs"><i class="fas fa-code"></i> Integration Guide & Docs</a>
+
+    <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
+      <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px">
+        <i class="fas fa-shield-halved" style="color:var(--blue)"></i> Whitelist IP API Key
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);margin-bottom:10px">
+        Batasi API key hanya bisa dipakai dari IP tertentu. Kosongkan atau isi <code>0.0.0.0</code> untuk mengizinkan semua IP. Maksimal 5 IP.
+      </div>
+      <div id="ipWhitelistList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="newIpInput" placeholder="Contoh: 103.10.20.5 atau 0.0.0.0"
+          style="flex:1;padding:9px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12.5px;outline:none;">
+        <button onclick="addIpWhitelist()" style="flex-shrink:0;padding:0 16px;border-radius:10px;border:none;background:var(--blue,#3B82F6);color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;">
+          + Tambah
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCOUNT INFO -->
+  <div class="card">
+    <div class="card-title"><i class="fas fa-user-gear"></i> Informasi Akun</div>
+    <div class="info-row"><span class="info-key">Username</span><span class="info-val" id="profileUsername">—</span></div>
+    <div class="info-row">
+      <span class="info-key">Email</span>
+      <span class="info-val"><span id="profileEmail">—</span><button class="edit-chip" id="editEmailBtn">Edit</button></span>
+    </div>
+    <div class="info-row"><span class="info-key">Member ID</span><span class="info-val" id="profileIdVal" style="font-family:var(--mono);font-size:12px;">—</span></div>
+  </div>
+
+  <!-- TELEGRAM LINKING -->
+  <div class="card">
+    <div class="card-title"><i class="fab fa-telegram"></i> Notifikasi Telegram</div>
+    <div id="tgNotLinked">
+      <p style="font-size:12.5px;color:var(--muted);line-height:1.65;margin-bottom:14px;">Tautkan akun Telegram kamu supaya dapat notifikasi personal — deposit sukses & OTP masuk — langsung ke chat Telegram, bukan cuma ke channel.</p>
+      <button class="btn-main" id="tgLinkBtn" style="margin:0;"><i class="fab fa-telegram"></i> Tautkan ke Telegram</button>
+    </div>
+    <div id="tgLinked" style="display:none">
+      <div class="info-row">
+        <span class="info-key">Status</span>
+        <span class="info-val" style="color:var(--blue);font-weight:800;"><i class="fas fa-circle-check"></i> Tertaut</span>
+      </div>
+      <div class="info-row"><span class="info-key">Username Telegram</span><span class="info-val" id="tgUsernameVal">—</span></div>
+      <button class="btn-logout" id="tgUnlinkBtn" style="margin-top:14px;"><i class="fas fa-link-slash"></i> Putuskan Tautan</button>
+    </div>
+  </div>
+
+  <!-- SECURITY -->
+  <div class="card">
+    <div class="card-title"><i class="fas fa-lock"></i> Keamanan Akun</div>
+    <div class="input-grp">
+      <label>Password Lama</label>
+      <div class="input-box"><i class="fas fa-shield"></i><input type="password" id="oldPassword" placeholder="Masukkan password saat ini"></div>
+    </div>
+    <div class="input-grp">
+      <label>Password Baru</label>
+      <div class="input-box"><i class="fas fa-key"></i><input type="password" id="newPassword" placeholder="Minimal 4 karakter"></div>
+    </div>
+    <button class="btn-main" id="changePasswordBtn">Perbarui Password</button>
+  </div>
+
+  <!-- DEVICE AKTIF -->
+  <div class="card">
+    <div class="card-title"><i class="fas fa-mobile-screen-button"></i> Device Aktif</div>
+    <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px;">Daftar perangkat yang sedang login ke akun kamu. Logout paksa kalau ada yang tidak kamu kenali.</p>
+    <div id="deviceList" style="display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:12px;color:var(--muted);text-align:center;padding:12px;"><i class="fas fa-circle-notch fa-spin"></i> Memuat...</div>
+    </div>
+  </div>
+
+  <button class="btn-logout" id="logoutBtnAction"><i class="fas fa-right-from-bracket"></i> Keluar dari Akun</button>
+
+</div>
+
+<nav class="bottom-nav">
+  <a href="dashboard" class="nav-btn"><i class="fas fa-house-chimney"></i><span>Home</span></a>
+  <a href="deposit" class="nav-btn"><i class="fas fa-wallet"></i><span>Top Up</span></a>
+  <div class="fab-wrap nav-btn"><div class="fab" onclick="location.href='nokos'"><i class="fas fa-cart-shopping"></i></div></div>
+  <a href="riwayat" class="nav-btn"><i class="fas fa-receipt"></i><span>Riwayat</span></a>
+  <a href="profile" class="nav-btn active"><i class="fas fa-circle-user"></i><span>Akun</span></a>
+</nav>
+
+<!-- MODAL: EDIT EMAIL -->
+<div class="modal-bg" id="emailModal" onclick="closeEmailModal(event)">
+  <div class="modal-box">
+    <div class="modal-icon">✉️</div>
+    <h3>Update Email</h3>
+    <p>Pastikan email aktif untuk notifikasi transaksi.</p>
+    <div class="modal-alert" id="emailAlert"></div>
+    <input type="email" class="email-input" id="newEmail" placeholder="email@domain.com">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeEmailModal()">Batal</button>
+      <button class="btn-main" id="saveEmailBtn" style="flex:1;margin:0;">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: KONFIRMASI LOGOUT -->
+<div class="modal-bg" id="confirmModal" onclick="closeLogoutModal(event)">
+  <div class="modal-box">
+    <div class="modal-icon" style="color:var(--red)"><i class="fas fa-circle-exclamation"></i></div>
+    <h3>Keluar dari Akun?</h3>
+    <p>Sesi kamu akan berakhir dan perlu login ulang untuk akses.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeLogoutModal()">Batal</button>
+      <button class="btn-main" id="confirmLogoutBtn" style="flex:1;margin:0;background:var(--red);"><i class="fas fa-right-from-bracket"></i> Keluar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let currentUser = null;
+
+// Auth guard
+(function() {
+  const s = localStorage.getItem('user');
+  if (!s) { location.href = 'login'; return; }
+  currentUser = JSON.parse(s);
+})();
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = isError ? 'err' : '';
+  t.style.display = 'block';
+  setTimeout(() => t.style.display='none', 3000);
+}
+
+// ========== WITHDRAW VIA TELEGRAM ==========
+function openTelegramWithdraw() {
+  const username = currentUser?.username || 'User';
+  const userId = currentUser?.id || 'Unknown';
+  const balance = currentUser?.balance || 0;
+  
+  // Format pesan otomatis
+  const message = `Halo CS FNB NOKOS, saya ingin melakukan withdraw.%0A%0A` +
+                  `📝 *Data Diri*%0A` +
+                  `Username: ${username}%0A` +
+                  `ID Member: ${userId}%0A` +
+                  `Saldo Saat Ini: Rp ${balance.toLocaleString('id-ID')}%0A%0A` +
+                  `💸 *Detail Withdraw*%0A` +
+                  `Nominal: [isi nominal]%0A` +
+                  `E-Wallet: [Dana/OVO/GoPay]%0A` +
+                  `No Tujuan: [nomor tujuan]%0A%0A` +
+                  `Mohon diproses, terima kasih.`;
+  
+  // Buka Telegram chat CS
+  const telegramUrl = `https://t.me/csfnbnokos?text=${message}`;
+  window.open(telegramUrl, '_blank');
+}
+
+// ========== IP WHITELIST API KEY ==========
+async function loadIpWhitelist() {
+  try {
+    const res = await axios.get('/api/profile/ip-whitelist', {
+      headers: { 'x-api-key': currentUser.api_key }
+    });
+    renderIpWhitelist(res.data.data || []);
+  } catch (e) {
+    document.getElementById('ipWhitelistList').innerHTML =
+      '<div style="font-size:12px;color:var(--muted)">Gagal memuat whitelist</div>';
+  }
+}
+
+function renderIpWhitelist(list) {
+  const el = document.getElementById('ipWhitelistList');
+  if (!list.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);font-style:italic">Belum ada IP dibatasi — semua IP diizinkan</div>';
+    return;
+  }
+  el.innerHTML = list.map(ip => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:10px">
+      <span style="font-family:var(--mono);font-size:12.5px;color:var(--text)">${ip}${ip === '0.0.0.0' ? ' <span style="color:var(--muted);font-size:10.5px">(semua IP)</span>' : ''}</span>
+      <button onclick="removeIpWhitelist('${ip}')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:13px;padding:4px">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+async function addIpWhitelist() {
+  const input = document.getElementById('newIpInput');
+  const ip = input.value.trim();
+  if (!ip) { showToast('Masukkan alamat IP', true); return; }
+  try {
+    const res = await axios.post('/api/profile/ip-whitelist', { ip }, {
+      headers: { 'x-api-key': currentUser.api_key }
+    });
+    if (res.data.success) {
+      renderIpWhitelist(res.data.data);
+      input.value = '';
+      showToast('IP berhasil ditambahkan ✅');
+    }
+  } catch (e) {
+    showToast(e.response?.data?.error || 'Gagal menambah IP', true);
+  }
+}
+
+async function removeIpWhitelist(ip) {
+  if (!confirm(`Hapus ${ip} dari whitelist?`)) return;
+  try {
+    const res = await axios.delete('/api/profile/ip-whitelist', {
+      headers: { 'x-api-key': currentUser.api_key },
+      data: { ip }
+    });
+    if (res.data.success) {
+      renderIpWhitelist(res.data.data);
+      showToast('IP dihapus');
+    }
+  } catch (e) {
+    showToast(e.response?.data?.error || 'Gagal menghapus IP', true);
+  }
+}
+
+// ========== UPLOAD FOTO PROFIL ==========
+async function uploadProfilePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  if (file.size > 3 * 1024 * 1024) {
+    showToast('Ukuran foto maksimal 3MB', true);
+    input.value = '';
+    return;
+  }
+
+  // Preview instan sebelum upload selesai
+  const reader = new FileReader();
+  reader.onload = (e) => { document.getElementById('profileAvatarImg').src = e.target.result; };
+  reader.readAsDataURL(file);
+
+  const overlay = document.getElementById('avatarUplOverlay');
+  overlay.classList.add('show');
+
+  try {
+    const formData = new FormData();
+    formData.append('user_id', currentUser.id);
+    formData.append('photo', file);
+    const res = await axios.post('/api/profile/upload-photo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    if (res.data.success) {
+      currentUser.profile_photo = res.data.profile_photo;
+      localStorage.setItem('user', JSON.stringify(currentUser));
+      document.getElementById('profileAvatarImg').src = res.data.profile_photo;
+      showToast('Foto profil berhasil diperbarui ✅');
+    } else {
+      throw new Error(res.data.error || 'Upload gagal');
+    }
+  } catch (e) {
+    showToast(e.response?.data?.error || e.message || 'Gagal upload foto', true);
+    renderUser(); // kembalikan ke foto lama kalau gagal
+  } finally {
+    overlay.classList.remove('show');
+    input.value = '';
+  }
+}
+
+// ========== LOAD USER DATA ==========
+async function loadUser() {
+  if (!currentUser) return;
+  renderUser();
+  try {
+    const res = await axios.get('/api/user/' + currentUser.id);
+    if (res.data) {
+      currentUser = { ...currentUser, ...res.data };
+      localStorage.setItem('user', JSON.stringify(currentUser));
+      renderUser();
+    }
+  } catch(e) { console.error('Gagal load user:', e); }
+  loadStatistics();
+  loadIpWhitelist();
+  loadTelegramStatus();
+  loadDevices();
+}
+
+// ========== DEVICE AKTIF ==========
+function formatDeviceTime(ts) {
+  if (!ts) return '—';
+  const diff = Date.now() - ts;
+  if (diff < 60000) return 'Baru saja';
+  if (diff < 3600000) return Math.floor(diff / 60000) + ' menit lalu';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + ' jam lalu';
+  return new Date(ts).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+async function loadDevices() {
+  const box = document.getElementById('deviceList');
+  try {
+    const sessionId = localStorage.getItem('session_id') || '';
+    const res = await axios.get('/api/sessions/' + currentUser.id, { params: { current: sessionId } });
+    renderDevices(res.data.data || []);
+  } catch (e) {
+    box.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px;">Gagal memuat daftar device</div>';
+  }
+}
+
+function renderDevices(list) {
+  const box = document.getElementById('deviceList');
+  if (!list.length) {
+    box.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px;">Belum ada data device (login ulang untuk mulai tercatat)</div>';
+    return;
+  }
+  box.innerHTML = list.map(d => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:12px;">
+      <div style="width:38px;height:38px;border-radius:10px;background:${d.is_current ? 'rgba(59,130,246,.12)' : 'var(--surface2,var(--bg))'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <i class="fas fa-mobile-screen-button" style="color:${d.is_current ? 'var(--blue)' : 'var(--muted)'}"></i>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:6px;">
+          ${d.device || 'Tidak diketahui'}
+          ${d.is_current ? '<span style="font-size:10px;font-weight:700;color:var(--blue);background:rgba(59,130,246,.12);padding:2px 7px;border-radius:20px;">Perangkat Ini</span>' : ''}
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${d.ip || 'IP tidak diketahui'} · Aktif ${formatDeviceTime(d.last_active)}</div>
+      </div>
+      ${!d.is_current ? `<button onclick="revokeDevice('${d.session_id}')" style="flex-shrink:0;background:none;border:1px solid #fecaca;color:#ef4444;font-size:11px;font-weight:700;padding:7px 12px;border-radius:9px;cursor:pointer;">Logout</button>` : ''}
+    </div>
+  `).join('');
+}
+
+async function revokeDevice(sessionId) {
+  if (!confirm('Logout paksa perangkat ini?')) return;
+  try {
+    await axios.post('/api/sessions/revoke', { user_id: currentUser.id, session_id: sessionId });
+    showToast('Device berhasil di-logout');
+    loadDevices();
+  } catch (e) {
+    showToast(e.response?.data?.error || 'Gagal logout device', true);
+  }
+}
+
+// ========== TELEGRAM ACCOUNT LINKING ==========
+let tgPollTimer = null;
+
+async function loadTelegramStatus() {
+  try {
+    const res = await axios.get('/api/telegram/status/' + currentUser.id);
+    const linked = !!(res.data && res.data.linked);
+    document.getElementById('tgNotLinked').style.display = linked ? 'none' : 'block';
+    document.getElementById('tgLinked').style.display = linked ? 'block' : 'none';
+    if (linked) {
+      document.getElementById('tgUsernameVal').textContent = res.data.telegram_username ? '@' + res.data.telegram_username : '(tanpa username)';
+      clearInterval(tgPollTimer);
+    }
+  } catch (e) { console.error('Gagal cek status Telegram:', e); }
+}
+
+document.getElementById('tgLinkBtn').onclick = async () => {
+  const btn = document.getElementById('tgLinkBtn');
+  btn.disabled = true;
+  const original = btn.innerHTML;
+  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menyiapkan...';
+  try {
+    const res = await axios.post('/api/telegram/link-init', { user_id: currentUser.id });
+    if (res.data && res.data.success) {
+      window.open(res.data.deep_link, '_blank');
+      showToast('Buka Telegram lalu tap Start ya, halaman ini otomatis update.');
+      // Polling singkat — cek tiap 3 detik selama 2 menit, berhenti otomatis kalau sudah tertaut.
+      let tries = 0;
+      clearInterval(tgPollTimer);
+      tgPollTimer = setInterval(async () => {
+        tries++;
+        await loadTelegramStatus();
+        if (tries >= 40) clearInterval(tgPollTimer);
+      }, 3000);
+    } else {
+      showToast(res.data?.error || 'Gagal memulai proses tautan', true);
+    }
+  } catch (e) {
+    showToast(e.response?.data?.error || 'Gagal memulai proses tautan', true);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = original;
+  }
+};
+
+document.getElementById('tgUnlinkBtn').onclick = async () => {
+  if (!confirm('Putuskan tautan Telegram? Kamu tidak akan menerima notifikasi personal lagi sampai menautkan ulang.')) return;
+  try {
+    await axios.post('/api/telegram/unlink', { user_id: currentUser.id });
+    showToast('Tautan Telegram diputuskan.');
+    loadTelegramStatus();
+  } catch (e) {
+    showToast(e.response?.data?.error || 'Gagal memutuskan tautan', true);
+  }
+};
+
+function renderUser() {
+  document.getElementById('displayUsername').textContent = currentUser.username || 'User';
+  document.getElementById('profileUsername').textContent = currentUser.username || '—';
+  document.getElementById('profileUserId').textContent = '#' + (currentUser.id || '—');
+  document.getElementById('profileIdVal').textContent = '#' + (currentUser.id || '—');
+  document.getElementById('profileEmail').textContent = currentUser.email || 'Belum diisi';
+  document.getElementById('userBalance').textContent = 'Rp ' + (currentUser.balance||0).toLocaleString('id-ID');
+  document.getElementById('apiKeyDisplay').textContent = currentUser.api_key || 'Key belum tersedia';
+  document.getElementById('profileAvatarImg').src = currentUser.profile_photo || 'https://files.catbox.moe/je2gz1.jpg';
+  if (currentUser.created_at) {
+    document.getElementById('profileJoinDate').textContent = new Date(currentUser.created_at).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+  }
+}
+
+async function loadStatistics() {
+  if (!currentUser?.id) return;
+  try {
+    const res = await axios.get('/api/history/orders/' + currentUser.id);
+    document.getElementById('totalOrders').textContent = (res.data||[]).length;
+  } catch(e) {}
+}
+
+function copyApiKey() {
+  const key = currentUser?.api_key;
+  if (!key) { showToast('⚠️ API Key tidak tersedia', true); return; }
+  navigator.clipboard?.writeText(key).then(() => showToast('✅ Key berhasil disalin!')).catch(() => showToast('Key: ' + key));
+}
+
+async function regenerateApiKey() {
+  if (!confirm('Regenerate API Key baru? Key lama akan dicabut.')) return;
+  try {
+    const res = await axios.post('/api/regenerate-apikey', { user_id: currentUser.id });
+    if (res.data.success) {
+      currentUser.api_key = res.data.apiKey;
+      localStorage.setItem('user', JSON.stringify(currentUser));
+      document.getElementById('apiKeyDisplay').textContent = currentUser.api_key;
+      showToast('✅ Key baru berhasil dibuat!');
+    }
+  } catch(e) { showToast('❌ Gagal regenerate key', true); }
+}
+
+// Change Password
+document.getElementById('changePasswordBtn').onclick = async () => {
+  const oldPass = document.getElementById('oldPassword').value;
+  const newPass = document.getElementById('newPassword').value;
+  if (!oldPass || !newPass) { showToast('Isi semua kolom password!', true); return; }
+  try {
+    const res = await axios.post('/api/user/change-password', {
+      user_id: currentUser.id, old_password: oldPass, new_password: newPass
+    });
+    if (res.data.success) {
+      showToast('✅ Password berhasil diperbarui!');
+      document.getElementById('oldPassword').value = '';
+      document.getElementById('newPassword').value = '';
+    } else { showToast('❌ ' + res.data.error, true); }
+  } catch(e) { showToast('Terjadi kesalahan sistem', true); }
+};
+
+// Email Modal
+document.getElementById('editEmailBtn').onclick = () => {
+  document.getElementById('emailAlert').style.display = 'none';
+  document.getElementById('newEmail').value = currentUser.email || '';
+  document.getElementById('emailModal').classList.add('open');
+};
+function closeEmailModal(e) {
+  if (e && e.target !== document.getElementById('emailModal')) return;
+  document.getElementById('emailModal').classList.remove('open');
+}
+document.getElementById('saveEmailBtn').onclick = async () => {
+  const newEmail = document.getElementById('newEmail').value.trim();
+  const alertEl = document.getElementById('emailAlert');
+  if (!newEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+    alertEl.textContent = 'Masukkan email yang valid.';
+    alertEl.style.display = 'block'; return;
+  }
+  try {
+    const res = await axios.post('/api/user/update-email', { user_id: currentUser.id, email: newEmail });
+    if (res.data.success) {
+      currentUser.email = newEmail;
+      localStorage.setItem('user', JSON.stringify(currentUser));
+      document.getElementById('profileEmail').textContent = newEmail;
+      showToast('✅ Email berhasil diperbarui!');
+      document.getElementById('emailModal').classList.remove('open');
+    } else { alertEl.textContent = res.data.error || 'Gagal.'; alertEl.style.display='block'; }
+  } catch(e) { alertEl.textContent = 'Terjadi kesalahan.'; alertEl.style.display='block'; }
+};
+
+// Logout
+document.getElementById('logoutBtnAction').onclick = () => document.getElementById('confirmModal').classList.add('open');
+function closeLogoutModal(e) {
+  if (e && e.target !== document.getElementById('confirmModal')) return;
+  document.getElementById('confirmModal').classList.remove('open');
+}
+document.getElementById('confirmLogoutBtn').onclick = () => {
+  localStorage.removeItem('user');
+  localStorage.removeItem('session_id');
+  location.href = 'login';
+};
+
+// INIT
+loadUser();
+</script>
+<script src="/auth-guard.js"></script>
+</body>
+</html>

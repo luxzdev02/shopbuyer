@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Download Script Bot OTP - Digital Pedia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: #0f172a;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .navbar h2 {
+            font-size: 20px;
+            font-weight: 800;
+        }
+        .navbar h2 span { color: #3B82F6; }
+        .navbar .back-btn {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .navbar .back-btn:hover {
+            color: #3B82F6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+        .download-card {
+            background: white;
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 20px;
+        }
+        .download-card h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+        .download-card p.subtitle {
+            color: #64748b;
+            font-size: 15px;
+            margin-bottom: 30px;
+        }
+        .file-info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            text-align: left;
+            font-size: 14px;
+        }
+        .file-info-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .file-info-table td:first-child {
+            color: #64748b;
+            font-weight: 600;
+            width: 35%;
+        }
+        .file-info-table td:last-child {
+            color: #0f172a;
+            font-weight: 700;
+        }
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: white;
+            text-decoration: none;
+            padding: 16px 35px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            transition: 0.3s;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            justify-content: center;
+        }
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+        }
+        .instructions {
+            margin-top: 30px;
+            text-align: left;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        .instructions h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .instructions h3 i { color: #3B82F6; }
+        .instructions ol {
+            margin-left: 20px;
+            font-size: 13.5px;
+            color: #475569;
+        }
+        .instructions ol li {
+            margin-bottom: 8px;
+        }
+        .instructions code {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .footer {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            background: white;
+        }
+        @media (max-width: 600px) {
+            .navbar { padding: 15px 20px; }
+            .container { margin: 20px auto; }
+            .download-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <h2>DIGITAL<span>PEDIA</span></h2>
+        <a href="index" class="back-btn"><i class="fas fa-arrow-left"></i> Dokumentasi API</a>
+    </nav>
+
+    <div class="container">
+        <div class="download-card">
+            <div class="icon-box">
+                <i class="fas fa-file-archive"></i>
+            </div>
+            <h1>Download Script Bot OTP</h1>
+            <p class="subtitle">Unduh source code resmi integrasi H2H Bot Telegram OTP Digital Pedia</p>
+            
+            <table class="file-info-table">
+                <tr>
+                    <td>Nama File</td>
+                    <td>SC BOT OTP DIGITAL PEDIA.zip</td>
+                </tr>
+                <tr>
+                    <td>Format File</td>
+                    <td>ZIP Archive (.zip)</td>
+                </tr>
+                <tr>
+                    <td>Bahasa Pemrograman</td>
+                    <td>Node.js / JavaScript</td>
+                </tr>
+                <tr>
+                    <td>Kategori</td>
+                    <td>Host-to-Host (H2H) Virtual Number Bot</td>
+                </tr>
+                <tr>
+                    <td>Versi Script</td>
+                    <td>v1.0.0 (Latest Release)</td>
+                </tr>
+            </table>
+
+            <a href="https://www.mediafire.com/file/0sc07zgpm0kcw1t/SC+NEW+OTP+DIGITAL+PEDIA.zip/file" target="_blank" class="btn-download">
+                <i class="fas fa-cloud-download-alt"></i> Unduh via Mediafire
+            </a>
+
+            <div class="instructions">
+                <h3><i class="fas fa-terminal"></i> Langkah Penginstalan Cepat</h3>
+                <ol>
+                    <li>Ekstrak berkas <code>.zip</code> yang telah diunduh ke direktori lokal Anda.</li>
+                    <li>Buka terminal/command prompt di dalam folder tersebut.</li>
+                    <li>Jalankan perintah <code>npm install</code> untuk memasang dependensi (Axios, Telegraf, dsb).</li>
+                    <li>Konfigurasikan API Key Digital Pedia Anda dan Token Bot Telegram di berkas <code>config.json</code> atau <code>.env</code>.</li>
+                    <li>Jalankan program utama menggunakan perintah <code>node index.js</code> atau <code>npm start</code>.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 Digital Pedia | Official Brand Assets | Support: <a href="chat" style="color:#3B82F6; text-decoration: none;">Hubungi CS</a></p>
+    </div>
+
+</body>
+</html>

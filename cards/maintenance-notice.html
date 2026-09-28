@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080, initial-scale=1">
+<title>FNB NOKOS OTP · Maintenance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --primary:#3B82F6; --accent:#38BDF8; --bg:#FFFFFF; --card:#F9FAFB;
+    --text:#111827; --muted:#6B7280; --border:#E5E7EB; --ok:#22C55E; --warn:#F59E0B;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;}
+  html,body{width:1080px;height:1350px;}
+  body{
+    position:relative;overflow:hidden;
+    background:
+      radial-gradient(900px 600px at 15% -10%, rgba(56,189,248,.20), transparent 60%),
+      radial-gradient(900px 700px at 110% 10%, rgba(59,130,246,.18), transparent 55%),
+      var(--bg);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .watermark{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-8deg);
+    width:640px;height:640px;object-fit:contain;opacity:.05;pointer-events:none;z-index:0;
+  }
+  .card{
+    position:relative;z-index:1;width:940px;padding:64px 60px 48px;border-radius:40px;
+    background:linear-gradient(180deg, rgba(255,255,255,.90), rgba(249,250,251,.95));
+    border:1px solid rgba(255,255,255,.7);
+    box-shadow:0 40px 90px rgba(17,24,39,.14), 0 4px 14px rgba(17,24,39,.06);
+    backdrop-filter:blur(18px);
+  }
+  .card::before{
+    content:"";position:absolute;inset:0;border-radius:40px;padding:1.5px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:.35;pointer-events:none;
+  }
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;}
+  .brand{display:flex;align-items:center;gap:16px;}
+  .brand img{width:66px;height:66px;border-radius:18px;object-fit:cover;
+    box-shadow:0 10px 24px rgba(59,130,246,.35);}
+  .brand .n{font-size:26px;font-weight:900;letter-spacing:-.5px;color:var(--text);}
+  .brand .n span{background:linear-gradient(135deg,var(--primary),var(--accent));
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  .brand .s{font-size:14px;color:var(--muted);font-weight:600;margin-top:2px;}
+  .badge{display:inline-flex;align-items:center;gap:9px;padding:11px 20px;border-radius:999px;
+    background:{{BADGE_BG}};color:{{BADGE_COLOR}};font-weight:800;font-size:15px;
+    border:1px solid {{BADGE_BORDER}};white-space:nowrap;}
+  .badge .dot{width:9px;height:9px;border-radius:50%;background:{{BADGE_COLOR}};
+    box-shadow:0 0 0 4px {{BADGE_BG}};}
+  .hero{text-align:center;margin:8px 0 40px;}
+  .avatar{width:120px;height:120px;border-radius:50%;margin:0 auto 22px;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    border:5px solid #fff;box-shadow:0 16px 40px rgba(59,130,246,.30), 0 0 0 3px rgba(56,189,248,.35);}
+  .avatar i{font-size:52px;color:#fff;}
+  .title{font-size:38px;font-weight:900;letter-spacing:-.8px;color:var(--text);line-height:1.15;}
+  .subtitle{font-size:18px;color:var(--muted);font-weight:500;margin-top:12px;max-width:660px;margin-left:auto;margin-right:auto;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .cell{padding:18px 22px;border-radius:20px;background:#fff;border:1px solid var(--border);
+    min-width:0;overflow:hidden;
+    box-shadow:0 2px 10px rgba(17,24,39,.04);}
+  .cell.full{grid-column:1 / -1;}
+  .cl{font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+    display:flex;align-items:center;gap:8px;}
+  .cl i{color:var(--primary);width:16px;text-align:center;}
+  .cv{font-size:20px;color:var(--text);font-weight:800;margin-top:5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cv.wrap{white-space:normal;word-break:break-word;text-overflow:clip;}
+  .cv.small{font-size:15px;line-height:1.5;}
+  .foot{text-align:center;margin-top:34px;font-size:16px;color:var(--muted);font-weight:600;
+    display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;}
+  .foot .b{color:var(--primary);}
+</style>
+</head>
+<body>
+  <img class="watermark" src="https://files.catbox.moe/je2gz1.jpg" alt="">
+  <div class="card">
+    <div class="top">
+      <div class="brand">
+        <img src="https://files.catbox.moe/je2gz1.jpg" alt="Logo">
+        <div>
+          <div class="n">FNB NOKOS<span> OTP</span></div>
+          <div class="s">Virtual Number Service</div>
+        </div>
+      </div>
+      <div class="badge"><span class="dot"></span>{{BADGE_TEXT}}</div>
+    </div>
+
+    <div class="hero">
+      <div class="avatar"><i class="fa-solid {{ICON_CLASS}}"></i></div>
+      <div class="title">{{TITLE}}</div>
+      <div class="subtitle">{{SUBTITLE}}</div>
+    </div>
+
+    <div class="grid">
+      <div class="cell"><div class="cl"><i class="fa-solid fa-clock"></i>Waktu</div><div class="cv small wrap">{{WAKTU}}</div></div>
+      <div class="cell"><div class="cl"><i class="fa-solid fa-hourglass-half"></i>Durasi Jadwal</div><div class="cv small wrap">{{DURASI}}</div></div>
+      <div class="cell full"><div class="cl"><i class="fa-solid fa-server"></i>Status Server</div><div class="cv small wrap">{{STATUS_LIST}}</div></div>
+    </div>
+
+    <div class="foot"><i class="fa-solid fa-signal"></i>FNB NOKOS OTP <span class="b">•</span> Nomor Virtual &amp; Deposit QRIS <span class="b">•</span> Sistem Maintenance</div>
+  </div>
+</body>
+</html>

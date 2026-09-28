@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<script src="/theme.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Riwayat Transaksi — Digital Pedia</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --green:    #3B82F6;
+  --green-d:  #2563EB;
+  --green-xl: #DBEAFE;
+  --blue:     #3b82f6;
+  --amber:    #f59e0b;
+  --red:      #ef4444;
+  --bg:       #f0f4f8;
+  --surface:  #ffffff;
+  --border:   #e8edf3;
+  --text:     #0f172a;
+  --muted:    #64748b;
+  --shadow:   0 4px 20px rgba(0,0,0,0.05);
+  --mono:     'JetBrains Mono', monospace;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { transition: background .3s, color .3s;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:var(--bg); color:var(--text);
+  padding-bottom:110px;
+  -webkit-font-smoothing:antialiased;
+  max-width:720px; margin:0 auto; position:relative;
+}
+@media (min-width:900px){
+  body{box-shadow:0 0 50px rgba(0,0,0,.10); min-height:100vh;}
+  .bottom-nav{max-width:690px; left:50%; right:auto; transform:translateX(-50%);}
+}
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+/* ─── HEADER ────────────────────────────────────── */
+.page-header {
+  position:sticky; top:0; z-index:100;
+  background:var(--header-bg, var(--surface));
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:13px 18px;
+  display:flex; align-items:center; gap:12px;
+}
+.page-header h1 { font-size:17px; font-weight:800; flex:1; letter-spacing:-.3px; }
+.back-btn {
+  width:34px; height:34px; border-radius:10px;
+  background:var(--bg); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--text); font-size:14px;
+}
+.refresh-btn {
+  width:34px; height:34px; border-radius:10px;
+  background:var(--bg); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--muted); font-size:14px; transition:.3s;
+}
+.refresh-btn.loading { animation:spin .7s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg);} }
+
+/* ─── TOAST ─────────────────────────────────────── */
+#toast {
+  position:fixed; top:68px; left:16px; right:16px; z-index:999;
+  background:#1e293b; color:#fff;
+  border-radius:18px; padding:13px 15px;
+  display:flex; align-items:center; gap:12px;
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 16px 32px rgba(0,0,0,.25);
+  transform:translateY(-110%); opacity:0;
+  transition:all .4s cubic-bezier(.18,.89,.32,1.28);
+  pointer-events:none;
+}
+#toast.show { transform:translateY(0); opacity:1; pointer-events:all; }
+.t-ic { width:36px; height:36px; flex-shrink:0; background:var(--green); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; }
+.t-bd { flex:1; }
+.t-title { font-size:13px; font-weight:800; }
+.t-msg   { font-size:11px; opacity:.75; margin-top:1px; }
+
+/* ─── CHART CARD ────────────────────────────────── */
+.chart-card {
+  margin:14px; background:var(--surface);
+  border:1px solid var(--border); border-radius:20px;
+  padding:18px; box-shadow:var(--shadow);
+}
+.chart-card-top {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  margin-bottom:14px;
+}
+.chart-card-top h4 { font-size:14px; font-weight:800; }
+.chart-card-top .sub { font-size:11px; color:var(--muted); margin-top:2px; }
+.chart-nums { display:flex; gap:14px; }
+.cn-item { text-align:right; }
+.cn-val  { font-size:17px; font-weight:800; display:block; letter-spacing:-.2px; }
+.cn-lbl  { font-size:10px; color:var(--muted); font-weight:600; }
+.chart-wrap { position:relative; height:140px; }
+
+/* ─── TABS ──────────────────────────────────────── */
+.tabs-bar {
+  padding:11px 14px; background:var(--surface);
+  border-bottom:1px solid var(--border);
+  position:sticky; top:60px; z-index:99;
+}
+.seg {
+  display:flex; background:var(--bg);
+  border-radius:12px; padding:3px; gap:3px;
+}
+.seg-btn {
+  flex:1; padding:9px; border-radius:9px; border:none;
+  background:transparent; color:var(--muted);
+  font-weight:700; font-size:12px; cursor:pointer;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.seg-btn.active {
+  background:var(--surface); color:var(--text);
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+/* ─── TRANSACTION LIST ──────────────────────────── */
+.trx-list { padding:12px 14px; }
+
+.trx-card {
+  background:var(--surface); border-radius:20px;
+  border:1px solid var(--border); padding:17px;
+  margin-bottom:12px; box-shadow:var(--shadow); transition:.18s;
+}
+.trx-card:active { transform:scale(.99); }
+
+.trx-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:13px; }
+.trx-brand { display:flex; align-items:center; gap:11px; }
+.trx-ico {
+  width:42px; height:42px; border-radius:12px; flex-shrink:0;
+  background:#eff6ff; color:var(--green-d);
+  display:flex; align-items:center; justify-content:center; font-size:18px;
+}
+.trx-ico.dep { background:#eff6ff; color:var(--blue); }
+.trx-svcname { font-size:14px; font-weight:800; }
+.trx-time    { font-size:11px; color:var(--muted); font-weight:500; margin-top:2px; }
+
+.status-pill {
+  padding:5px 10px; border-radius:20px; flex-shrink:0;
+  font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.04em;
+}
+.s-ok  { background:#dcfce7; color:#15803d; }
+.s-pnd { background:#fffbeb; color:#b45309; }
+.s-can { background:#fee2e2; color:#b91c1c; }
+
+.trx-details {
+  background:var(--bg); border-radius:12px; padding:11px 14px; margin-bottom:13px;
+}
+.det-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
+.det-row:last-child { margin-bottom:0; }
+.det-k { font-size:11px; color:var(--muted); font-weight:600; }
+.det-v { font-size:12px; font-weight:700; }
+.det-v.mono { font-family:var(--mono); font-size:11px; }
+
+/* OTP Box */
+.otp-box {
+  background:linear-gradient(135deg,#064e3b,#065f46);
+  border-radius:14px; padding:14px 16px; margin-bottom:13px;
+  position:relative; overflow:hidden;
+}
+.otp-box::before {
+  content:''; position:absolute; top:-15px; right:-15px;
+  width:70px; height:70px; border-radius:50%; background:rgba(255,255,255,.04);
+}
+.otp-box .otp-lbl {
+  font-size:9px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; color:rgba(255,255,255,.6); display:block; margin-bottom:5px;
+}
+.otp-box .otp-num {
+  font-family:var(--mono); font-size:26px; font-weight:700;
+  color:#fff; letter-spacing:5px;
+}
+.otp-box .otp-btn {
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.15);
+  border-radius:8px; color:#fff; font-size:11px; padding:6px 10px;
+  cursor:pointer; transition:.2s; font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:700;
+}
+.otp-box .otp-btn:active { background:rgba(255,255,255,.22); }
+
+.price-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding-top:11px; border-top:1px dashed var(--border);
+}
+.price-lbl { font-size:12px; color:var(--muted); font-weight:600; }
+.price-val { font-size:17px; font-weight:800; }
+
+/* Action Buttons */
+.btn-row { display:flex; gap:8px; margin-top:12px; }
+.btn-cek {
+  flex:1; padding:12px; border-radius:12px;
+  background:var(--text); color:#fff; border:none;
+  font-size:13px; font-weight:700; cursor:pointer; transition:.2s;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+}
+.btn-cek:active { transform:scale(.96); opacity:.9; }
+.btn-cek:disabled { opacity:.6; cursor:not-allowed; }
+.btn-cek.green { background:var(--green); }
+.btn-cancel {
+  flex:1; padding:12px; border-radius:12px;
+  background:transparent; color:var(--red);
+  border:1.5px solid #fecaca;
+  font-size:13px; font-weight:700; cursor:pointer; transition:.2s;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.btn-cancel:active { transform:scale(.96); background:#fff5f5; }
+.btn-cancel:disabled { opacity:.5; cursor:not-allowed; }
+
+/* ─── DEPOSIT PENDING PANEL (QR + cara bayar) ───── */
+.dep-pending-panel {
+  margin-top:13px; padding-top:13px; border-top:1px dashed var(--border);
+}
+.dep-qr-box {
+  background:#fff; border:1px solid var(--border); border-radius:14px;
+  padding:12px; max-width:210px; margin:0 auto 12px;
+}
+.dep-qr-box img { width:100%; display:block; border-radius:6px; }
+.dep-qr-empty { text-align:center; font-size:12px; color:var(--muted); padding:24px 0; font-weight:600; }
+.dep-total-mini {
+  display:flex; justify-content:space-between; align-items:center;
+  background:var(--bg); border-radius:10px; padding:10px 13px; margin-bottom:11px;
+}
+.dep-total-mini span { font-size:11px; color:var(--muted); font-weight:700; }
+.dep-total-mini b { font-size:14px; color:var(--text); font-weight:800; }
+.dep-pay-caption {
+  background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.18);
+  border-radius:12px; padding:11px 13px; display:flex; gap:9px;
+  align-items:flex-start; margin-bottom:12px;
+}
+.dep-pay-caption i { color:var(--blue); font-size:13px; margin-top:1px; flex-shrink:0; }
+.dep-pay-caption p { font-size:11.5px; color:var(--muted); line-height:1.6; font-weight:500; }
+.dep-pay-caption b { color:var(--text); }
+
+/* ─── COUNTDOWN / TIMER ─────────────────────────── */
+.countdown-wrap {
+  margin: 10px 0 13px;
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cd-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.cd-label i { font-size: 12px; }
+.cd-timer {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 1px;
+  transition: color .3s;
+}
+.cd-timer.warn  { color: var(--amber); }
+.cd-timer.urgent { color: var(--red); animation: pulse-red 1s infinite; }
+@keyframes pulse-red { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+.cd-bar-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.cd-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--green);
+  transition: width .9s linear, background .3s;
+}
+
+/* Cancel button locked state */
+.btn-cancel.locked {
+  opacity: 1;
+  color: var(--muted);
+  border-color: var(--border);
+  cursor: not-allowed;
+  font-size: 11px;
+}
+.btn-cancel.locked .cd-wait {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 2px;
+  font-family: var(--mono);
+}
+.empty {
+  text-align:center; padding:60px 20px;
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+}
+.empty-ico { font-size:44px; color:#e2e8f0; }
+.empty p   { font-size:14px; color:var(--muted); font-weight:600; }
+
+/* Loading */
+.loading-state { text-align:center; padding:50px 20px; color:var(--muted); }
+.loading-state i { font-size:24px; animation:spin .7s linear infinite; }
+
+/* ─── MODAL: OTP ────────────────────────────────── */
+.modal-wrap {
+  position:fixed; inset:0; z-index:700;
+  background:rgba(15,23,42,.55); backdrop-filter:blur(6px);
+  display:none; align-items:center; justify-content:center; padding:20px;
+}
+.modal-wrap.open { display:flex; }
+.modal-box {
+  background:var(--surface); border-radius:26px;
+  padding:28px 22px; width:100%; max-width:320px; text-align:center;
+  box-shadow:0 24px 48px rgba(0,0,0,.15);
+  animation:popIn .3s cubic-bezier(.32,1,.5,1);
+}
+@keyframes popIn { from{opacity:0;transform:scale(.9);} to{opacity:1;transform:scale(1);} }
+.modal-key {
+  width:62px; height:62px; background:#eff6ff; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 14px; font-size:26px; color:var(--green);
+}
+.modal-title { font-size:17px; font-weight:800; }
+.modal-desc  { font-size:13px; color:var(--muted); margin-top:5px; }
+.modal-otp {
+  font-family:var(--mono); font-size:36px; font-weight:700;
+  color:var(--green); letter-spacing:6px; margin:16px 0 22px;
+}
+.modal-btns { display:flex; flex-direction:column; gap:8px; }
+.modal-btn {
+  width:100%; padding:13px; border-radius:13px;
+  font-size:14px; font-weight:700; cursor:pointer; border:none; transition:.2s;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.modal-btn.solid { background:var(--green); color:#fff; }
+.modal-btn.solid:active { transform:scale(.98); opacity:.9; }
+.modal-btn.ghost { background:var(--bg); color:var(--muted); border:1px solid var(--border); }
+
+/* ─── BOTTOM NAV ────────────────────────────────── */
+.bottom-nav {
+  position:fixed; bottom:14px; left:14px; right:14px; z-index:400;
+  background:var(--nav-bg, var(--surface));
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  border-radius:26px; padding:8px 4px;
+  display:flex; align-items:center; justify-content:space-around;
+  box-shadow:0 8px 30px rgba(0,0,0,.10); border:1px solid var(--border);
+}
+.nav-btn {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  color:#94a3b8; font-size:10px; font-weight:700;
+  background:none; border:none; cursor:pointer; padding:5px 10px;
+  border-radius:14px; transition:.2s;
+  text-decoration:none; font-family:'Plus Jakarta Sans',sans-serif;
+}
+.nav-btn i { font-size:20px; display:block; }
+.nav-btn.active { color:var(--green); }
+.fab-wrap { margin-top:-26px; }
+.fab {
+  width:54px; height:54px; border-radius:50%;
+  background:linear-gradient(135deg,var(--green),#38BDF8);
+  color:#fff; font-size:23px;
+  display:flex; align-items:center; justify-content:center;
+  border:5px solid var(--bg); box-shadow:0 6px 20px rgba(59,130,246,.4);
+  cursor:pointer; transition:.2s;
+}
+.fab:active { transform:scale(.93); }
+</style>
+<link rel="stylesheet" href="/theme-vars.css?v=3">
+</head>
+<body>
+<script src="/premium-loader.js?v=3"></script>
+
+<!-- HEADER -->
+<div class="page-header">
+  <button class="back-btn" onclick="location.href='dashboard'"><i class="fas fa-chevron-left"></i></button>
+  <h1>Riwayat Transaksi</h1>
+  <button class="refresh-btn" id="refreshBtn" onclick="doRefresh()"><i class="fas fa-rotate-right"></i></button>
+
+  <!-- THEME PICKER -->
+  <div style="position:relative;display:inline-block" id="theme-wrap">
+    <button onclick="document.getElementById('theme-dd').classList.toggle('open')" style="width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border,#e2e8f0);background:var(--surface2,#f0f4f8);color:var(--muted,#64748b);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;" id="theme-icon-btn">
+      <i class="fas fa-circle-half-stroke" id="t-ico"></i>
+    </button>
+    <div id="theme-dd" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--surface,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:6px;box-shadow:0 12px 36px rgba(0,0,0,.15);min-width:150px;z-index:9999;animation:dropIn .2s ease;">
+      <div style="font-size:10px;font-weight:800;color:var(--muted,#64748b);padding:4px 8px 6px;text-transform:uppercase;letter-spacing:.06em">Tema</div>
+      <button onclick="setThemePage('dark')" data-t="dark" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:8px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--text,#0f172a);font-family:inherit;">🌙 Mode Gelap <i class="fas fa-check t-chk" style="margin-left:auto;opacity:0;color:#3b82f6"></i></button>
+      <button onclick="setThemePage('light')" data-t="light" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:8px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--text,#0f172a);font-family:inherit;">☀️ Mode Terang <i class="fas fa-check t-chk" style="margin-left:auto;opacity:0;color:#3b82f6"></i></button>
+    </div>
+  </div>
+  <style>
+  @keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+  <script>
+  function setThemePage(t){ window.DP_THEME.set(t); updateThemePageUI(); document.getElementById('theme-dd').classList.remove('open'); }
+  function updateThemePageUI(){ var t=window.DP_THEME.get(); document.getElementById('t-ico').className=t==='dark'?'fas fa-moon':'fas fa-sun'; document.querySelectorAll('[data-t]').forEach(function(el){ var chk=el.querySelector('.t-chk'); if(chk) chk.style.opacity=el.dataset.t===t?'1':'0'; }); }
+  document.addEventListener('click',function(e){ if(!e.target.closest('#theme-wrap')) document.getElementById('theme-dd')?.classList.remove('open'); });
+  updateThemePageUI();
+  </script></div>
+
+<!-- TOAST -->
+<div id="toast">
+  <div class="t-ic"><i class="fas fa-check" id="toastIco"></i></div>
+  <div class="t-bd">
+    <div class="t-title" id="toastTitle">Info</div>
+    <div class="t-msg"   id="toastMsg"></div>
+  </div>
+  <i class="fas fa-times" style="cursor:pointer;opacity:.5;font-size:13px;" onclick="hideToast()"></i>
+</div>
+
+<!-- CHART CARD -->
+<div class="chart-card">
+  <div class="chart-card-top">
+    <div>
+      <h4>Statistik 7 Hari</h4>
+      <div class="sub">Transaksi mingguan kamu</div>
+    </div>
+    <div class="chart-nums">
+      <div class="cn-item">
+        <span class="cn-val" id="csOrders" style="color:#6366f1">—</span>
+        <span class="cn-lbl">Order</span>
+      </div>
+      <div class="cn-item">
+        <span class="cn-val" id="csDeps" style="color:var(--blue)">—</span>
+        <span class="cn-lbl">Deposit</span>
+      </div>
+    </div>
+  </div>
+  <div class="chart-wrap"><canvas id="myChart"></canvas></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <div class="seg">
+    <button class="seg-btn active" id="tabOtp"     onclick="switchTab('otp')">Nomor Virtual</button>
+    <button class="seg-btn"        id="tabDeposit" onclick="switchTab('deposit')">Top Up Saldo</button>
+  </div>
+</div>
+
+<!-- LISTS -->
+<div id="listOtp"></div>
+<div id="listDeposit" style="display:none"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="dashboard" class="nav-btn"><i class="fas fa-house-chimney"></i><span>Home</span></a>
+  <a href="deposit"   class="nav-btn"><i class="fas fa-wallet"></i><span>Top Up</span></a>
+  <div class="fab-wrap nav-btn">
+    <div class="fab" onclick="location.href='nokos'"><i class="fas fa-cart-shopping"></i></div>
+  </div>
+  <a href="riwayat" class="nav-btn active"><i class="fas fa-receipt"></i><span>Riwayat</span></a>
+  <a href="profile" class="nav-btn"><i class="fas fa-circle-user"></i><span>Akun</span></a>
+</nav>
+
+<!-- MODAL: OTP DETAIL -->
+<div class="modal-wrap" id="otpModal" onclick="closeOtpModal(event)">
+  <div class="modal-box">
+    <div class="modal-key"><i class="fas fa-key"></i></div>
+    <div class="modal-title">Kode Verifikasi</div>
+    <div class="modal-desc" id="modalDesc">Gunakan kode ini untuk verifikasi.</div>
+    <div class="modal-otp" id="modalOtpCode">—</div>
+    <div class="modal-btns">
+      <button class="modal-btn solid" onclick="copyOtp()"><i class="fas fa-copy"></i> Salin Kode</button>
+      <button class="modal-btn ghost" onclick="closeOtpModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── AUTH ────────────────────────────────────────
+let currentUser = null;
+(function() {
+  const s = localStorage.getItem('user');
+  if (!s) { location.href = 'login'; return; }
+  currentUser = JSON.parse(s);
+})();
+
+// ─── STATE ───────────────────────────────────────
+let chartInst    = null;
+let currentTab   = 'otp';
+let currentOtp   = null;
+let allOrders    = [];
+let allDeposits  = [];
+let toastTimer   = null;
+
+// ─── HELPERS ─────────────────────────────────────
+function rp(n) { return 'Rp ' + (n||0).toLocaleString('id-ID'); }
+function esc(t) { const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
+
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})
+       + ', ' + d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+}
+function statusCls(s) {
+  if (s==='success'||s==='completed') return 's-ok';
+  if (s==='pending') return 's-pnd';
+  return 's-can';
+}
+function statusLbl(s) {
+  if (s==='success'||s==='completed') return 'Berhasil';
+  if (s==='pending') return 'Pending';
+  return 'Dibatalkan';
+}
+
+function showToast(title, msg, icon='check') {
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastMsg').textContent   = msg;
+  document.getElementById('toastIco').className = 'fas fa-' + icon;
+  clearTimeout(toastTimer);
+  document.getElementById('toast').classList.add('show');
+  toastTimer = setTimeout(hideToast, 4000);
+}
+function hideToast() { document.getElementById('toast').classList.remove('show'); }
+
+// ─── LOAD ORDERS ─────────────────────────────────
+async function loadOrders() {
+  const c = document.getElementById('listOtp');
+  c.innerHTML = '<div class="loading-state"><i class="fas fa-circle-notch"></i></div>';
+  try {
+    const res = await axios.get('/api/history/orders/' + currentUser.id);
+    allOrders = Array.isArray(res.data) ? res.data.sort((a,b)=>b.created_at-a.created_at) : [];
+    renderOrders();
+    buildChart();
+  } catch(e) {
+    c.innerHTML = '<div class="empty"><div class="empty-ico">⚠️</div><p>Gagal memuat data. Cek koneksi.</p></div>';
+  }
+}
+
+// ─── LOAD DEPOSITS ───────────────────────────────
+async function loadDeposits() {
+  const c = document.getElementById('listDeposit');
+  c.innerHTML = '<div class="loading-state"><i class="fas fa-circle-notch"></i></div>';
+  try {
+    const res = await axios.get('/api/history/deposits/' + currentUser.id);
+    allDeposits = Array.isArray(res.data) ? res.data.sort((a,b)=>b.created_at-a.created_at) : [];
+    renderDeposits();
+    buildChart();
+  } catch(e) {
+    c.innerHTML = '<div class="empty"><div class="empty-ico">⚠️</div><p>Gagal memuat data.</p></div>';
+  }
+}
+
+// ─── RENDER ORDERS ───────────────────────────────
+function renderOrders() {
+  const c = document.getElementById('listOtp');
+  if (!allOrders.length) {
+    c.innerHTML = '<div class="empty"><div class="empty-ico">📭</div><p>Belum ada riwayat order</p></div>';
+    return;
+  }
+  c.innerHTML = '<div class="trx-list">' + allOrders.map(o => {
+    const sc = statusCls(o.status);
+    const sl = statusLbl(o.status);
+    const otpCode = o.otp_code || '';
+    const otpMsg  = esc(o.otp_msg || 'Kode OTP berhasil diterima.');
+    const isPending = o.status === 'pending';
+
+    // Hitung waktu expires (20 mnt) & cancel_available_at (10 mnt)
+    const expiresAt    = o.expires_at       || (o.created_at + 20 * 60 * 1000);
+    const cancelAt     = o.cancel_available_at || (o.created_at + 10 * 60 * 1000);
+    const totalMs      = 20 * 60 * 1000;
+
+    return `
+    <div class="trx-card">
+      <div class="trx-head">
+        <div class="trx-brand">
+          <div class="trx-ico"><i class="fas fa-mobile-screen"></i></div>
+          <div>
+            <div class="trx-svcname">${esc(o.service_name||'OTP Service')}</div>
+            <div class="trx-time">${fmtDate(o.created_at)}</div>
+          </div>
+        </div>
+        <span class="status-pill ${sc}">${sl}</span>
+      </div>
+
+      ${isPending ? `
+      <!-- ── COUNTDOWN BAR ── -->
+      <div class="countdown-wrap" id="cdwrap-${esc(o.id)}">
+        <div class="cd-label"><i class="fas fa-hourglass-half"></i> Auto cancel</div>
+        <div class="cd-timer" id="cdtimer-${esc(o.id)}" data-expires="${expiresAt}" data-created="${o.created_at}">--:--</div>
+      </div>
+      <div class="cd-bar-track" style="margin:-8px 0 13px;">
+        <div class="cd-bar-fill" id="cdbar-${esc(o.id)}" style="width:100%;"></div>
+      </div>
+      ` : ''}
+
+      <div class="trx-details">
+        <div class="det-row">
+          <span class="det-k">Nomor Virtual</span>
+          <span class="det-v mono">${esc(o.phone_number||'Memproses...')}</span>
+        </div>
+        <div class="det-row">
+          <span class="det-k">ID Transaksi</span>
+          <span class="det-v mono">#${String(o.id).slice(-8).toUpperCase()}</span>
+        </div>
+        <div class="det-row">
+          <span class="det-k">Server</span>
+          <span class="det-v">${SERVER_LABELS[o.server] || o.server}</span>
+        </div>
+      </div>
+      ${otpCode ? `
+      <div class="otp-box">
+        <span class="otp-lbl">Kode OTP</span>
+        <div class="otp-num">${esc(otpCode)}</div>
+        <button class="otp-btn" onclick="openOtpModal('${esc(otpCode)}','${otpMsg}')">
+          <i class="fas fa-expand-alt"></i> Lihat
+        </button>
+      </div>` : ''}
+      <div class="price-row">
+        <span class="price-lbl">Total Bayar</span>
+        <span class="price-val">${rp(o.price)}</span>
+      </div>
+      <div class="btn-row">
+        ${isPending ? `
+          <button class="btn-cek" onclick="doCheckOtp('${esc(o.id)}', this)">
+            <i class="fas fa-rotate-right"></i> Cek OTP
+          </button>
+          <button class="btn-cancel locked"
+            id="cancelbtn-${esc(o.id)}"
+            data-order-id="${esc(o.id)}"
+            data-cancel-at="${cancelAt}"
+            onclick="handleCancel(this)">
+            <span class="cd-label-btn">Batalkan</span>
+            <span class="cd-wait" id="cdwait-${esc(o.id)}"></span>
+          </button>
+        ` : ''}
+        ${(o.status==='success'||o.status==='completed') && otpCode ? `
+          <button class="btn-cek green" onclick="openOtpModal('${esc(otpCode)}','${otpMsg}')">
+            <i class="fas fa-key"></i> Lihat OTP
+          </button>
+        ` : ''}
+      </div>
+      ${(o.status==='success'||o.status==='completed') && (o.server==='s2'||o.server==='s4') && (Date.now()-o.created_at < 10*60*1000) ? `
+      <div class="btn-row" style="margin-top:9px" id="resendrow-${esc(o.id)}">
+        <button class="btn-cek" onclick="doResendOtp('${esc(o.id)}', this)">
+          <i class="fas fa-paper-plane"></i> Minta OTP Ulang
+        </button>
+      </div>
+      ` : ''}
+    </div>`;
+  }).join('') + '</div>';
+
+  // Mulai tick timer setelah render
+  startCountdowns();
+}
+
+const SERVER_LABELS = {
+  s1: '⭐ Premium (S1)',
+  s2: '💡 Hemat (S2)',
+  s3: '🌏 NusaOTP (S3)',
+  s4: '🌐 SMSCode (S4)'
+};
+
+// ========== RESEND OTP (khusus S2/S4, <10 menit dari order) ==========
+async function doResendOtp(orderId, btn) {
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch" style="animation:spin .7s linear infinite"></i> Mengirim...';
+  try {
+    const res = await axios.post('/api/nokos/resend', { order_id: orderId, user_id: currentUser.id });
+    if (res.data && res.data.success) {
+      const row = document.getElementById('resendrow-' + orderId);
+      if (row) {
+        row.innerHTML = `
+          <button class="btn-cek green" onclick="doCheckResentOtp('${orderId}', this)">
+            <i class="fas fa-rotate-right"></i> Cek OTP Ulang
+          </button>`;
+      }
+    } else {
+      alert(res.data?.error || 'Gagal minta OTP ulang');
+      btn.disabled = false;
+      btn.innerHTML = orig;
+    }
+  } catch (e) {
+    alert(e.response?.data?.error || 'Gagal minta OTP ulang');
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+
+async function doCheckResentOtp(orderId, btn) {
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch" style="animation:spin .7s linear infinite"></i> Mengecek...';
+  try {
+    const res = await axios.get('/api/nokos/status', { params: { order_id: orderId, force: 'true' } });
+    if (res.data?.data?.otp_code) {
+      openOtpModal(res.data.data.otp_code, esc(res.data.data.otp_msg || 'Kode OTP diterima'));
+      loadOrders(); // refresh biar kartu OTP-nya update ke kode terbaru
+    } else {
+      alert('OTP baru belum masuk, coba cek lagi sebentar.');
+      btn.disabled = false;
+      btn.innerHTML = orig;
+    }
+  } catch (e) {
+    alert('Gagal cek OTP ulang, coba lagi.');
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+
+// ─── RENDER DEPOSITS ─────────────────────────────
+function renderDeposits() {
+  const c = document.getElementById('listDeposit');
+  if (!allDeposits.length) {
+    c.innerHTML = '<div class="empty"><div class="empty-ico">💳</div><p>Belum ada riwayat top up</p></div>';
+    return;
+  }
+  c.innerHTML = '<div class="trx-list">' + allDeposits.map(d => {
+    const depId = esc(String(d.id));
+    const isPending = d.status === 'pending';
+    return `
+    <div class="trx-card">
+      <div class="trx-head">
+        <div class="trx-brand">
+          <div class="trx-ico dep"><i class="fas fa-wallet"></i></div>
+          <div>
+            <div class="trx-svcname">Top Up Saldo</div>
+            <div class="trx-time">${fmtDate(d.created_at)}</div>
+          </div>
+        </div>
+        <span class="status-pill ${statusCls(d.status)}">${statusLbl(d.status)}</span>
+      </div>
+      <div class="trx-details">
+        <div class="det-row">
+          <span class="det-k">Metode Bayar</span>
+          <span class="det-v">QRIS Otomatis</span>
+        </div>
+        <div class="det-row">
+          <span class="det-k">Ref ID</span>
+          <span class="det-v mono">DEP-${depId}</span>
+        </div>
+        ${d.total_payment ? `<div class="det-row">
+          <span class="det-k">Total Dibayar</span>
+          <span class="det-v">${rp(d.total_payment)}</span>
+        </div>` : ''}
+      </div>
+      <div class="price-row">
+        <span class="price-lbl">Nominal Masuk</span>
+        <span class="price-val" style="color:var(--green)">+ ${rp(d.amount)}</span>
+      </div>
+      ${isPending ? `
+      <div class="btn-row">
+        <button class="btn-cek" id="deptogglebtn-${depId}" onclick="toggleDepositPanel('${depId}')">
+          <i class="fas fa-qrcode"></i> Cek Deposit
+        </button>
+      </div>
+      <div class="dep-pending-panel" id="deppanel-${depId}" style="display:none">
+        <div class="dep-qr-box">
+          ${d.qr_image ? `<img src="${d.qr_image}" alt="QRIS">` : `<div class="dep-qr-empty">QR tidak tersedia lagi</div>`}
+        </div>
+        <div class="dep-total-mini">
+          <span>Total Pembayaran</span>
+          <b>${rp(d.total_payment || d.amount)}</b>
+        </div>
+        <div class="dep-pay-caption">
+          <i class="fas fa-circle-info"></i>
+          <p>Buka aplikasi m-banking atau e-wallet kamu, pilih menu <b>Scan QR / QRIS</b>, lalu pindai kode di atas. Pastikan nominal sesuai dengan Total Pembayaran, kemudian selesaikan dengan PIN kamu.</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn-cek green" id="depcheckbtn-${depId}" onclick="doCheckDeposit('${depId}', this)">
+            <i class="fas fa-rotate-right"></i> Cek Deposit
+          </button>
+          <button class="btn-cancel" id="depcancelbtn-${depId}" onclick="doCancelDeposit('${depId}', this)">
+            <i class="fas fa-ban"></i> Batalkan Deposit
+          </button>
+        </div>
+      </div>
+      ` : ''}
+    </div>`;
+  }).join('') + '</div>';
+}
+
+// ─── TOGGLE PANEL CEK DEPOSIT (pending) ──────────
+function toggleDepositPanel(depId) {
+  const panel = document.getElementById('deppanel-' + depId);
+  const btn   = document.getElementById('deptogglebtn-' + depId);
+  if (!panel) return;
+  const willOpen = panel.style.display === 'none';
+  panel.style.display = willOpen ? 'block' : 'none';
+  if (btn) btn.innerHTML = willOpen
+    ? '<i class="fas fa-chevron-up"></i> Sembunyikan'
+    : '<i class="fas fa-qrcode"></i> Cek Deposit';
+}
+
+// ─── CEK STATUS DEPOSIT (API) ────────────────────
+async function doCheckDeposit(depId, btn) {
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch" style="animation:spin .7s linear infinite"></i> Mengecek...';
+  try {
+    const res = await axios.post('/api/deposit/status', { deposit_id: depId });
+    if (res.data && res.data.status === 'success') {
+      showToast('Berhasil', 'Pembayaran terkonfirmasi, saldo bertambah.', 'check');
+      await loadDeposits();
+    } else {
+      showToast('Belum Terbayar', 'Saldo belum masuk. Coba cek lagi beberapa saat.', 'clock');
+      btn.disabled = false;
+      btn.innerHTML = orig;
+    }
+  } catch(e) {
+    showToast('Gagal', 'Tidak bisa cek status deposit. Coba lagi.', 'triangle-exclamation');
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+
+// ─── BATALKAN DEPOSIT (API) ──────────────────────
+async function doCancelDeposit(depId, btn) {
+  if (!confirm('Batalkan deposit ini? Pastikan kamu belum membayar.')) return;
+  btn.disabled = true;
+  const orig = btn.innerHTML;
+  btn.innerHTML = 'Membatalkan...';
+  try {
+    await axios.post('/api/deposit/cancel', { deposit_id: depId });
+    showToast('Dibatalkan', 'Deposit berhasil dibatalkan.', 'check');
+    await loadDeposits();
+  } catch(e) {
+    showToast('Gagal', 'Tidak bisa membatalkan deposit. Coba lagi.', 'triangle-exclamation');
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+
+// ─── CHART (dari data real) ───────────────────────
+function buildChart() {
+  const labels  = [];
+  const ordData = [];
+  const depData = [];
+  const now = new Date();
+
+  for (let i = 6; i >= 0; i--) {
+    const d    = new Date(now);
+    d.setDate(d.getDate() - i);
+    const dayStr = d.toLocaleDateString('id-ID', {weekday:'short'});
+    const dayKey = d.toDateString(); // e.g. "Mon Jun 02 2025"
+    labels.push(dayStr);
+
+    // Hitung order di hari ini
+    const oc = allOrders.filter(o => new Date(o.created_at).toDateString() === dayKey).length;
+    const dc = allDeposits.filter(d2 => new Date(d2.created_at).toDateString() === dayKey).length;
+    ordData.push(oc);
+    depData.push(dc);
+  }
+
+  // Update summary
+  document.getElementById('csOrders').textContent = allOrders.length;
+  document.getElementById('csDeps').textContent   = allDeposits.length;
+
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
+  const ctx = document.getElementById('myChart').getContext('2d');
+  chartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label:'Order', data:ordData,
+          borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,.08)',
+          borderWidth:2.5, fill:true, tension:.42,
+          pointRadius:4, pointBackgroundColor:'#6366f1',
+          pointBorderColor:'#fff', pointBorderWidth:2,
+        },
+        {
+          label:'Deposit', data:depData,
+          borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.06)',
+          borderWidth:2, fill:true, tension:.42,
+          pointRadius:3, pointBackgroundColor:'#3b82f6',
+          pointBorderColor:'#fff', pointBorderWidth:2,
+          borderDash:[4,3],
+        }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: {
+        legend: {
+          position:'bottom',
+          labels: { font:{size:11, weight:'700'}, usePointStyle:true, pointStyleWidth:8 }
+        },
+        tooltip: {
+          backgroundColor:'#1e293b',
+          titleFont:{size:12, weight:'800'},
+          bodyFont:{size:11},
+          padding:10, cornerRadius:10, displayColors:false,
+        }
+      },
+      scales: {
+        x: { grid:{display:false}, ticks:{font:{size:11,weight:'700'}, color:'#94a3b8'} },
+        y: {
+          grid:{color:'rgba(0,0,0,.04)'},
+          ticks:{font:{size:11,weight:'700'}, color:'#94a3b8', stepSize:1},
+          beginAtZero:true,
+        }
+      }
+    }
+  });
+}
+
+// ─── CHECK OTP (API) ─────────────────────────────
+async function doCheckOtp(orderId, btn) {
+  btn.innerHTML = '<i class="fas fa-circle-notch" style="animation:spin .7s linear infinite"></i> Cek...';
+  btn.disabled = true;
+  try {
+    const res = await axios.get('/api/nokos/status?order_id=' + orderId);
+    if (res.data.success && res.data.data?.otp_code) {
+      openOtpModal(res.data.data.otp_code, res.data.data.otp_msg||'OTP berhasil diterima!');
+      await loadOrders(); // refresh list
+    } else {
+      showToast('⏳ OTP Belum Masuk', 'Silakan tunggu beberapa saat lagi.', 'clock');
+      btn.innerHTML = '<i class="fas fa-rotate-right"></i> Cek OTP';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    showToast('❌ Gagal', 'Tidak bisa cek OTP. Coba lagi.', 'triangle-exclamation');
+    btn.innerHTML = '<i class="fas fa-rotate-right"></i> Cek OTP';
+    btn.disabled = false;
+  }
+}
+
+// ─── COUNTDOWN ENGINE ────────────────────────────
+let _cdInterval = null;
+
+function fmtMs(ms) {
+  if (ms <= 0) return '00:00';
+  const totalSec = Math.floor(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+
+function startCountdowns() {
+  if (_cdInterval) clearInterval(_cdInterval);
+  tickCountdowns(); // langsung tick pertama
+  _cdInterval = setInterval(tickCountdowns, 1000);
+}
+
+function tickCountdowns() {
+  const now = Date.now();
+  const TOTAL_MS = 20 * 60 * 1000;
+
+  // ── Update setiap timer auto-cancel ───────────────
+  document.querySelectorAll('[id^="cdtimer-"]').forEach(el => {
+    const expires  = parseInt(el.dataset.expires);
+    const created  = parseInt(el.dataset.created);
+    const remaining = expires - now;
+    const elapsed   = now - created;
+    const pct       = Math.max(0, Math.min(100, (1 - elapsed / TOTAL_MS) * 100));
+
+    el.textContent = remaining > 0 ? fmtMs(remaining) : 'Segera...';
+
+    // Warna: hijau → kuning (< 5 mnt) → merah (< 2 mnt)
+    el.className = 'cd-timer';
+    if (remaining < 2 * 60 * 1000)      el.classList.add('urgent');
+    else if (remaining < 5 * 60 * 1000) el.classList.add('warn');
+
+    // Progress bar
+    const barId = 'cdbar-' + el.id.replace('cdtimer-', '');
+    const bar = document.getElementById(barId);
+    if (bar) {
+      bar.style.width = pct + '%';
+      bar.style.background =
+        remaining < 2 * 60 * 1000 ? 'var(--red)' :
+        remaining < 5 * 60 * 1000 ? 'var(--amber)' : 'var(--green)';
+    }
+  });
+
+  // ── Update setiap tombol Batalkan ─────────────────
+  document.querySelectorAll('[id^="cancelbtn-"]').forEach(btn => {
+    const cancelAt  = parseInt(btn.dataset.cancelAt);
+    const waitLeft  = cancelAt - now;
+    const waitEl    = btn.querySelector('.cd-wait');
+    const labelEl   = btn.querySelector('.cd-label-btn');
+
+    if (waitLeft > 0) {
+      // Masih terkunci — tampilkan hitung mundur
+      btn.classList.add('locked');
+      btn.disabled = true;
+      if (labelEl) labelEl.textContent = 'Batalkan';
+      if (waitEl)  waitEl.textContent  = 'Tersedia dalam ' + fmtMs(waitLeft);
+    } else {
+      // Sudah bisa dibatalkan — aktifkan tombol
+      btn.classList.remove('locked');
+      btn.disabled = false;
+      if (labelEl) labelEl.textContent = 'Batalkan';
+      if (waitEl)  waitEl.textContent  = '';
+    }
+  });
+}
+
+// ─── CANCEL HANDLER ─────────────────────────────
+function handleCancel(btn) {
+  const cancelAt = parseInt(btn.dataset.cancelAt);
+  if (Date.now() < cancelAt) return; // double-check
+  const orderId = btn.dataset.orderId;
+  doCancel(orderId, btn);
+}
+
+// ─── CANCEL ORDER (API) ──────────────────────────
+async function doCancel(orderId, btn) {
+  if (!confirm('Batalkan order ini? Saldo akan dikembalikan.')) return;
+  btn.disabled = true;
+  btn.querySelector('.cd-label-btn').textContent = 'Membatalkan...';
+  try {
+    const res = await axios.post('/api/nokos/cancel', {
+      order_id: orderId,
+      user_id:  currentUser.id
+    });
+    if (res.data.success) {
+      showToast('✅ Dibatalkan', 'Order berhasil dibatalkan. Saldo dikembalikan.', 'check');
+      await loadOrders();
+      if (res.data.balance !== undefined) {
+        currentUser.balance = res.data.balance;
+        localStorage.setItem('user', JSON.stringify(currentUser));
+      }
+    } else {
+      showToast('❌ Gagal', res.data.error || 'Gagal membatalkan order.', 'times');
+      btn.disabled = false;
+      btn.querySelector('.cd-label-btn').textContent = 'Batalkan';
+    }
+  } catch(e) {
+    const msg = e.response?.data?.error || 'Tidak bisa membatalkan. Coba lagi.';
+    showToast('❌ Gagal', msg, 'triangle-exclamation');
+    btn.disabled = false;
+    btn.querySelector('.cd-label-btn').textContent = 'Batalkan';
+  }
+}
+
+// ─── REFRESH ─────────────────────────────────────
+async function doRefresh() {
+  const rb = document.getElementById('refreshBtn');
+  rb.classList.add('loading');
+  await Promise.all([loadOrders(), loadDeposits()]);
+  rb.classList.remove('loading');
+  showToast('✅ Diperbarui', 'Data transaksi diperbarui.', 'check');
+}
+
+// ─── TABS ────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabOtp').classList.toggle('active',     tab==='otp');
+  document.getElementById('tabDeposit').classList.toggle('active', tab==='deposit');
+  document.getElementById('listOtp').style.display      = tab==='otp'     ? 'block' : 'none';
+  document.getElementById('listDeposit').style.display  = tab==='deposit' ? 'block' : 'none';
+  // Lazy load deposits
+  if (tab==='deposit' && !allDeposits.length) loadDeposits();
+}
+
+// ─── OTP MODAL ───────────────────────────────────
+function openOtpModal(code, desc) {
+  currentOtp = code;
+  document.getElementById('modalOtpCode').textContent = code || '—';
+  document.getElementById('modalDesc').textContent    = desc  || 'Gunakan kode ini untuk verifikasi.';
+  document.getElementById('otpModal').classList.add('open');
+}
+function closeOtpModal(e) {
+  if (e && e.target !== document.getElementById('otpModal')) return;
+  document.getElementById('otpModal').classList.remove('open');
+}
+function copyOtp() {
+  if (!currentOtp) return;
+  navigator.clipboard?.writeText(currentOtp)
+    .then(() => showToast('📋 Tersalin!', 'Kode OTP ' + currentOtp + ' berhasil disalin.'))
+    .catch(() => showToast('📋 Kode OTP', currentOtp));
+  closeOtpModal();
+}
+
+// ─── INIT ────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadOrders();
+  loadDeposits(); // preload supaya chart langsung lengkap
+});
+</script>
+<script src="/auth-guard.js"></script>
+</body>
+</html>

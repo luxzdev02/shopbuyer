@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<script src="/theme.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Masuk & Daftar — FNB NOKOS</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ─── TOKENS (identik dashboard) ──────────────── */
+:root {
+  --green:    #3B82F6;
+  --green-d:  #2563EB;
+  --green-xl: #DBEAFE;
+  --bg:       #f0f4f8;
+  --surface:  #ffffff;
+  --border:   #e8edf3;
+  --text:     #0f172a;
+  --muted:    #64748b;
+  --red:      #ef4444;
+  --shadow:   0 4px 20px rgba(0,0,0,0.05);
+  --shadow-lg:0 10px 40px rgba(0,0,0,0.09);
+  --mono:     'JetBrains Mono', monospace;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:var(--bg); color:var(--text);
+  min-height:100vh; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── LAYOUT ─────────────────────────────────── */
+.auth-wrap {
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+
+/* ─── LEFT PANEL ─────────────────────────────── */
+.auth-left {
+  background:linear-gradient(150deg,#0f2b5c 0%,#1e3a8a 55%,#1d4ed8 100%);
+  padding:48px;
+  display:flex; flex-direction:column; justify-content:space-between;
+  position:relative; overflow:hidden;
+}
+/* decorative circles */
+.auth-left::before {
+  content:''; position:absolute; top:-80px; right:-80px;
+  width:320px; height:320px; border-radius:50%;
+  background:rgba(255,255,255,.05);
+}
+.auth-left::after {
+  content:''; position:absolute; bottom:-100px; left:-60px;
+  width:380px; height:380px; border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.left-logo {
+  display:flex; align-items:center; gap:10px; position:relative; z-index:1;
+}
+.left-logo-mark {
+  width:42px; height:42px; border-radius:13px;
+  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.2);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:19px; backdrop-filter:blur(4px);
+}
+.left-logo-text { font-size:20px; font-weight:800; color:#fff; letter-spacing:-.3px; }
+.left-logo-text span { color:#6ee7b7; }
+
+.left-body { position:relative; z-index:1; }
+.left-body h2 {
+  font-size:clamp(26px,3vw,36px); font-weight:800;
+  color:#fff; line-height:1.2; letter-spacing:-.03em; margin-bottom:14px;
+}
+.left-body h2 span { color:#6ee7b7; }
+.left-body p { font-size:15px; color:rgba(255,255,255,.65); line-height:1.7; margin-bottom:36px; max-width:340px; }
+
+.left-features { display:flex; flex-direction:column; gap:14px; }
+.lf-item {
+  display:flex; align-items:center; gap:12px;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1);
+  border-radius:14px; padding:13px 16px;
+  backdrop-filter:blur(4px);
+}
+.lf-icon {
+  width:36px; height:36px; border-radius:10px;
+  background:rgba(255,255,255,.12);
+  display:flex; align-items:center; justify-content:center;
+  color:#6ee7b7; font-size:15px; flex-shrink:0;
+}
+.lf-text h4 { font-size:13px; font-weight:700; color:#fff; }
+.lf-text p  { font-size:12px; color:rgba(255,255,255,.55); margin-top:1px; }
+
+.left-footer { position:relative; z-index:1; }
+.left-footer p { font-size:12px; color:rgba(255,255,255,.35); }
+.left-status {
+  display:inline-flex; align-items:center; gap:6px; margin-top:6px;
+  font-size:11px; font-weight:700; color:#6ee7b7;
+  font-family:var(--mono);
+}
+.status-dot { width:6px; height:6px; border-radius:50%; background:#4ade80; box-shadow:0 0 6px #4ade80; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(.8);} }
+
+/* ─── RIGHT PANEL ────────────────────────────── */
+.auth-right {
+  display:flex; align-items:center; justify-content:center;
+  padding:40px 32px; background:var(--bg);
+}
+.auth-box { width:100%; max-width:420px; }
+
+.auth-brand-mobile {
+  display:none; text-align:center; margin-bottom:28px;
+}
+.auth-brand-mobile img {
+  width:68px; height:68px; border-radius:18px; object-fit:cover;
+  box-shadow:0 8px 24px rgba(59,130,246,.25); border:3px solid var(--surface);
+  margin-bottom:10px;
+}
+.auth-brand-mobile h2 { font-size:20px; font-weight:800; letter-spacing:-.3px; }
+.auth-brand-mobile h2 span { color:var(--green); }
+.auth-brand-mobile p { font-size:13px; color:var(--muted); margin-top:4px; }
+
+/* Header */
+.auth-header { margin-bottom:28px; }
+.auth-header h1 {
+  font-size:26px; font-weight:800; letter-spacing:-.4px; margin-bottom:6px;
+  transition:all .3s;
+}
+.auth-header p { font-size:14px; color:var(--muted); line-height:1.55; }
+
+/* Tabs */
+.tab-nav {
+  display:flex; background:var(--border);
+  padding:4px; border-radius:14px; margin-bottom:26px; gap:4px;
+}
+.tab-btn {
+  flex:1; padding:11px; border:none; background:transparent;
+  font-size:13px; font-weight:700; color:var(--muted);
+  cursor:pointer; border-radius:10px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+}
+.tab-btn.active {
+  background:var(--surface); color:var(--green);
+  box-shadow:0 2px 10px rgba(0,0,0,.07);
+}
+
+/* Alert */
+.auth-alert {
+  display:none; padding:12px 14px; border-radius:12px;
+  font-size:13px; font-weight:600; margin-bottom:20px;
+  animation:alertIn .3s ease;
+}
+@keyframes alertIn { from{opacity:0;transform:translateY(-8px);} to{opacity:1;transform:translateY(0);} }
+.alert-error   { background:#fef2f2; color:var(--red);   border:1px solid #fee2e2; }
+.alert-success { background:#eff6ff; color:var(--green-d); border:1px solid #dbeafe; }
+
+/* Form Groups */
+.form-group { margin-bottom:16px; }
+.form-label {
+  display:block; font-size:12px; font-weight:700;
+  color:var(--muted); text-transform:uppercase;
+  letter-spacing:.05em; margin-bottom:7px; padding-left:2px;
+}
+
+.input-wrap {
+  display:flex; align-items:center;
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:13px; padding:13px 16px;
+  transition:all .2s; gap:12px;
+  box-shadow:var(--shadow);
+}
+.input-wrap:focus-within {
+  border-color:var(--green); background:var(--surface);
+  box-shadow:0 0 0 4px rgba(59,130,246,.1);
+}
+.input-wrap i { color:#cbd5e1; font-size:16px; flex-shrink:0; transition:.2s; }
+.input-wrap:focus-within i { color:var(--green); }
+.input-wrap input {
+  border:none; background:transparent; outline:none; width:100%;
+  font-size:15px; font-weight:500; color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.input-wrap input::placeholder { color:#cbd5e1; font-weight:400; }
+.input-toggle {
+  background:none; border:none; cursor:pointer;
+  color:#cbd5e1; font-size:14px; padding:0; flex-shrink:0;
+  transition:.2s;
+}
+.input-toggle:hover { color:var(--muted); }
+
+.input-hint {
+  font-size:11px; font-weight:600; color:var(--muted);
+  margin-top:5px; padding-left:3px; transition:.2s;
+}
+.hint-ok  { color:var(--green-d); }
+.hint-err { color:var(--red); }
+
+.forgot-row { text-align:right; margin-top:6px; }
+.forgot-row a {
+  font-size:12px; font-weight:700; color:var(--green);
+  text-decoration:none; cursor:pointer; transition:.2s;
+}
+.forgot-row a:hover { color:var(--green-d); }
+
+/* Submit Button */
+.btn-submit {
+  width:100%; padding:15px; border:none; border-radius:13px;
+  background:var(--green); color:#fff;
+  font-size:15px; font-weight:700; cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  box-shadow:0 6px 20px rgba(59,130,246,.3);
+  transition:.25s; margin-top:6px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  position:relative; overflow:hidden;
+}
+.btn-submit::before {
+  content:''; position:absolute; inset:0;
+  background:rgba(255,255,255,.1); opacity:0; transition:.2s;
+}
+.btn-submit:hover { background:var(--green-d); transform:translateY(-1px); box-shadow:0 8px 28px rgba(59,130,246,.35); }
+.btn-submit:active { transform:scale(.98); }
+.btn-submit:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+.btn-spinner { display:none; width:18px; height:18px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+.btn-submit.loading .btn-spinner { display:block; }
+.btn-submit.loading .btn-text { opacity:.7; }
+@keyframes spin { to{transform:rotate(360deg);} }
+
+/* Divider */
+.auth-divider {
+  display:flex; align-items:center; gap:12px; margin:22px 0;
+}
+.auth-divider::before, .auth-divider::after {
+  content:''; flex:1; height:1px; background:var(--border);
+}
+.auth-divider span { font-size:11px; font-weight:700; color:var(--muted); white-space:nowrap; letter-spacing:.05em; }
+
+/* Footer switch */
+.auth-switch {
+  text-align:center; margin-top:22px;
+  font-size:14px; color:var(--muted);
+}
+.auth-switch a {
+  color:var(--green); font-weight:700; text-decoration:none; cursor:pointer; transition:.2s;
+}
+.auth-switch a:hover { color:var(--green-d); }
+
+/* Password strength */
+.strength-wrap { margin-top:6px; }
+.strength-bars { display:flex; gap:4px; margin-bottom:4px; }
+.strength-bar {
+  flex:1; height:3px; border-radius:2px;
+  background:var(--border); transition:background .3s;
+}
+.strength-label { font-size:11px; font-weight:600; color:var(--muted); transition:.2s; }
+
+/* ─── RESPONSIVE ─────────────────────────────── */
+@media(max-width:768px) {
+  .auth-wrap { grid-template-columns:1fr; }
+  .auth-left { display:none; }
+  .auth-right { padding:24px 20px; align-items:flex-start; padding-top:40px; }
+  .auth-brand-mobile { display:block; }
+  .auth-box { max-width:100%; }
+}
+@media(min-width:769px) and (max-width:1024px) {
+  .auth-left { padding:36px; }
+  .auth-right { padding:32px 28px; }
+}
+/* ─── REFERRAL INPUT ─── */
+#refWrap{transition:.3s;}
+.ref-hint{font-size:11px;color:#3B82F6;margin-top:4px;}
+</style>
+<link rel="stylesheet" href="/theme-vars.css?v=3">
+</head>
+<body>
+<script src="/premium-loader.js?v=3"></script>
+
+<div class="auth-wrap">
+
+  <!-- ── LEFT PANEL ─────────────────────────── -->
+  <div class="auth-left">
+    <div class="left-logo">
+      <img src="https://files.catbox.moe/je2gz1.jpg" class="left-logo-mark" style="object-fit:cover;" alt="Logo" id="brandLogoImg">
+      <span class="left-logo-text" id="brandNameText">Digital<span>Pedia</span></span>
+    </div>
+
+    <div class="left-body">
+      <h2>Platform OTP<br><span>Terlengkap</span> di Indonesia</h2>
+      <p>Nomor virtual instan untuk semua kebutuhan verifikasi. Cepat, aman, dan terpercaya.</p>
+
+      <div class="left-features">
+        <div class="lf-item">
+          <div class="lf-icon"><i class="fas fa-bolt"></i></div>
+          <div class="lf-text">
+            <h4>OTP Instan &lt;3 Detik</h4>
+            <p>Auto-cek otomatis tanpa refresh manual</p>
+          </div>
+        </div>
+        <div class="lf-item">
+          <div class="lf-icon"><i class="fas fa-layer-group"></i></div>
+          <div class="lf-text">
+            <h4>1700+ Layanan Tersedia</h4>
+            <p>WA, Telegram, Google, Gojek, dan banyak lagi</p>
+          </div>
+        </div>
+        <div class="lf-item">
+          <div class="lf-icon"><i class="fas fa-shield-halved"></i></div>
+          <div class="lf-text">
+            <h4>Garansi Refund 100%</h4>
+            <p>OTP gagal? Saldo kembali otomatis</p>
+          </div>
+        </div>
+        <div class="lf-item">
+          <div class="lf-icon"><i class="fas fa-wallet"></i></div>
+          <div class="lf-text">
+            <h4>Deposit QRIS Semua Bank</h4>
+            <p>Saldo masuk otomatis dalam 30 detik</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="left-footer">
+      <p>© 2026 FNB NOKOS ID. All rights reserved.</p>
+      <div class="left-status"><div class="status-dot"></div> All Systems Operational</div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ────────────────────────── -->
+  <div class="auth-right">
+    <div class="auth-box">
+
+      <!-- Mobile branding -->
+      <div class="auth-brand-mobile">
+        <img src="https://files.catbox.moe/je2gz1.jpg" alt="Logo">
+        <h2>Digital<span>Pedia</span></h2>
+        <p>Platform OTP & Nomor Virtual Premium</p>
+      </div>
+
+      <!-- Header -->
+      <div class="auth-header" id="authHeader">
+        <h1 id="authTitle">Selamat Datang 👋</h1>
+        <p  id="authSubtitle">Masuk ke akun kamu untuk lanjutkan order.</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-nav">
+        <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">
+          <i class="fas fa-right-to-bracket"></i> Masuk
+        </button>
+        <button class="tab-btn" id="tabReg" onclick="switchTab('reg')">
+          <i class="fas fa-user-plus"></i> Daftar
+        </button>
+      </div>
+
+      <!-- Alert -->
+      <div class="auth-alert" id="authAlert"></div>
+
+      <!-- ─── LOGIN FORM ─────────────────────── -->
+      <div id="loginPanel">
+        <div class="form-group">
+          <label class="form-label">Username / Email</label>
+          <div class="input-wrap">
+            <i class="fas fa-user"></i>
+            <input type="text" id="loginUser" placeholder="Masukkan username atau email" spellcheck="false" autocomplete="username">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrap">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="loginPass" placeholder="Masukkan password" autocomplete="current-password">
+            <button class="input-toggle" onclick="togglePass('loginPass',this)" tabindex="-1">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <div class="forgot-row">
+            <a id="forgotLink" onclick="handleForgot()">Lupa Password?</a>
+          </div>
+        </div>
+        <button class="btn-submit" id="btnLogin" onclick="doLogin()">
+          <div class="btn-spinner" id="spinLogin"></div>
+          <span class="btn-text">Masuk Sekarang</span>
+          <i class="fas fa-arrow-right btn-text"></i>
+        </button>
+      </div>
+
+      <!-- ─── REGISTER FORM ──────────────────── -->
+      <div id="registerPanel" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <div class="input-wrap">
+            <i class="fas fa-id-card"></i>
+            <input type="text" id="regUser" placeholder="Buat username unik" spellcheck="false" autocomplete="username">
+          </div>
+          <div class="input-hint" id="hintUser">3–20 karakter, huruf kecil &amp; angka</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Aktif</label>
+          <div class="input-wrap">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="regEmail" placeholder="nama@domain.com" autocomplete="email">
+          </div>
+          <div class="input-hint" id="hintEmail">Digunakan untuk verifikasi &amp; pemulihan akun</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrap">
+            <i class="fas fa-key"></i>
+            <input type="password" id="regPass" placeholder="Minimal 4 karakter" autocomplete="new-password">
+            <button class="input-toggle" onclick="togglePass('regPass',this)" tabindex="-1">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <div class="strength-wrap" id="strengthWrap" style="display:none">
+            <div class="strength-bars">
+              <div class="strength-bar" id="sb1"></div>
+              <div class="strength-bar" id="sb2"></div>
+              <div class="strength-bar" id="sb3"></div>
+              <div class="strength-bar" id="sb4"></div>
+            </div>
+            <span class="strength-label" id="strengthLabel"></span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Konfirmasi Password</label>
+          <div class="input-wrap">
+            <i class="fas fa-check-double"></i>
+            <input type="password" id="regPassConfirm" placeholder="Ulangi password" autocomplete="new-password">
+            <button class="input-toggle" onclick="togglePass('regPassConfirm',this)" tabindex="-1">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <div class="input-hint" id="hintConfirm"></div>
+        </div>
+        <!-- ─── KODE REFERRAL (OPSIONAL) ─── -->
+        <div class="form-group">
+          <label class="form-label">🎁 Kode Referral <span style="color:var(--muted);font-weight:400">(opsional)</span></label>
+          <div class="input-wrap" id="refWrap">
+            <i class="fas fa-gift"></i>
+            <input type="text" id="regRefCode" placeholder="REF_DP_XXXXXX (jika ada)" spellcheck="false" style="text-transform:uppercase" oninput="validateRefCode(this)">
+            <span id="refStatus" style="font-size:13px;font-weight:700;display:none;flex-shrink:0"></span>
+          </div>
+          <div class="input-hint" style="color:#3B82F6"><i class="fas fa-gift"></i> Dapatkan bonus <b>Rp 100</b> langsung masuk saldo!</div>
+        </div>
+
+        <!-- ─── VERIFIKASI MANUSIA (SIMPEL) ─── -->
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-calculator"></i> Verifikasi</label>
+          <div class="input-wrap">
+            <i class="fas fa-shield-halved"></i>
+            <span id="humanQuestion" style="font-weight:800;flex-shrink:0;padding-right:10px;color:var(--text)">— + — = ?</span>
+            <input type="number" id="regHumanAnswer" placeholder="Jawaban" inputmode="numeric">
+          </div>
+        </div>
+
+        <button class="btn-submit" id="btnReg" onclick="doRegister()">
+          <div class="btn-spinner" id="spinReg"></div>
+          <span class="btn-text">Buat Akun Sekarang</span>
+          <i class="fas fa-user-plus btn-text"></i>
+        </button>
+      </div>
+
+      <!-- Switch -->
+      <div class="auth-switch" id="authSwitch">
+        Belum punya akun? <a onclick="switchTab('reg')">Daftar Sekarang</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── TAB SWITCH ──────────────────────────────────
+function switchTab(mode) {
+  hideAlert();
+  const isReg = mode === 'reg';
+
+  document.getElementById('tabLogin').classList.toggle('active', !isReg);
+  document.getElementById('tabReg').classList.toggle('active',  isReg);
+  document.getElementById('loginPanel').style.display    = isReg ? 'none'  : 'block';
+  document.getElementById('registerPanel').style.display = isReg ? 'block' : 'none';
+
+  document.getElementById('authTitle').textContent    = isReg ? 'Buat Akun Baru 🚀' : 'Selamat Datang 👋';
+  document.getElementById('authSubtitle').textContent = isReg
+    ? 'Daftar gratis dan nikmati layanan OTP terbaik.'
+    : 'Masuk ke akun kamu untuk lanjutkan order.';
+
+  document.getElementById('authSwitch').innerHTML = isReg
+    ? 'Sudah punya akun? <a onclick="switchTab(\'login\')">Masuk di sini</a>'
+    : 'Belum punya akun? <a onclick="switchTab(\'reg\')">Daftar Sekarang</a>';
+}
+
+// ─── ALERT ───────────────────────────────────────
+function showAlert(msg, type='error') {
+  const el = document.getElementById('authAlert');
+  el.textContent = msg;
+  el.className = 'auth-alert ' + (type==='success' ? 'alert-success' : 'alert-error');
+  el.style.display = 'block';
+}
+function hideAlert() {
+  const el = document.getElementById('authAlert');
+  el.style.display = 'none';
+}
+
+// ─── PASSWORD TOGGLE ─────────────────────────────
+function togglePass(id, btn) {
+  const inp  = document.getElementById(id);
+  const icon = btn.querySelector('i');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  icon.className = show ? 'fas fa-eye-slash' : 'fas fa-eye';
+}
+
+// ─── PASSWORD STRENGTH ───────────────────────────
+function checkStrength(val) {
+  let score = 0;
+  if (val.length >= 6)              score++;
+  if (val.length >= 10)             score++;
+  if (/[A-Z]/.test(val))           score++;
+  if (/[0-9!@#$%^&*]/.test(val))  score++;
+  return score;
+}
+const colors = ['','#ef4444','#f59e0b','#3b82f6','#2563eb'];
+const labels = ['','Lemah','Cukup','Kuat','Sangat Kuat'];
+
+document.getElementById('regPass').addEventListener('input', function() {
+  const val = this.value;
+  const wrap = document.getElementById('strengthWrap');
+  if (!val) { wrap.style.display='none'; return; }
+  wrap.style.display = 'block';
+  const score = checkStrength(val);
+  for (let i=1;i<=4;i++) {
+    document.getElementById('sb'+i).style.background = i<=score ? colors[score] : 'var(--border)';
+  }
+  const lbl = document.getElementById('strengthLabel');
+  lbl.textContent = labels[score];
+  lbl.style.color = colors[score];
+});
+
+// ─── CONFIRM PASSWORD CHECK ───────────────────────
+document.getElementById('regPassConfirm').addEventListener('input', function() {
+  const pass  = document.getElementById('regPass').value;
+  const hint  = document.getElementById('hintConfirm');
+  if (!this.value) { hint.textContent=''; return; }
+  if (this.value === pass) {
+    hint.textContent = '✓ Password cocok';
+    hint.className = 'input-hint hint-ok';
+  } else {
+    hint.textContent = '✗ Password tidak cocok';
+    hint.className = 'input-hint hint-err';
+  }
+});
+
+// ─── USERNAME VALIDATION ──────────────────────────
+document.getElementById('regUser').addEventListener('input', function() {
+  const val  = this.value.toLowerCase();
+  this.value = val;
+  const hint = document.getElementById('hintUser');
+  const ok   = /^[a-z0-9]{3,20}$/.test(val);
+  if (!val) {
+    hint.textContent = '3–20 karakter, huruf kecil & angka';
+    hint.className   = 'input-hint';
+  } else if (!ok) {
+    hint.textContent = val.length < 3 ? '✗ Minimal 3 karakter' : val.length > 20 ? '✗ Maksimal 20 karakter' : '✗ Hanya huruf kecil & angka';
+    hint.className   = 'input-hint hint-err';
+  } else {
+    hint.textContent = '✓ Username valid';
+    hint.className   = 'input-hint hint-ok';
+  }
+});
+
+// ─── LOADING STATE ───────────────────────────────
+function setLoading(btnId, spinId, loading) {
+  const btn  = document.getElementById(btnId);
+  const spin = document.getElementById(spinId);
+  btn.disabled = loading;
+  btn.classList.toggle('loading', loading);
+}
+
+// ─── LUPA PASSWORD ───────────────────────────────
+function handleForgot() {
+  window.open('https://t.me/csfnbnokos', '_blank');
+  showAlert('Hubungi CS Telegram dengan menyertakan email akunmu.', 'success');
+  setTimeout(hideAlert, 5000);
+}
+
+// ─── LOGIN ───────────────────────────────────────
+async function doLogin() {
+  hideAlert();
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+
+  if (!username || !password) {
+    showAlert('Isi username/email dan password terlebih dahulu.');
+    return;
+  }
+
+  setLoading('btnLogin','spinLogin', true);
+  try {
+    const res = await axios.post('/api/login', { username, password });
+    if (res.data.success) {
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      if (res.data.session_id) localStorage.setItem('session_id', res.data.session_id);
+      showAlert('✓ Login berhasil! Mengalihkan...', 'success');
+      setTimeout(() => { window.location.href = 'dashboard'; }, 800);
+    } else {
+      showAlert(res.data.error || 'Login gagal. Periksa kembali data kamu.');
+      setLoading('btnLogin','spinLogin', false);
+    }
+  } catch(e) {
+    showAlert(e.response?.data?.error || 'Terjadi kesalahan pada server. Coba lagi.');
+    setLoading('btnLogin','spinLogin', false);
+  }
+}
+
+// ─── REGISTER ────────────────────────────────────
+// ─── VERIFIKASI MANUSIA (SIMPEL) — soal jumlah acak, di-generate ulang tiap kali diperlukan ───
+let humanCheckAnswer = null;
+function generateHumanCheck() {
+  const a = Math.floor(Math.random() * 8) + 1;
+  const b = Math.floor(Math.random() * 8) + 1;
+  humanCheckAnswer = a + b;
+  const el = document.getElementById('humanQuestion');
+  if (el) el.textContent = `${a} + ${b} = ?`;
+}
+generateHumanCheck();
+
+async function doRegister() {
+  hideAlert();
+  const username = document.getElementById('regUser').value.trim().toLowerCase();
+  const email    = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPass').value;
+  const confirm  = document.getElementById('regPassConfirm').value;
+
+  // Validasi email
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showAlert('Masukkan alamat email yang valid. Contoh: nama@gmail.com'); return;
+  }
+  // Validasi username
+  if (!/^[a-z0-9]{3,20}$/.test(username)) {
+    showAlert('Username harus 3–20 karakter, hanya huruf kecil dan angka.'); return;
+  }
+  // Validasi password
+  if (!password || password.length < 4) {
+    showAlert('Password minimal 4 karakter.'); return;
+  }
+  if (password !== confirm) {
+    showAlert('Konfirmasi password tidak cocok.'); return;
+  }
+  // Verifikasi manusia (simpel) — cuma buat mastiin yang daftar bukan bot/script
+  const humanAnswer = document.getElementById('regHumanAnswer').value.trim();
+  if (!humanAnswer || parseInt(humanAnswer, 10) !== humanCheckAnswer) {
+    showAlert('Jawaban verifikasi salah, coba lagi ya.');
+    generateHumanCheck();
+    document.getElementById('regHumanAnswer').value = '';
+    return;
+  }
+
+  setLoading('btnReg','spinReg', true);
+  try {
+    const refCode = document.getElementById('regRefCode').value.trim().toUpperCase();
+    const payload = { username, password, email };
+    if (refCode) payload.referral_code = refCode;
+    const res = await axios.post('/api/register', payload);
+    if (res.data.success) {
+      showAlert('✓ Akun berhasil dibuat! Silakan masuk.', 'success');
+      generateHumanCheck();
+      document.getElementById('regHumanAnswer').value = '';
+      setTimeout(() => {
+        switchTab('login');
+        document.getElementById('loginUser').value = username;
+        hideAlert();
+      }, 1800);
+    } else {
+      showAlert(res.data.error || 'Pendaftaran gagal. Coba username/email lain.');
+    }
+  } catch(e) {
+    showAlert(e.response?.data?.error || 'Gagal mendaftarkan akun. Coba lagi.');
+  } finally {
+    setLoading('btnReg','spinReg', false);
+  }
+}
+
+// ─── ENTER KEY ───────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const loginActive = document.getElementById('loginPanel').style.display !== 'none';
+  if (loginActive) doLogin(); else doRegister();
+});
+
+// ─── REFERRAL: VALIDASI KODE (debounced) ─────────
+let refTimer = null;
+async function validateRefCode(input) {
+  const code = input.value.trim().toUpperCase();
+  const statusEl = document.getElementById('refStatus');
+  const wrapEl   = document.getElementById('refWrap');
+  clearTimeout(refTimer);
+  statusEl.style.display = 'none';
+  wrapEl.style.borderColor = '';
+  if (!code || code.length < 6) return;
+  refTimer = setTimeout(async () => {
+    try {
+      const r = await axios.get(`/api/referral/validate/${code}`);
+      if (r.data.valid) {
+        statusEl.textContent = `✓ ${r.data.username}`;
+        statusEl.style.color = '#3B82F6';
+        statusEl.style.display = 'inline';
+        wrapEl.style.borderColor = '#3B82F6';
+      } else {
+        statusEl.textContent = '✗ Tidak valid';
+        statusEl.style.color = '#ef4444';
+        statusEl.style.display = 'inline';
+        wrapEl.style.borderColor = '#ef4444';
+      }
+    } catch(e) {}
+  }, 600);
+}
+
+// ─── AUTO-FILL REFERRAL DARI URL ?ref= ───────────
+(function autoFillRef() {
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  if (ref) {
+    setTimeout(() => {
+      switchTab('reg');
+      const el = document.getElementById('regRefCode');
+      if (el) { el.value = ref.toUpperCase(); validateRefCode(el); }
+    }, 300);
+  }
+})();
+
+// ── Terapkan logo & nama web dari setting/watermark.json (live) ──
+function applyDpWatermark(wm) {
+  const img = document.getElementById('brandLogoImg');
+  const txt = document.getElementById('brandNameText');
+  if (img && wm.logo_url) img.src = wm.logo_url;
+  if (txt && wm.site_name) txt.textContent = wm.site_name;
+  document.title = document.title.replace(/FNB NOKOS/i, wm.site_name || 'FNB NOKOS');
+}
+if (window.DP_WATERMARK) applyDpWatermark(window.DP_WATERMARK);
+document.addEventListener('dpwatermarkready', (e) => applyDpWatermark(e.detail));
+</script>
+
+</body>
+</html>

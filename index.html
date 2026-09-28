@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="/theme.js"></script>
+<meta name="description" content="FNB NOKOS — Platform OTP & Nomor Virtual terlengkap. 1700+ layanan, harga murah, sistem otomatis, API developer-friendly.">
+<title>FNB NOKOS — Layanan OTP & Nomor Virtual Premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ─── DESIGN TOKENS (sama persis dgn dashboard) ── */
+:root {
+  --green:    #3B82F6;
+  --green-d:  #2563EB;
+  --green-xl: #DBEAFE;
+  --blue:     #3B82F6;
+  --accent2:  #38BDF8;
+  --purple:   #8b5cf6;
+  --amber:    #f59e0b;
+  --red:      #ef4444;
+  --bg:       #FFFFFF;
+  --bg2:      #F9FAFB;
+  --surface:  #F9FAFB;
+  --border:   #E5E7EB;
+  --text:     #111827;
+  --muted:    #6B7280;
+  --shadow:   0 4px 20px rgba(17,24,39,0.05);
+  --shadow-lg:0 10px 40px rgba(17,24,39,0.09);
+  --r:        20px;
+  --mono:     'JetBrains Mono', monospace;
+}
+
+/* ─── DARK MODE ─── */
+[data-theme="dark"] {
+  --bg:       #0d1117;
+  --bg2:      #161b22;
+  --surface:  #161b22;
+  --border:   #30363d;
+  --text:     #e6edf3;
+  --muted:    #8b949e;
+  --shadow:   0 4px 20px rgba(0,0,0,0.4);
+  --shadow-lg:0 10px 40px rgba(0,0,0,0.6);
+}
+[data-theme="dark"] .navbar {
+  background: rgba(13,17,23,.95) !important;
+  border-color: #30363d !important;
+}
+[data-theme="dark"] .hero-section {
+  background: linear-gradient(135deg, #0d1117 0%, #0f2419 50%, #0d1117 100%) !important;
+}
+[data-theme="dark"] .card,
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .pricing-card,
+[data-theme="dark"] .stat-item,
+[data-theme="dark"] .faq-item,
+[data-theme="dark"] .testi-card,
+[data-theme="dark"] .step-card {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+}
+[data-theme="dark"] .section-alt {
+  background: #0d1117 !important;
+}
+[data-theme="dark"] footer {
+  background: #010409 !important;
+  border-color: #30363d !important;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  transition: background .3s, color .3s;
+}
+
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+::-webkit-scrollbar-thumb:hover { background:var(--green); }
+
+/* ─── WRAP ──────────────────────────────────────── */
+.wrap { max-width:1140px; margin:0 auto; padding:0 24px; }
+
+/* ─── NAVBAR ────────────────────────────────────── */
+.navbar {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  padding:0 24px; height:66px;
+  display:flex; align-items:center;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  transition:box-shadow .3s;
+}
+.navbar.scrolled { box-shadow:var(--shadow); }
+.nav-inner {
+  max-width:1140px; width:100%; margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+.nav-logo {
+  display:flex; align-items:center; gap:10px;
+  text-decoration:none; color:var(--text);
+}
+.nav-logo-mark {
+  width:36px; height:36px; border-radius:11px;
+  background:linear-gradient(135deg,var(--green),#38BDF8);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:17px;
+  box-shadow:0 4px 12px rgba(59,130,246,.3);
+}
+.nav-logo-text { font-size:18px; font-weight:800; letter-spacing:-.4px; }
+.nav-logo-text span { color:var(--green); }
+
+.nav-links {
+  display:flex; align-items:center; gap:6px; list-style:none;
+}
+.nav-links a {
+  padding:7px 14px; border-radius:10px;
+  color:var(--muted); text-decoration:none;
+  font-size:14px; font-weight:600; transition:.2s;
+}
+.nav-links a:hover { color:var(--text); background:var(--bg); }
+
+.nav-right { display:flex; align-items:center; gap:8px; }
+.btn-login {
+  padding:9px 20px; border-radius:11px; border:1.5px solid var(--border);
+  background:transparent; color:var(--text);
+  font-size:14px; font-weight:700; cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  transition:.2s; text-decoration:none;
+  display:inline-flex; align-items:center;
+}
+.btn-login:hover { border-color:var(--green); color:var(--green); }
+
+.btn-daftar {
+  padding:9px 22px; border-radius:11px;
+  background:var(--green); color:#fff; border:none;
+  font-size:14px; font-weight:700; cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  box-shadow:0 4px 14px rgba(59,130,246,.3);
+  transition:.2s; text-decoration:none;
+  display:inline-flex; align-items:center; gap:6px;
+}
+.btn-daftar:hover { background:var(--green-d); transform:translateY(-1px); box-shadow:0 6px 20px rgba(59,130,246,.35); }
+
+.nav-hamburger {
+  display:none; background:var(--bg); border:1px solid var(--border);
+  border-radius:10px; width:38px; height:38px;
+  align-items:center; justify-content:center; cursor:pointer;
+  color:var(--text); font-size:16px;
+}
+
+/* ─── MOBILE MENU ───────────────────────────────── */
+.mobile-menu {
+  display:none; position:fixed; top:66px; left:0; right:0; z-index:199;
+  background:rgba(255,255,255,.97); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:16px 24px 20px;
+  flex-direction:column; gap:4px;
+  box-shadow:var(--shadow-lg);
+}
+.mobile-menu.open { display:flex; }
+.mobile-menu a {
+  padding:12px 14px; border-radius:12px;
+  color:var(--text); text-decoration:none;
+  font-size:14px; font-weight:600; transition:.2s;
+}
+.mobile-menu a:hover { background:var(--bg); }
+.mobile-menu .mm-divider { height:1px; background:var(--border); margin:6px 0; }
+.mobile-menu .btn-daftar { justify-content:center; margin-top:4px; }
+
+/* ─── HERO ──────────────────────────────────────── */
+.hero {
+  padding:130px 24px 80px;
+  text-align:center;
+  position:relative;
+}
+
+/* subtle dot pattern bg */
+.hero::before {
+  content:'';
+  position:absolute; inset:0; z-index:0;
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size:28px 28px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 0%, black, transparent 70%);
+  opacity:.7;
+}
+/* green glow top */
+.hero::after {
+  content:'';
+  position:absolute; top:-60px; left:50%; transform:translateX(-50%);
+  width:700px; height:500px; border-radius:50%;
+  background:radial-gradient(ellipse,rgba(59,130,246,.08) 0%,transparent 65%);
+  z-index:0; pointer-events:none;
+}
+.hero > * { position:relative; z-index:1; }
+
+.hero-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:100px; padding:7px 16px;
+  font-size:12px; font-weight:700; color:var(--green-d);
+  margin-bottom:28px;
+  box-shadow:0 2px 12px rgba(59,130,246,.1);
+  animation:fadeUp .7s ease both;
+}
+.hero-badge-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--green); box-shadow:0 0 6px var(--green);
+  animation:pulse 1.8s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(.8);} }
+
+.hero h1 {
+  font-size:clamp(36px,6vw,68px);
+  font-weight:800; line-height:1.1;
+  letter-spacing:-.03em; margin-bottom:20px;
+  animation:fadeUp .7s ease .1s both;
+}
+.hero h1 .accent {
+  background:linear-gradient(135deg,var(--green),var(--green-d));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+.hero-sub {
+  font-size:clamp(15px,2vw,18px);
+  color:var(--muted); max-width:560px; margin:0 auto 36px;
+  line-height:1.7; font-weight:400;
+  animation:fadeUp .7s ease .2s both;
+}
+
+.hero-btns {
+  display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
+  animation:fadeUp .7s ease .3s both;
+  margin-bottom:56px;
+}
+.btn-primary {
+  padding:15px 36px; border-radius:14px;
+  background:var(--green); color:#fff; border:none;
+  font-size:15px; font-weight:700;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  cursor:pointer; transition:.25s;
+  box-shadow:0 6px 24px rgba(59,130,246,.3);
+  display:inline-flex; align-items:center; gap:8px;
+  text-decoration:none;
+}
+.btn-primary:hover { background:var(--green-d); transform:translateY(-2px); box-shadow:0 10px 32px rgba(59,130,246,.35); }
+
+.btn-secondary {
+  padding:13px 32px; border-radius:14px;
+  background:var(--surface); color:var(--text);
+  border:1.5px solid var(--border);
+  font-size:15px; font-weight:700;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  cursor:pointer; transition:.25s;
+  display:inline-flex; align-items:center; gap:8px;
+  text-decoration:none;
+}
+.btn-secondary:hover { border-color:var(--green); color:var(--green); transform:translateY(-2px); }
+
+/* Hero Stats */
+.hero-stats {
+  display:inline-flex; gap:0;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:20px; padding:6px;
+  box-shadow:var(--shadow-lg);
+  animation:fadeUp .7s ease .5s both;
+  flex-wrap:wrap; justify-content:center;
+}
+.hero-stat {
+  padding:14px 28px; text-align:center;
+  border-right:1px solid var(--border);
+}
+.hero-stat:last-child { border-right:none; }
+.hero-stat-num {
+  font-size:26px; font-weight:800;
+  color:var(--green); display:block; letter-spacing:-.5px;
+  font-variant-numeric:tabular-nums;
+}
+.hero-stat-lbl { font-size:12px; color:var(--muted); font-weight:600; margin-top:2px; }
+
+/* ─── TICKER ────────────────────────────────────── */
+.ticker-wrap {
+  position:relative;
+  overflow:hidden;
+  background:var(--surface); border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  padding:13px 0;
+}
+.ticker-wrap::before, .ticker-wrap::after {
+  content:''; position:absolute; top:0; bottom:0; width:56px; z-index:2; pointer-events:none;
+}
+.ticker-wrap::before { left:0; background:linear-gradient(90deg, var(--surface), transparent); }
+.ticker-wrap::after  { right:0; background:linear-gradient(270deg, var(--surface), transparent); }
+.ticker-track {
+  display:flex; width:max-content;
+  animation:tickerMove 35s linear infinite;
+}
+.ticker-track:hover { animation-play-state:paused; }
+.ticker-item {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:0 32px; white-space:nowrap;
+  font-size:13px; font-weight:600; color:var(--muted);
+}
+.ticker-item .ti-dot { width:5px; height:5px; border-radius:50%; background:var(--green); }
+.ticker-item strong { color:var(--text); }
+.ticker-item .ti-price { color:var(--green-d); font-weight:700; }
+@keyframes tickerMove { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+
+/* ─── SECTIONS ──────────────────────────────────── */
+section { padding:90px 0; }
+
+.section-badge {
+  display:inline-block;
+  background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.2);
+  color:var(--green-d); border-radius:8px;
+  padding:5px 14px; font-size:12px; font-weight:700;
+  letter-spacing:.04em; text-transform:uppercase;
+  margin-bottom:16px;
+}
+.section-title {
+  font-size:clamp(26px,3.5vw,42px);
+  font-weight:800; letter-spacing:-.02em; line-height:1.2;
+  margin-bottom:14px;
+}
+.section-sub {
+  font-size:16px; color:var(--muted); line-height:1.7; max-width:520px;
+}
+
+/* ─── FEATURES ──────────────────────────────────── */
+#features { background:var(--bg); }
+.features-head { text-align:center; margin-bottom:56px; }
+.features-head .section-sub { margin:0 auto; }
+
+.feat-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
+}
+
+.feat-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:28px 24px;
+  transition:all .25s; position:relative; overflow:hidden;
+}
+.feat-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,var(--green),#38BDF8);
+  transform:scaleX(0); transform-origin:left; transition:.3s;
+}
+.feat-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); border-color:rgba(59,130,246,.2); }
+.feat-card:hover::before { transform:scaleX(1); }
+
+.feat-icon {
+  width:48px; height:48px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; margin-bottom:20px; transition:.3s;
+}
+.feat-card:hover .feat-icon { transform:scale(1.1); }
+.fi-green  { background:#dbeafe; color:var(--green-d); }
+.fi-blue   { background:#dbeafe; color:var(--blue); }
+.fi-purple { background:#ede9fe; color:var(--purple); }
+.fi-amber  { background:#fef3c7; color:#b45309; }
+.fi-red    { background:#fee2e2; color:var(--red); }
+.fi-teal   { background:#ccfbf1; color:#0d9488; }
+
+.feat-card h3 { font-size:17px; font-weight:800; margin-bottom:8px; }
+.feat-card p  { font-size:14px; color:var(--muted); line-height:1.65; }
+.feat-tag {
+  display:inline-block; margin-top:14px;
+  background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.15);
+  color:var(--green-d); border-radius:6px;
+  padding:3px 10px; font-size:11px; font-weight:700;
+  font-family:var(--mono); letter-spacing:.04em;
+}
+
+/* ─── HOW IT WORKS ──────────────────────────────── */
+#how { background:var(--surface); }
+.how-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:60px; align-items:center;
+}
+
+.steps { display:flex; flex-direction:column; gap:14px; }
+.step {
+  display:flex; gap:16px; align-items:flex-start;
+  padding:20px; background:var(--bg);
+  border:1px solid var(--border); border-radius:16px;
+  transition:all .25s; cursor:default;
+}
+.step:hover { border-color:rgba(59,130,246,.25); background:rgba(59,130,246,.03); transform:translateX(4px); }
+.step-num {
+  width:38px; height:38px; flex-shrink:0; border-radius:11px;
+  background:var(--surface); border:1.5px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:800; color:var(--green);
+  font-family:var(--mono); transition:.25s;
+}
+.step:hover .step-num { background:var(--green); color:#fff; border-color:var(--green); }
+.step-body h4 { font-size:15px; font-weight:800; margin-bottom:4px; }
+.step-body p  { font-size:13px; color:var(--muted); line-height:1.6; }
+
+/* Code Preview */
+.code-card {
+  background:var(--text); border-radius:20px;
+  overflow:hidden; box-shadow:var(--shadow-lg);
+}
+.code-bar {
+  padding:13px 18px; background:rgba(255,255,255,.04);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex; align-items:center; gap:10px;
+}
+.code-dots { display:flex; gap:6px; }
+.code-dots span { width:11px; height:11px; border-radius:50%; display:block; }
+.code-dots span:nth-child(1){ background:#ff5f57; }
+.code-dots span:nth-child(2){ background:#febc2e; }
+.code-dots span:nth-child(3){ background:#28c840; }
+.code-file { font-family:var(--mono); font-size:11px; color:rgba(255,255,255,.35); margin-left:8px; }
+.code-body { padding:24px; overflow-x:auto; }
+.code-body pre { font-family:var(--mono); font-size:12.5px; line-height:1.8; color:#94a3b8; }
+.c-green  { color:#4ade80; }
+.c-cyan   { color:#67e8f9; }
+.c-amber  { color:#fcd34d; }
+.c-purple { color:#c4b5fd; }
+.c-blue   { color:#93c5fd; }
+.c-gray   { color:#64748b; }
+.c-white  { color:#f1f5f9; }
+
+/* ─── PRICING ────────────────────────────────────── */
+#pricing { background:var(--bg); }
+.pricing-head { text-align:center; margin-bottom:56px; }
+.pricing-head .section-sub { margin:0 auto; }
+
+.pricing-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:20px;
+}
+
+.price-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:22px; padding:32px 26px;
+  position:relative; transition:all .25s; overflow:hidden;
+}
+.price-card::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+  background:transparent; transition:.3s;
+}
+.price-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-lg); }
+.price-card:hover::after { background:linear-gradient(90deg,var(--green),#38BDF8); }
+
+.price-card.featured {
+  border-color:rgba(59,130,246,.3);
+  background:linear-gradient(160deg,rgba(59,130,246,.04),var(--surface));
+}
+.price-card.featured::after { background:linear-gradient(90deg,var(--green),#38BDF8); }
+
+.price-badge {
+  position:absolute; top:18px; right:18px;
+  background:var(--green); color:#fff;
+  font-size:10px; font-weight:700;
+  padding:4px 10px; border-radius:6px; letter-spacing:.05em;
+  font-family:var(--mono);
+}
+.price-tier { font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px; }
+.price-name { font-size:22px; font-weight:800; margin-bottom:4px; }
+.price-desc { font-size:13px; color:var(--muted); margin-bottom:24px; }
+
+.price-amount { display:flex; align-items:flex-end; gap:2px; margin-bottom:24px; }
+.price-curr   { font-size:16px; font-weight:700; color:var(--green); align-self:flex-start; margin-top:6px; }
+.price-num    { font-size:44px; font-weight:800; line-height:1; letter-spacing:-.03em; }
+.price-per    { font-size:13px; color:var(--muted); margin-bottom:4px; }
+
+.price-list { list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:28px; }
+.price-list li { display:flex; align-items:center; gap:9px; font-size:14px; color:var(--muted); }
+.price-list li i { width:16px; flex-shrink:0; font-size:12px; color:var(--green); }
+.price-list li.off { text-decoration:line-through; opacity:.4; }
+.price-list li.off i { color:var(--muted); }
+
+.btn-plan {
+  width:100%; padding:13px; border-radius:12px;
+  font-size:14px; font-weight:700; cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif; transition:.2s;
+  text-decoration:none; display:block; text-align:center;
+}
+.btn-plan-ghost {
+  background:transparent; border:1.5px solid var(--border); color:var(--text);
+}
+.btn-plan-ghost:hover { border-color:var(--green); color:var(--green); }
+.btn-plan-fill {
+  background:var(--green); color:#fff; border:none;
+  box-shadow:0 4px 16px rgba(59,130,246,.3);
+}
+.btn-plan-fill:hover { background:var(--green-d); transform:translateY(-1px); box-shadow:0 6px 22px rgba(59,130,246,.35); }
+
+/* ─── TESTIMONIALS ──────────────────────────────── */
+#testi { background:var(--surface); }
+.testi-head { text-align:center; margin-bottom:56px; }
+
+.testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+
+.testi-card {
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:var(--r); padding:24px; transition:.25s;
+}
+.testi-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); background:var(--surface); }
+
+.testi-stars { display:flex; gap:3px; margin-bottom:14px; }
+.testi-stars i { color:var(--amber); font-size:13px; }
+
+.testi-text {
+  font-size:14px; color:var(--muted); line-height:1.7;
+  margin-bottom:18px; font-style:italic;
+}
+.testi-author { display:flex; align-items:center; gap:12px; }
+.testi-avatar {
+  width:40px; height:40px; border-radius:12px; flex-shrink:0;
+  background:linear-gradient(135deg,var(--green),#38BDF8);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:15px; color:#fff;
+}
+.testi-name { font-weight:800; font-size:14px; }
+.testi-role { font-size:12px; color:var(--muted); margin-top:1px; }
+
+/* ─── CTA ───────────────────────────────────────── */
+.cta-section { background:var(--bg); padding:80px 0; }
+.cta-box {
+  background:linear-gradient(135deg,#1E3A8A 0%,#1D4ED8 55%,#2563EB 100%);
+  border-radius:28px; padding:70px 40px;
+  text-align:center; position:relative; overflow:hidden;
+  box-shadow:0 20px 60px rgba(29,78,216,.3);
+}
+.cta-box::before {
+  content:''; position:absolute; top:-60px; right:-60px;
+  width:280px; height:280px; border-radius:50%;
+  background:rgba(255,255,255,.05);
+}
+.cta-box::after {
+  content:''; position:absolute; bottom:-80px; left:-40px;
+  width:320px; height:320px; border-radius:50%;
+  background:rgba(255,255,255,.03);
+}
+.cta-box > * { position:relative; z-index:1; }
+.cta-box h2 {
+  font-size:clamp(26px,4vw,46px); font-weight:800;
+  color:#fff; margin-bottom:14px; letter-spacing:-.02em; line-height:1.2;
+}
+.cta-box p { color:rgba(255,255,255,.7); font-size:16px; max-width:460px; margin:0 auto 36px; }
+.cta-btns  { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.btn-cta-white {
+  padding:14px 36px; border-radius:13px;
+  background:#fff; color:var(--green-xl);
+  border:none; font-size:15px; font-weight:700;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  cursor:pointer; transition:.25s;
+  display:inline-flex; align-items:center; gap:8px; text-decoration:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.15);
+}
+.btn-cta-white:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,.2); }
+.btn-cta-outline {
+  padding:13px 32px; border-radius:13px;
+  background:transparent; color:#fff;
+  border:1.5px solid rgba(255,255,255,.3);
+  font-size:15px; font-weight:700;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  cursor:pointer; transition:.25s;
+  display:inline-flex; align-items:center; gap:8px; text-decoration:none;
+}
+.btn-cta-outline:hover { background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.5); transform:translateY(-2px); }
+
+/* ─── FOOTER ────────────────────────────────────── */
+footer {
+  background:var(--text); padding:60px 0 32px;
+}
+.footer-grid {
+  display:grid; grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:40px; margin-bottom:48px;
+}
+.footer-logo { display:flex; align-items:center; gap:9px; margin-bottom:14px; }
+.footer-logo-mark {
+  width:34px; height:34px; border-radius:10px;
+  background:linear-gradient(135deg,var(--green),#38BDF8);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:15px;
+}
+.footer-logo-text { font-size:17px; font-weight:800; color:#fff; letter-spacing:-.3px; }
+.footer-logo-text span { color:var(--green); }
+.footer-brand p { font-size:13px; color:#64748b; line-height:1.7; margin-bottom:18px; max-width:270px; }
+
+.footer-social { display:flex; gap:8px; }
+.social-btn {
+  width:34px; height:34px; border-radius:9px;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08);
+  display:flex; align-items:center; justify-content:center;
+  color:#64748b; font-size:14px; text-decoration:none; transition:.2s;
+}
+.social-btn:hover { background:rgba(59,130,246,.15); border-color:var(--green); color:var(--green); }
+
+.footer-col h4 { font-size:13px; font-weight:700; color:#fff; margin-bottom:14px; }
+.footer-col ul { list-style:none; display:flex; flex-direction:column; gap:8px; }
+.footer-col ul a { color:#64748b; text-decoration:none; font-size:13px; transition:.2s; }
+.footer-col ul a:hover { color:#94a3b8; }
+
+.footer-bottom {
+  border-top:1px solid rgba(255,255,255,.07);
+  padding-top:24px;
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+}
+.footer-bottom p { color:#475569; font-size:13px; }
+.footer-status {
+  display:flex; align-items:center; gap:6px;
+  font-size:12px; font-family:var(--mono); color:var(--green);
+}
+.status-led {
+  width:7px; height:7px; border-radius:50%;
+  background:var(--green); box-shadow:0 0 8px var(--green);
+  animation:pulse 2s infinite;
+}
+
+/* ─── ANIMATIONS ────────────────────────────────── */
+@keyframes fadeUp {
+  from{ opacity:0; transform:translateY(22px); }
+  to  { opacity:1; transform:translateY(0); }
+}
+.reveal { opacity:0; transform:translateY(24px); transition:opacity .65s ease, transform .65s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+/* ─── RESPONSIVE ────────────────────────────────── */
+@media(max-width:1024px) {
+  .feat-grid    { grid-template-columns:1fr 1fr; }
+  .pricing-grid { grid-template-columns:1fr 1fr; }
+  .footer-grid  { grid-template-columns:1fr 1fr; }
+  .how-grid     { grid-template-columns:1fr; }
+  .code-card    { display:none; }
+}
+@media(max-width:768px) {
+  .nav-links, .nav-right .btn-login { display:none; }
+  .nav-hamburger { display:flex; }
+  .feat-grid    { grid-template-columns:1fr; }
+  .pricing-grid { grid-template-columns:1fr; }
+  .testi-grid   { grid-template-columns:1fr; }
+  .footer-grid  { grid-template-columns:1fr 1fr; }
+  .hero-stats   { width:100%; }
+  .hero-stat    { flex:1; padding:12px 16px; }
+  section       { padding:64px 0; }
+  .cta-box      { padding:48px 24px; }
+}
+@media(max-width:480px) {
+  .footer-grid { grid-template-columns:1fr; }
+  .hero-btns   { flex-direction:column; align-items:center; }
+  .btn-primary, .btn-secondary { width:100%; justify-content:center; }
+}
+/* ─── LEADERBOARD SECTION ─── */
+.lb-section{padding:80px 0;background:var(--section-alt,var(--bg));}
+.lb-podium{display:flex;gap:20px;justify-content:center;align-items:flex-end;flex-wrap:wrap;margin-top:40px;}
+.lb-pod-item{flex:1;min-width:170px;max-width:240px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px 16px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.08);transition:.3s;}
+.lb-pod-item.first{transform:scale(1.05);}
+.lb-pod-medal{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:16px;font-weight:800;color:#fff;}
+.lb-pod-avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;color:#94a3b8;background:#f1f5f9;border:1px solid #e5e7eb;margin:0 auto 10px;}
+.lb-pod-name{font-size:16px;font-weight:800;color:var(--text);}
+.lb-pod-orders{font-size:12px;color:var(--muted);margin-top:4px;}
+.lb-pod-spent{font-size:12px;font-weight:700;color:var(--green);margin-top:4px;}
+</style>
+</head>
+<body>
+<script src="/premium-loader.js?v=3"></script>
+
+<!-- ─── NAVBAR ─────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <img src="https://files.catbox.moe/je2gz1.jpg" class="nav-logo-mark" style="object-fit:cover;" alt="Logo">
+      <span class="nav-logo-text">Digital<span>Pedia</span></span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#features">Fitur</a></li>
+      <li><a href="#how">Cara Kerja</a></li>
+      <li><a href="dokumentasi">API Docs</a></li>
+      <li><a href="#pricing">Harga</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <a href="dashboard"    class="btn-login">Masuk</a>
+      <a href="dashboard" class="btn-daftar"><i class="fas fa-rocket"></i> Daftar Gratis</a>
+      <button class="nav-hamburger" id="menuBtn" onclick="toggleMenu()">
+        <i class="fas fa-bars" id="menuIcon"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#features" onclick="closeMenu()">Fitur</a>
+  <a href="#how"      onclick="closeMenu()">Cara Kerja</a>
+  <a href="dokumentasi" onclick="closeMenu()">API Docs</a>
+  <a href="#pricing"  onclick="closeMenu()">Harga</a>
+  <div class="mm-divider"></div>
+  <a href="dashboard">Masuk</a>
+  <a href="dashboard" class="btn-daftar"><i class="fas fa-rocket"></i> Daftar Gratis</a>
+</div>
+
+<!-- ─── HERO ───────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="hero-badge-dot"></div>
+    <span>⚡ Sistem Online · Uptime 99.9%</span>
+  </div>
+
+  <h1>Nomor Virtual OTP<br><span class="accent">Instan & Terpercaya</span></h1>
+
+  <p class="hero-sub">
+    Platform OTP & nomor virtual terlengkap di Indonesia.
+    1700+ layanan, harga murah, sistem otomatis, dan API developer-friendly.
+  </p>
+
+  <div class="hero-btns">
+    <a href="dashboard" class="btn-primary">
+      <i class="fas fa-bolt"></i> Mulai Sekarang — Gratis
+    </a>
+    <a href="dokumentasi" class="btn-secondary">
+      <i class="fas fa-code"></i> Lihat API Docs
+    </a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="hero-stat-num" id="sn1">1700</span>
+      <div class="hero-stat-lbl">Layanan Tersedia</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num" id="sn2">99.9%</span>
+      <div class="hero-stat-lbl">Uptime Sistem</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num" id="sn3">50K+</span>
+      <div class="hero-stat-lbl">OTP Berhasil</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num" id="sn4">&lt;3s</span>
+      <div class="hero-stat-lbl">Rata-rata Response</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TICKER ─────────────────────────────────── -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <!-- set 1 -->
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>WhatsApp OTP</strong> <span class="ti-price">Rp 2.000</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Telegram OTP</strong> <span class="ti-price">Rp 2.500</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Google OTP</strong> <span class="ti-price">Rp 3.000</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Instagram OTP</strong> <span class="ti-price">Rp 2.500</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Facebook OTP</strong> <span class="ti-price">Rp 2.500</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>TikTok OTP</strong> <span class="ti-price">Rp 3.500</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Twitter OTP</strong> <span class="ti-price">Rp 2.000</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Shopee OTP</strong> <span class="ti-price">Rp 2.000</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Gojek OTP</strong> <span class="ti-price">Rp 2.000</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Grab OTP</strong> <span class="ti-price">Rp 2.000</span></span>
+    <!-- set 2 (duplikat buat loop) -->
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>WhatsApp OTP</strong> <span class="ti-price">Rp 2.000</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Telegram OTP</strong> <span class="ti-price">Rp 2.500</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Google OTP</strong> <span class="ti-price">Rp 3.000</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Instagram OTP</strong> <span class="ti-price">Rp 2.500</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Facebook OTP</strong> <span class="ti-price">Rp 2.500</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>TikTok OTP</strong> <span class="ti-price">Rp 3.500</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Twitter OTP</strong> <span class="ti-price">Rp 2.000</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Shopee OTP</strong> <span class="ti-price">Rp 2.000</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Gojek OTP</strong> <span class="ti-price">Rp 2.000</span></span>
+    <span class="ticker-item"><div class="ti-dot"></div> <strong>Grab OTP</strong> <span class="ti-price">Rp 2.000</span></span>
+  </div>
+</div>
+
+<!-- ─── FEATURES ───────────────────────────────── -->
+<section id="features">
+  <div class="wrap">
+    <div class="features-head reveal">
+      <span class="section-badge">Kenapa FNB NOKOS?</span>
+      <h2 class="section-title">Platform OTP yang <span style="color:var(--green)">Benar-benar</span> Premium</h2>
+      <p class="section-sub">Dirancang untuk developer, reseller, dan pengguna individu yang butuh solusi cepat dan andal.</p>
+    </div>
+    <div class="feat-grid reveal">
+      <div class="feat-card">
+        <div class="feat-icon fi-green"><i class="fas fa-bolt"></i></div>
+        <h3>Instan & Otomatis</h3>
+        <p>OTP langsung masuk dalam hitungan detik. Sistem auto-cek tanpa perlu refresh manual.</p>
+        <span class="feat-tag">AUTO CHECK</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-blue"><i class="fas fa-layer-group"></i></div>
+        <h3>1700+ Layanan</h3>
+        <p>Dari WhatsApp, Google, Instagram hingga aplikasi lokal. Satu platform untuk semua kebutuhan.</p>
+        <span class="feat-tag">1700+ SERVICE</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-purple"><i class="fas fa-code"></i></div>
+        <h3>API Developer-Friendly</h3>
+        <p>REST API lengkap dengan dokumentasi detail. Integrasi mudah ke sistem apapun dalam menit.</p>
+        <span class="feat-tag">REST API</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-red"><i class="fas fa-shield-halved"></i></div>
+        <h3>Garansi Refund</h3>
+        <p>OTP tidak masuk? Saldo otomatis kembali. Tidak ada risiko, tidak ada kerugian.</p>
+        <span class="feat-tag">GARANSI 100%</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-amber"><i class="fas fa-wallet"></i></div>
+        <h3>Deposit QRIS</h3>
+        <p>Top up saldo dengan QRIS dari semua bank dan e-wallet. Proses otomatis kurang dari 30 detik.</p>
+        <span class="feat-tag">ALL BANK</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-teal"><i class="fas fa-globe"></i></div>
+        <h3>Multi-Negara</h3>
+        <p>Nomor dari puluhan negara tersedia. Pilih Indonesia, US, UK, atau negara lain sesuai kebutuhan.</p>
+        <span class="feat-tag">GLOBAL</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ────────────────────────────── -->
+<section id="how">
+  <div class="wrap">
+    <div class="how-grid">
+      <div class="reveal">
+        <span class="section-badge">Cara Kerja</span>
+        <h2 class="section-title">Order OTP dalam<br><span style="color:var(--green)">4 Langkah</span></h2>
+        <p class="section-sub" style="margin-bottom:32px;">
+          Semua proses otomatis — dari order sampai OTP masuk tanpa perlu langkah manual.
+        </p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">01</div>
+            <div class="step-body">
+              <h4>Pilih Layanan & Negara</h4>
+              <p>Cari dari 1700+ layanan dan pilih negara yang diinginkan.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">02</div>
+            <div class="step-body">
+              <h4>Pilih Provider & Konfirmasi</h4>
+              <p>Bandingkan harga dari beberapa provider, pilih yang paling sesuai.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">03</div>
+            <div class="step-body">
+              <h4>Gunakan Nomor untuk Verifikasi</h4>
+              <p>Masukkan nomor virtual ke aplikasi target, lalu tunggu kode OTP.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">04</div>
+            <div class="step-body">
+              <h4>OTP Otomatis Terdeteksi</h4>
+              <p>Sistem kami auto-cek tiap 10 detik dan kirim OTP ke kamu langsung.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="code-card">
+          <div class="code-bar">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-file">quick-start.js</span>
+          </div>
+          <div class="code-body">
+            <pre>
+<span class="c-gray">// Setup axios instance</span>
+<span class="c-purple">const</span> <span class="c-white">api</span> = axios.<span class="c-cyan">create</span>({
+  baseURL: <span class="c-green">'https://fnbnokos.web.id'</span>,
+  headers: { <span class="c-green">'x-api-key'</span>: <span class="c-amber">'YOUR_API_KEY'</span> }
+});
+
+<span class="c-gray">// 1. Order nomor OTP</span>
+<span class="c-purple">const</span> <span class="c-white">order</span> = <span class="c-purple">await</span> api.<span class="c-cyan">post</span>(<span class="c-green">'/api/v1/s2/nokos/order'</span>, {
+  service_code: <span class="c-green">'wa'</span>,
+  country_id:   <span class="c-blue">62</span>,
+  server:       <span class="c-green">'s2'</span>
+});
+
+<span class="c-gray">// 2. Ambil nomor dari response</span>
+<span class="c-purple">const</span> { id, phone_number } = order.data.<span class="c-white">order</span>;
+console.<span class="c-cyan">log</span>(<span class="c-green">`Nomor: <span class="c-amber">${phone_number}</span>`</span>);
+
+<span class="c-gray">// 3. Polling status OTP</span>
+<span class="c-purple">const</span> <span class="c-white">res</span> = <span class="c-purple">await</span> api.<span class="c-cyan">get</span>(<span class="c-green">'/api/v1/s2/nokos/status'</span>, {
+  params: { order_id: <span class="c-white">id</span> }
+});
+console.<span class="c-cyan">log</span>(<span class="c-green">`OTP: <span class="c-amber">${res.data.otp_code}</span>`</span>);
+<span class="c-gray">// → OTP: 847291 ✓</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PRICING ─────────────────────────────────── -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="pricing-head reveal">
+      <span class="section-badge">Harga Transparan</span>
+      <h2 class="section-title">Pilih Paket yang Tepat</h2>
+      <p class="section-sub">Tidak ada biaya tersembunyi. Bayar hanya saat butuh.</p>
+    </div>
+    <div class="pricing-grid reveal">
+
+      <!-- BASIC -->
+      <div class="price-card">
+        <div class="price-tier">Starter</div>
+        <div class="price-name">Basic</div>
+        <div class="price-desc">Untuk pengguna individu</div>
+        <div class="price-amount">
+          <span class="price-curr">Rp</span>
+          <span class="price-num" style="color:var(--text)">2K</span>
+          <span class="price-per">/OTP</span>
+        </div>
+        <ul class="price-list">
+          <li><i class="fas fa-check"></i> 500+ layanan tersedia</li>
+          <li><i class="fas fa-check"></i> Auto-check OTP</li>
+          <li><i class="fas fa-check"></i> Refund otomatis</li>
+          <li><i class="fas fa-check"></i> Deposit QRIS</li>
+          <li class="off"><i class="fas fa-times"></i> Akses API</li>
+          <li class="off"><i class="fas fa-times"></i> Priority support</li>
+        </ul>
+        <a href="dashboard" class="btn-plan btn-plan-ghost">Mulai Gratis</a>
+      </div>
+
+      <!-- DEVELOPER (FEATURED) -->
+      <div class="price-card featured">
+        <span class="price-badge">POPULER</span>
+        <div class="price-tier">Developer</div>
+        <div class="price-name">API Access</div>
+        <div class="price-desc">Untuk developer & reseller</div>
+        <div class="price-amount">
+          <span class="price-curr">Rp</span>
+          <span class="price-num" style="color:var(--green)">0</span>
+          <span class="price-per">/bulan</span>
+        </div>
+        <ul class="price-list">
+          <li><i class="fas fa-check"></i> 1700+ layanan tersedia</li>
+          <li><i class="fas fa-check"></i> Akses penuh REST API</li>
+          <li><i class="fas fa-check"></i> Multi-negara support</li>
+          <li><i class="fas fa-check"></i> Refund otomatis</li>
+          <li><i class="fas fa-check"></i> Webhook real-time</li>
+          <li><i class="fas fa-check"></i> Priority support</li>
+        </ul>
+        <a href="dashboard" class="btn-plan btn-plan-fill">Daftar Sekarang</a>
+      </div>
+
+      <!-- RESELLER -->
+      <div class="price-card">
+        <div class="price-tier">Business</div>
+        <div class="price-name">Reseller</div>
+        <div class="price-desc">Markup & jual ke user</div>
+        <div class="price-amount">
+          <span class="price-curr">Rp</span>
+          <span class="price-num" style="color:var(--text)">0</span>
+          <span class="price-per">/setup</span>
+        </div>
+        <ul class="price-list">
+          <li><i class="fas fa-check"></i> Semua fitur Developer</li>
+          <li><i class="fas fa-check"></i> Custom markup harga</li>
+          <li><i class="fas fa-check"></i> Dashboard reseller</li>
+          <li><i class="fas fa-check"></i> Script bot Telegram</li>
+          <li><i class="fas fa-check"></i> Branding sendiri</li>
+          <li><i class="fas fa-check"></i> Dedicated support</li>
+        </ul>
+        <a href="https://t.me/csfnbnokos" class="btn-plan btn-plan-ghost">Hubungi Kami</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── TESTIMONI ───────────────────────────────── -->
+<section id="testi">
+  <div class="wrap">
+    <div class="testi-head reveal">
+      <span class="section-badge">Testimoni</span>
+      <h2 class="section-title">Dipercaya Ribuan Pengguna</h2>
+    </div>
+    <div class="testi-grid reveal">
+      <div class="testi-card">
+        <div class="testi-stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star"></i><i class="fas fa-star"></i>
+        </div>
+        <p class="testi-text">"Sudah pakai FNB NOKOS 6 bulan. OTP selalu masuk cepat, harga murah, dan kalau gagal langsung refund. Terbaik buat reseller!"</p>
+        <div class="testi-author">
+          <div class="testi-avatar">R</div>
+          <div>
+            <div class="testi-name">Rizal F.</div>
+            <div class="testi-role">Reseller OTP, Surabaya</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star"></i><i class="fas fa-star"></i>
+        </div>
+        <p class="testi-text">"API-nya clean banget, dokumentasinya lengkap. Integrasi ke bot Telegram saya cuma butuh 2 jam. Sangat recommended buat developer."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,var(--blue),#6366f1)">A</div>
+          <div>
+            <div class="testi-name">Andi P.</div>
+            <div class="testi-role">Backend Developer, Jakarta</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star"></i><i class="fas fa-star-half-stroke"></i>
+        </div>
+        <p class="testi-text">"Response time-nya kenceng, OTP WhatsApp biasanya masuk di bawah 30 detik. Sistem lebih stabil dibanding layanan lain yang pernah saya coba."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,var(--purple),var(--blue))">D</div>
+          <div>
+            <div class="testi-name">Dina S.</div>
+            <div class="testi-role">Digital Marketer, Bandung</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── LEADERBOARD ──────────────────────────────── -->
+<section class="lb-section" id="leaderboard">
+  <div class="wrap">
+    <div class="features-head reveal">
+      <span class="section-badge">Hall of Fame</span>
+      <h2 class="section-title">🏆 Top <span style="color:var(--green)">3 Pembeli</span> Terbanyak</h2>
+      <p class="section-sub">Berdasarkan jumlah order Nokos sukses. Update otomatis setiap 5 menit.</p>
+    </div>
+    <div class="lb-podium reveal" id="lbPodium">
+      <div class="lb-pod-item" style="opacity:.3"><div style="height:130px;background:var(--border);border-radius:12px;animation:pulse 1.5s infinite"></div></div>
+      <div class="lb-pod-item" style="opacity:.3"><div style="height:130px;background:var(--border);border-radius:12px;animation:pulse 1.5s infinite"></div></div>
+      <div class="lb-pod-item" style="opacity:.3"><div style="height:130px;background:var(--border);border-radius:12px;animation:pulse 1.5s infinite"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─────────────────────────────────────── -->
+<div class="cta-section">
+  <div class="wrap">
+    <div class="cta-box reveal">
+      <h2>Siap Mulai Order OTP<br>Lebih Cepat & Mudah?</h2>
+      <p>Daftar gratis, tidak perlu kartu kredit. Mulai order dalam hitungan menit.</p>
+      <div class="cta-btns">
+        <a href="dashboard" class="btn-cta-white">
+          <i class="fas fa-rocket"></i> Daftar Gratis Sekarang
+        </a>
+        <a href="dokumentasi" class="btn-cta-outline">
+          <i class="fas fa-book"></i> Baca Dokumentasi API
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── FOOTER ──────────────────────────────────── -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="https://files.catbox.moe/je2gz1.jpg" class="footer-logo-mark" style="object-fit:cover;" alt="Logo">
+          <span class="footer-logo-text">Digital<span>Pedia</span></span>
+        </div>
+        <p>Platform OTP & nomor virtual terlengkap. Cepat, aman, dan terpercaya untuk semua kebutuhan verifikasi digital.</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn"><i class="fab fa-telegram"></i></a>
+          <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-btn"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Produk</h4>
+        <ul>
+          <li><a href="nokos">Order OTP</a></li>
+          <li><a href="deposit">Deposit QRIS</a></li>
+          <li><a href="dashboard">Dashboard</a></li>
+          <li><a href="riwayat">Riwayat</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Developer</h4>
+        <ul>
+          <li><a href="dokumentasi">API Docs</a></li>
+          <li><a href="dokumentasi">Quick Start</a></li>
+          <li><a href="dokumentasi">Endpoints</a></li>
+          <li><a href="dokumentasi">Error Codes</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">Hubungi Kami</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Kebijakan Refund</a></li>
+          <li><a href="#">Syarat & Ketentuan</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 FNB NOKOS ID. All rights reserved.</p>
+      <div class="footer-status">
+        <div class="status-led"></div>
+        All Systems Operational
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ─── STICKY NAVBAR ───────────────────────────────
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 30);
+}, { passive:true });
+
+// ─── MOBILE MENU ─────────────────────────────────
+const mobileMenu = document.getElementById('mobileMenu');
+const menuIcon   = document.getElementById('menuIcon');
+let menuOpen = false;
+
+function toggleMenu() {
+  menuOpen = !menuOpen;
+  mobileMenu.classList.toggle('open', menuOpen);
+  menuIcon.className = menuOpen ? 'fas fa-times' : 'fas fa-bars';
+}
+function closeMenu() {
+  menuOpen = false;
+  mobileMenu.classList.remove('open');
+  menuIcon.className = 'fas fa-bars';
+}
+window.addEventListener('click', e => {
+  if (menuOpen && !mobileMenu.contains(e.target) && !document.getElementById('menuBtn').contains(e.target)) closeMenu();
+});
+
+// ─── SCROLL REVEAL ───────────────────────────────
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 90);
+  });
+}, { threshold:0.1 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// ─── STAT COUNTER ────────────────────────────────
+function countUp(el, target, suffix, prefix, decimals) {
+  let cur = 0;
+  const step = target / 80;
+  const timer = setInterval(() => {
+    cur += step;
+    if (cur >= target) { cur = target; clearInterval(timer); }
+    const val = decimals ? cur.toFixed(1) : Math.floor(cur).toLocaleString('id-ID');
+    el.textContent = (prefix||'') + val + (suffix||'');
+  }, 20);
+}
+
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    statsObserver.unobserve(e.target);
+    countUp(document.getElementById('sn1'), 1700, '+', '',    false);
+    countUp(document.getElementById('sn2'), 99.9, '%', '',    true);
+    countUp(document.getElementById('sn3'), 50,   'K+','',   false);
+    // sn4 stays as static text <3s
+  });
+}, { threshold:0.5 });
+const heroStats = document.querySelector('.hero-stats');
+if (heroStats) statsObserver.observe(heroStats);
+
+// ─── SMOOTH SCROLL for anchor links ──────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+    closeMenu();
+    window.scrollTo({ top: target.offsetTop - 74, behavior:'smooth' });
+  });
+});
+
+// ─── LEADERBOARD INDEX ───────────────────────────────────────────
+async function loadIndexLeaderboard() {
+  try {
+    const r = await fetch('/api/leaderboard/nokos?limit=3');
+    const json = await r.json();
+    const data = json?.data || [];
+    const el = document.getElementById('lbPodium');
+    if (!el) return;
+    if (!data.length) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Belum ada data leaderboard</div>';
+      return;
+    }
+    // Tampilan podium: urutan 2, 1, 3 (agar rank 1 di tengah lebih tinggi)
+    const ORDER = [1, 0, 2];
+    el.innerHTML = ORDER.filter(i => data[i]).map(i => {
+      const u = data[i];
+      const isFirst = u.rank === 1;
+      return `<div class="lb-pod-item${isFirst ? ' first' : ''}">
+        <span class="lb-pod-medal" style="background:${u.rank===1?'linear-gradient(135deg,#FBBF24,#F59E0B)':u.rank===2?'linear-gradient(135deg,#CBD5E1,#94A3B8)':'linear-gradient(135deg,#F0B27A,#B87333)'}">${u.rank}</span>
+        <div class="lb-pod-avatar"><i class="fas fa-user"></i></div>
+        <div class="lb-pod-name">${u.username}</div>
+        <div class="lb-pod-orders"><i class="fas fa-box" style="opacity:.7"></i> ${u.total_orders} order</div>
+        <div class="lb-pod-spent"><i class="fas fa-sack-dollar" style="opacity:.7"></i> Rp ${u.total_spent.toLocaleString('id-ID')}</div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error('loadIndexLeaderboard:', e); }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadIndexLeaderboard();
+  setInterval(loadIndexLeaderboard, 5 * 60 * 1000);
+});
+</script>
+</body>
+</html>

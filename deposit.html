@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<script src="/theme.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Top Up Saldo — FNB NOKOS</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ─── TOKENS (identik dashboard) ──────────────── */
+:root {
+  --green:    #3B82F6;
+  --green-d:  #2563EB;
+  --green-xl: #DBEAFE;
+  --blue:     #3b82f6;
+  --sky:      #38BDF8;
+  --amber:    #f59e0b;
+  --red:      #ef4444;
+  --purple:   #8b5cf6;
+  --bg:       #f0f4f8;
+  --surface:  #ffffff;
+  --border:   #e8edf3;
+  --text:     #0f172a;
+  --muted:    #64748b;
+  --shadow:   0 4px 20px rgba(0,0,0,0.05);
+  --shadow-lg:0 10px 40px rgba(0,0,0,0.09);
+  --mono:     'JetBrains Mono', monospace;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { transition: background .3s, color .3s;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:var(--bg); color:var(--text);
+  padding-bottom:40px; min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── HEADER ────────────────────────────────────── */
+.page-header {
+  position:sticky; top:0; z-index:100;
+  background:var(--header-bg, var(--surface));
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:13px 18px;
+  display:flex; align-items:center; gap:12px;
+}
+.page-header h1 { font-size:17px; font-weight:800; flex:1; text-align:center; letter-spacing:-.3px; }
+.back-btn {
+  width:34px; height:34px; border-radius:10px;
+  background:var(--bg); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text); font-size:14px; text-decoration:none; cursor:pointer;
+}
+.header-spacer { width:34px; flex-shrink:0; }
+
+/* ─── STEPPER ───────────────────────────────────── */
+.stepper-wrap {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:16px 24px;
+}
+.stepper {
+  display:flex; align-items:center; justify-content:space-between;
+  max-width:320px; margin:0 auto; position:relative;
+}
+.stepper::before {
+  content:''; position:absolute; top:15px; left:15px; right:15px; height:2px;
+  background:var(--border); z-index:0;
+}
+.step { display:flex; flex-direction:column; align-items:center; gap:7px; position:relative; z-index:1; }
+.step-circle {
+  width:30px; height:30px; border-radius:50%;
+  background:var(--bg); border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:800; color:var(--muted);
+  transition:all .3s;
+}
+.step.active .step-circle {
+  background:var(--green); border-color:var(--green); color:#fff;
+  box-shadow:0 4px 12px rgba(59,130,246,.35);
+}
+.step.done .step-circle {
+  background:var(--green); border-color:var(--green); color:#fff;
+}
+.step.done .step-circle::after { content:'\f00c'; font-family:'Font Awesome 6 Free'; font-weight:900; font-size:11px; }
+.step-lbl { font-size:10px; font-weight:700; color:var(--muted); white-space:nowrap; }
+.step.active .step-lbl { color:var(--green); }
+.step.done  .step-lbl  { color:var(--green-d); }
+
+/* ─── WRAP ──────────────────────────────────────── */
+.wrap { max-width:480px; margin:0 auto; padding:16px; }
+
+/* ─── CARDS ─────────────────────────────────────── */
+.card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:20px; padding:20px; margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.card-title {
+  font-size:12px; font-weight:800; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.07em;
+  margin-bottom:16px; display:flex; align-items:center; gap:7px;
+}
+.card-title i { color:var(--green); }
+
+/* ─── NOMINAL GRID ──────────────────────────────── */
+.nominal-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:9px;
+  margin-bottom:18px;
+}
+.nominal-item {
+  border:1.5px solid var(--border); border-radius:14px;
+  padding:13px 6px; text-align:center; cursor:pointer;
+  transition:all .2s; background:var(--bg);
+}
+.nominal-item:active { transform:scale(.96); }
+.nominal-item.active {
+  border-color:var(--green); background:rgba(59,130,246,.06);
+  box-shadow:0 0 0 3px rgba(59,130,246,.12);
+}
+.nominal-item b {
+  display:block; font-size:13px; font-weight:800; color:var(--text); margin-bottom:5px;
+}
+.nominal-item.active b { color:var(--green-d); }
+.nom-badge {
+  display:inline-block; padding:2px 9px; border-radius:20px;
+  font-size:9px; font-weight:700; letter-spacing:.02em;
+}
+.nb-blue   { background:#dbeafe; color:#1d4ed8; }
+.nb-amber  { background:#fef3c7; color:#b45309; }
+.nb-sky    { background:#e0f2fe; color:#0369a1; }
+.nb-purple { background:#ede9fe; color:#6d28d9; }
+
+/* ─── INPUT ─────────────────────────────────────── */
+.input-section { margin-top:4px; }
+.input-lbl {
+  font-size:11px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.06em;
+  display:flex; justify-content:space-between; margin-bottom:8px;
+}
+.input-lbl span { font-weight:600; color:#cbd5e1; text-transform:none; }
+.input-box {
+  display:flex; align-items:center; gap:10px;
+  background:var(--bg); border:1.5px solid var(--border);
+  border-radius:13px; padding:13px 16px; transition:.2s;
+}
+.input-box:focus-within {
+  border-color:var(--green); background:var(--surface);
+  box-shadow:0 0 0 4px rgba(59,130,246,.1);
+}
+.input-box .prefix {
+  font-size:14px; font-weight:800; color:var(--muted); flex-shrink:0;
+}
+.input-box input {
+  border:none; background:transparent; outline:none; width:100%;
+  font-size:16px; font-weight:700; color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.input-box input::placeholder { color:#cbd5e1; font-weight:400; font-size:15px; }
+.input-box .input-icon { color:#cbd5e1; font-size:15px; flex-shrink:0; }
+
+/* ─── CONTINUE BUTTON ───────────────────────────── */
+.btn-continue {
+  width:100%; padding:15px; margin-top:14px;
+  background:var(--green); color:#fff; border:none;
+  border-radius:14px; font-size:15px; font-weight:800;
+  cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;
+  box-shadow:0 6px 20px rgba(59,130,246,.3);
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:.25s; position:relative; overflow:hidden;
+}
+.btn-continue:hover { background:var(--green-d); transform:translateY(-1px); box-shadow:0 8px 28px rgba(59,130,246,.35); }
+.btn-continue:active { transform:scale(.98); }
+.btn-continue:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+.btn-spinner { display:none; width:18px; height:18px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+.btn-continue.loading .btn-spinner { display:block; }
+@keyframes spin { to{transform:rotate(360deg);} }
+
+/* ─── INFO BANNER ───────────────────────────────── */
+.info-banner {
+  background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.18);
+  border-radius:14px; padding:13px 15px;
+  display:flex; align-items:flex-start; gap:10px;
+  margin-bottom:14px;
+}
+.info-banner i { color:var(--blue); font-size:15px; margin-top:1px; flex-shrink:0; }
+.info-banner p { font-size:12px; color:var(--muted); line-height:1.6; font-weight:500; }
+
+/* ─── METODE PEMBAYARAN (logo chip) ─────────────── */
+.method-row { display:flex; align-items:center; gap:14px; padding:6px 0; }
+.method-logo {
+  width:52px; height:52px; border-radius:14px; flex-shrink:0;
+  background:#fff; border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  padding:9px; box-shadow:var(--shadow);
+}
+.method-logo img { width:100%; height:100%; object-fit:contain; display:block; }
+.method-name { font-size:14px; font-weight:800; color:var(--text); }
+.method-desc { font-size:12px; color:var(--muted); margin-top:1px; }
+.method-badge {
+  margin-left:auto; background:#dbeafe; color:#1d4ed8;
+  font-size:10px; font-weight:700; padding:5px 10px; border-radius:7px;
+  flex-shrink:0; display:flex; align-items:center; gap:4px;
+}
+
+/* ─── TIMER ─────────────────────────────────────── */
+.timer-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:20px; padding:18px; margin-bottom:14px;
+  box-shadow:var(--shadow); text-align:center;
+}
+.timer-label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+.timer-date  { font-size:13px; font-weight:700; color:var(--text); margin:5px 0 12px; }
+.timer-digits {
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.t-unit {
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:10px; width:42px; height:44px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; font-weight:800; font-family:var(--mono); color:var(--text);
+  transition:all .3s;
+}
+.t-unit.danger { background:#fee2e2; border-color:#fecaca; color:var(--red); }
+.t-sep { font-size:20px; font-weight:800; color:var(--muted); margin-bottom:3px; }
+.timer-status { margin-top:10px; font-size:11px; font-weight:600; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:6px; }
+.timer-status i { font-size:11px; }
+
+/* ─── QRIS CARD ─────────────────────────────────── */
+.qris-card {
+  background:linear-gradient(140deg,#0f4c81 0%,#1565c0 55%,#1976d2 100%);
+  border-radius:20px; padding:20px;
+  margin-bottom:14px; position:relative; overflow:hidden;
+  box-shadow:0 12px 30px rgba(15,76,129,.3);
+  color:#fff;
+}
+.qris-card::before {
+  content:''; position:absolute; top:-50px; right:-50px;
+  width:180px; height:180px; border-radius:50%;
+  background:rgba(255,255,255,.06);
+}
+.qris-card::after {
+  content:''; position:absolute; bottom:-60px; left:-20px;
+  width:200px; height:200px; border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.qris-top {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:16px; position:relative; z-index:1;
+}
+.qris-top img { height:22px; filter:brightness(0) invert(1); }
+
+.merchant-block { position:relative; z-index:1; text-align:center; margin-bottom:16px; }
+.merchant-name { font-size:17px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
+.merchant-nmid { font-size:11px; opacity:.65; margin-top:3px; font-family:var(--mono); }
+
+.qr-wrap {
+  background:#fff; border-radius:14px; padding:14px;
+  position:relative; z-index:1;
+}
+.qr-wrap img { width:100%; display:block; border-radius:4px; }
+
+/* QR States */
+.qr-loading {
+  text-align:center; padding:40px 20px; color:var(--muted);
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+}
+.qr-loading i { font-size:28px; color:var(--green); animation:spin .7s linear infinite; }
+.qr-loading span { font-size:13px; font-weight:600; }
+.qr-error {
+  text-align:center; padding:30px 16px; color:var(--red);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+.qr-error i { font-size:28px; }
+.qr-error span { font-size:13px; font-weight:600; }
+.retry-btn {
+  margin-top:8px; padding:9px 20px;
+  background:var(--green); color:#fff; border:none;
+  border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif; transition:.2s;
+  display:flex; align-items:center; gap:6px;
+}
+.retry-btn:active { transform:scale(.96); }
+
+/* ─── PAYMENT ACTIONS ───────────────────────────── */
+.payment-actions { margin-bottom:14px; }
+.pay-total-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:16px 20px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; margin-bottom:12px;
+  box-shadow:var(--shadow);
+}
+.pay-total-lbl { font-size:13px; font-weight:700; color:var(--muted); }
+.pay-total-val { font-size:22px; font-weight:800; color:var(--green); letter-spacing:-.5px; }
+
+.action-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:9px; }
+.btn-action {
+  padding:13px; border-radius:13px; font-size:13px; font-weight:700;
+  cursor:pointer; border:none; font-family:'Plus Jakarta Sans',sans-serif;
+  display:flex; align-items:center; justify-content:center; gap:7px; transition:.2s;
+}
+.btn-action:active { transform:scale(.97); }
+.btn-cancel-dep {
+  background:#fff5f5; color:var(--red); border:1.5px solid #fecaca;
+}
+.btn-cancel-dep:hover { background:#fee2e2; }
+.btn-download-qr {
+  background:var(--surface); color:var(--text); border:1.5px solid var(--border);
+}
+.btn-download-qr:hover { border-color:var(--green); color:var(--green); background:rgba(59,130,246,.04); }
+
+.btn-paid {
+  width:100%; padding:15px; border-radius:14px;
+  background:var(--green); color:#fff; border:none;
+  font-size:15px; font-weight:800; cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  box-shadow:0 6px 20px rgba(59,130,246,.3);
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:.25s;
+}
+.btn-paid:hover { background:var(--green-d); transform:translateY(-1px); box-shadow:0 8px 28px rgba(59,130,246,.35); }
+.btn-paid:active { transform:scale(.98); }
+.btn-paid:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+.pay-warning {
+  font-size:11px; color:var(--muted); text-align:center; margin-top:10px;
+  line-height:1.55; padding:0 4px;
+}
+
+/* ─── DETAIL TABLE ──────────────────────────────── */
+.detail-table { display:flex; flex-direction:column; gap:0; }
+.detail-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:13px 0; border-bottom:1px solid var(--bg);
+}
+.detail-row:last-child { border-bottom:none; padding-bottom:0; }
+.det-key { font-size:13px; color:var(--muted); font-weight:500; }
+.det-val { font-size:13px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px; }
+.det-val.mono { font-family:var(--mono); font-size:12px; }
+.copy-icon {
+  color:#cbd5e1; cursor:pointer; font-size:13px; transition:.2s;
+  padding:4px; border-radius:6px;
+}
+.copy-icon:hover { color:var(--green); background:rgba(59,130,246,.08); }
+
+/* ─── LANGKAH PEMBAYARAN ────────────────────────── */
+.steps-card .card-title i { color:var(--green); }
+.step-item {
+  display:flex; gap:12px; align-items:flex-start;
+  padding:11px 0; border-bottom:1px dashed var(--border);
+}
+.step-item:last-child { border-bottom:none; padding-bottom:0; }
+.step-num {
+  width:26px; height:26px; border-radius:50%; flex-shrink:0;
+  background:var(--green); color:#fff;
+  font-size:12px; font-weight:800;
+  display:flex; align-items:center; justify-content:center;
+}
+.step-body { padding-top:2px; }
+.step-text { font-size:13px; color:var(--text); line-height:1.55; font-weight:600; }
+.step-sub { font-size:11.5px; color:var(--muted); line-height:1.55; margin-top:2px; font-weight:500; }
+
+/* ─── TOAST ─────────────────────────────────────── */
+#toast {
+  position:fixed; top:76px; left:50%; transform:translateX(-50%) translateY(-20px);
+  background:var(--text); color:#fff;
+  padding:10px 22px; border-radius:100px;
+  font-size:12px; font-weight:700;
+  box-shadow:0 8px 24px rgba(0,0,0,.15); z-index:999;
+  display:none; white-space:nowrap; opacity:0;
+  transition:all .3s cubic-bezier(.18,.89,.32,1.28);
+}
+#toast.show { display:block; opacity:1; transform:translateX(-50%) translateY(0); }
+#toast.success { background:var(--green); }
+#toast.error   { background:var(--red); }
+</style>
+<link rel="stylesheet" href="/theme-vars.css?v=3">
+</head>
+<body>
+<script src="/premium-loader.js?v=3"></script>
+
+<!-- ─── HEADER ─────────────────────────────────── -->
+<div class="page-header">
+  <button class="back-btn" onclick="history.back()"><i class="fas fa-chevron-left"></i></button>
+  <h1>Top Up Saldo</h1>
+  <div class="header-spacer">
+  <!-- THEME PICKER -->
+  <div style="position:relative;display:inline-block" id="theme-wrap">
+    <button onclick="document.getElementById('theme-dd').classList.toggle('open')" style="width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border,#e2e8f0);background:var(--surface2,#f0f4f8);color:var(--muted,#64748b);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;" id="theme-icon-btn">
+      <i class="fas fa-circle-half-stroke" id="t-ico"></i>
+    </button>
+    <div id="theme-dd" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--surface,#fff);border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:6px;box-shadow:0 12px 36px rgba(0,0,0,.15);min-width:150px;z-index:9999;animation:dropIn .2s ease;">
+      <div style="font-size:10px;font-weight:800;color:var(--muted,#64748b);padding:4px 8px 6px;text-transform:uppercase;letter-spacing:.06em">Tema</div>
+      <button onclick="setThemePage('dark')" data-t="dark" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:8px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--text,#0f172a);font-family:inherit;"><i class="fas fa-moon"></i> Mode Gelap <i class="fas fa-check t-chk" style="margin-left:auto;opacity:0;color:var(--blue,#3b82f6)"></i></button>
+      <button onclick="setThemePage('light')" data-t="light" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:8px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--text,#0f172a);font-family:inherit;"><i class="fas fa-sun"></i> Mode Terang <i class="fas fa-check t-chk" style="margin-left:auto;opacity:0;color:var(--blue,#3b82f6)"></i></button>
+    </div>
+  </div>
+  <style>
+  @keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+  <script>
+  function setThemePage(t){ window.DP_THEME.set(t); updateThemePageUI(); document.getElementById('theme-dd').classList.remove('open'); }
+  function updateThemePageUI(){ var t=window.DP_THEME.get(); document.getElementById('t-ico').className=t==='dark'?'fas fa-moon':'fas fa-sun'; document.querySelectorAll('[data-t]').forEach(function(el){ var chk=el.querySelector('.t-chk'); if(chk) chk.style.opacity=el.dataset.t===t?'1':'0'; }); }
+  document.addEventListener('click',function(e){ if(!e.target.closest('#theme-wrap')) document.getElementById('theme-dd')?.classList.remove('open'); });
+  updateThemePageUI();
+  </script></div>
+</div>
+
+<!-- ─── STEPPER ────────────────────────────────── -->
+<div class="stepper-wrap">
+  <div class="stepper">
+    <div class="step active" id="step1">
+      <div class="step-circle">1</div>
+      <div class="step-lbl">Jumlah</div>
+    </div>
+    <div class="step" id="step2">
+      <div class="step-circle">2</div>
+      <div class="step-lbl">Metode</div>
+    </div>
+    <div class="step" id="step3">
+      <div class="step-circle">3</div>
+      <div class="step-lbl">Konfirmasi</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── WRAP ────────────────────────────────────── -->
+<div class="wrap">
+
+  <!-- ── STEP 1: INPUT NOMINAL ─────────────────── -->
+  <div id="inputSection">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-wallet"></i> Pilih Nominal Top Up</div>
+
+      <div class="nominal-grid">
+        <div class="nominal-item" data-nom="2000">
+          <b>Rp 2.000</b>
+          <span class="nom-badge nb-blue">Hemat</span>
+        </div>
+        <div class="nominal-item" data-nom="20000">
+          <b>Rp 20.000</b>
+          <span class="nom-badge nb-amber">Populer</span>
+        </div>
+        <div class="nominal-item" data-nom="50000">
+          <b>Rp 50.000</b>
+          <span class="nom-badge nb-sky">Rekomendasi</span>
+        </div>
+        <div class="nominal-item" data-nom="70000">
+          <b>Rp 70.000</b>
+          <span class="nom-badge nb-amber">Juragan</span>
+        </div>
+        <div class="nominal-item" data-nom="100000">
+          <b>Rp 100.000</b>
+          <span class="nom-badge nb-purple">Bosman</span>
+        </div>
+        <div class="nominal-item" data-nom="200000">
+          <b>Rp 200.000</b>
+          <span class="nom-badge nb-sky">VVIP</span>
+        </div>
+      </div>
+
+      <div class="input-section">
+        <div class="input-lbl">
+          Nominal Lainnya
+          <span>Min. Rp 2.000</span>
+        </div>
+        <div class="input-box">
+          <span class="prefix">Rp</span>
+          <input type="number" id="depositAmountInput" placeholder="Ketik nominal...">
+          <i class="fas fa-university input-icon"></i>
+        </div>
+      </div>
+
+      <button class="btn-continue" id="createDepositBtn">
+        <div class="btn-spinner" id="btnSpinner"></div>
+        <span class="btn-text">Lanjutkan Pembayaran</span>
+        <i class="fas fa-arrow-right btn-text"></i>
+      </button>
+    </div>
+
+    <!-- INFO METODE -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-qrcode"></i> Metode Pembayaran</div>
+      <div class="method-row">
+        <div class="method-logo">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS">
+        </div>
+        <div>
+          <div class="method-name">QRIS</div>
+          <div class="method-desc">Semua bank &amp; e-wallet — proses otomatis</div>
+        </div>
+        <div class="method-badge"><i class="fas fa-circle-check"></i> Aktif</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 2 & 3: QRIS + PAYMENT ────────────── -->
+  <div id="depositInfoArea" style="display:none">
+
+    <!-- TIMER -->
+    <div class="timer-card">
+      <div class="timer-label">Batas Waktu Pembayaran</div>
+      <div class="timer-date" id="expiryDate">—</div>
+      <div class="timer-digits" id="timerDigits">
+        <div class="t-unit" id="tm">0</div>
+        <div class="t-unit" id="te">5</div>
+        <div class="t-sep">:</div>
+        <div class="t-unit" id="ts">0</div>
+        <div class="t-unit" id="tss">0</div>
+      </div>
+      <div class="timer-status" id="timerStatus"><i class="fas fa-circle-info"></i> Segera lakukan pembayaran</div>
+    </div>
+
+    <!-- INFO -->
+    <div class="info-banner">
+      <i class="fas fa-circle-info"></i>
+      <p>Bayar sebelum waktu kadaluarsa agar saldo dapat diproses. Jangan batalkan jika sudah membayar.</p>
+    </div>
+
+    <!-- QRIS CARD -->
+    <div class="qris-card">
+      <div class="qris-top">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS">
+        <img src="https://upload.wikimedia.org/wikipedia/id/thumb/a/af/GPN_Logo.svg/1200px-GPN_Logo.svg.png" alt="GPN">
+      </div>
+      <div class="merchant-block">
+        <div class="merchant-name">VIRGI PONSEL</div>
+        <div class="merchant-nmid" id="dispNMID">NMID: 9360050300000879140</div>
+      </div>
+      <div class="qr-wrap" id="qrWrap">
+        <!-- QR injected here -->
+      </div>
+    </div>
+
+    <!-- TOTAL + ACTIONS -->
+    <div class="payment-actions">
+      <div class="pay-total-row">
+        <span class="pay-total-lbl">Total Pembayaran</span>
+        <span class="pay-total-val" id="dispTotal">Rp 0</span>
+      </div>
+
+      <div class="action-grid">
+        <button class="btn-action btn-cancel-dep" id="cancelDepositBtn">
+          <i class="fas fa-ban"></i> Batalkan
+        </button>
+        <button class="btn-action btn-download-qr" id="downloadQRBtn">
+          <i class="fas fa-download"></i> Simpan QR
+        </button>
+      </div>
+
+      <button class="btn-paid" id="checkDepositStatusBtn">
+        <i class="fas fa-check-circle"></i> Saya Sudah Membayar
+      </button>
+
+      <p class="pay-warning">
+        Jangan batalkan apabila telah membayar. Jangan bayar apabila sudah dibatalkan atau expired.
+      </p>
+    </div>
+
+    <!-- DETAIL PEMBAYARAN -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-receipt"></i> Detail Pembayaran</div>
+      <div class="detail-table">
+        <div class="detail-row">
+          <span class="det-key">Payment ID</span>
+          <span class="det-val mono" id="dispPayID">
+            — <i class="fas fa-copy copy-icon" id="copyPayId" title="Salin ID"></i>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="det-key">Merchant ID</span>
+          <span class="det-val mono">9360050300000879140</span>
+        </div>
+        <div class="detail-row">
+          <span class="det-key">Merchant Name</span>
+          <span class="det-val">VIRGI PONSEL</span>
+        </div>
+        <div class="detail-row">
+          <span class="det-key">Metode</span>
+          <span class="det-val"><i class="fas fa-qrcode" style="color:var(--blue)"></i> QRIS All Bank</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LANGKAH-LANGKAH PEMBAYARAN -->
+    <div class="card steps-card">
+      <div class="card-title"><i class="fas fa-list-check"></i> Langkah-langkah Pembayaran</div>
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-text">Buka aplikasi m-banking atau e-wallet kamu</div>
+          <div class="step-sub">Bisa pakai bank apa saja atau e-wallet seperti GoPay, OVO, DANA, ShopeePay, dan lainnya yang mendukung QRIS.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-text">Pilih menu "Scan QR" / "QRIS"</div>
+          <div class="step-sub">Biasanya terletak di halaman utama aplikasi pembayaran kamu.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-text">Pindai kode QR di atas</div>
+          <div class="step-sub">Arahkan kamera ke QR, atau simpan gambarnya lalu unggah lewat menu upload QR.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-text">Periksa nominal pembayaran</div>
+          <div class="step-sub">Pastikan jumlah yang tertera sama persis dengan Total Pembayaran di atas.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-text">Masukkan PIN dan selesaikan pembayaran</div>
+          <div class="step-sub">Ikuti instruksi di aplikasi pembayaran kamu sampai transaksi berhasil.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <div class="step-text">Tekan tombol "Saya Sudah Membayar"</div>
+          <div class="step-sub">Sistem akan memverifikasi pembayaran secara otomatis dan saldo langsung masuk.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /wrap -->
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ─── GLOBAL STATE ────────────────────────────────
+let currentUser      = null;
+let currentDepositId = null;
+let countdownInterval = null;
+
+// ─── TOAST ───────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 3500);
+}
+
+// ─── LOAD USER ───────────────────────────────────
+(function loadUser() {
+  const s = localStorage.getItem('user');
+  if (!s) { window.location.href = '/'; return; }
+  currentUser = JSON.parse(s);
+})();
+
+// ─── NOMINAL GRID CLICK ──────────────────────────
+document.querySelectorAll('.nominal-item').forEach(item => {
+  item.onclick = () => {
+    document.querySelectorAll('.nominal-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('depositAmountInput').value = item.dataset.nom;
+  };
+});
+
+// ─── STEPPER HELPER ──────────────────────────────
+function setStep(s2, s3) {
+  if (s2) document.getElementById('step2').classList.add('active');
+  if (s3) document.getElementById('step3').classList.add('active');
+  // mark step1 as done
+  const c1 = document.querySelector('#step1 .step-circle');
+  c1.innerHTML = '';
+  document.getElementById('step1').classList.add('done');
+}
+
+// ─── COUNTDOWN TIMER ─────────────────────────────
+function startCountdown(expiredAt) {
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  const ids = ['tm','te','ts','tss'];
+
+  countdownInterval = setInterval(() => {
+    const remaining = expiredAt - Date.now();
+
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.add('danger');
+      });
+      document.getElementById('tm').textContent  = 'E';
+      document.getElementById('te').textContent  = 'X';
+      document.getElementById('ts').textContent  = 'P';
+      document.getElementById('tss').textContent = '!';
+      document.getElementById('timerStatus').innerHTML = '<i class="fas fa-triangle-exclamation"></i> Waktu habis — buat deposit baru';
+      document.getElementById('timerStatus').style.color = 'var(--red)';
+      return;
+    }
+
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+
+    document.getElementById('tm').textContent  = Math.floor(minutes / 10);
+    document.getElementById('te').textContent  = minutes % 10;
+    document.getElementById('ts').textContent  = Math.floor(seconds / 10);
+    document.getElementById('tss').textContent = seconds % 10;
+
+    // Danger state jika < 1 menit
+    const danger = remaining < 60000;
+    ids.forEach(id => {
+      document.getElementById(id).classList.toggle('danger', danger);
+    });
+    if (danger) {
+      document.getElementById('timerStatus').innerHTML = '<i class="fas fa-triangle-exclamation"></i> Segera bayar!';
+      document.getElementById('timerStatus').style.color = 'var(--red)';
+    }
+  }, 1000);
+}
+
+// ─── QR IMAGE SETUP ──────────────────────────────
+function setupQRImage(src) {
+  const wrap = document.getElementById('qrWrap');
+
+  // Loading state
+  wrap.innerHTML = `
+    <div class="qr-loading">
+      <i class="fas fa-circle-notch"></i>
+      <span>Memuat QR Code...</span>
+    </div>
+  `;
+
+  const img = new Image();
+  img.style.cssText = 'width:100%;display:block;border-radius:4px;';
+
+  img.onload = () => {
+    wrap.innerHTML = '';
+    wrap.appendChild(img);
+  };
+
+  img.onerror = () => {
+    wrap.innerHTML = `
+      <div class="qr-error">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Gagal memuat QR Code</span>
+        <button class="retry-btn" onclick="location.reload()">
+          <i class="fas fa-rotate-right"></i> Muat Ulang
+        </button>
+      </div>
+    `;
+  };
+
+  img.src = src;
+}
+
+// ─── BIND TOMBOL AREA PEMBAYARAN (dipakai utk deposit baru maupun deposit pending lama) ──
+function bindPaymentButtons(dep) {
+  // ── CEK STATUS BUTTON ──
+  document.getElementById('checkDepositStatusBtn').onclick = async () => {
+    const checkBtn = document.getElementById('checkDepositStatusBtn');
+    checkBtn.disabled = true;
+    checkBtn.innerHTML = '<i class="fas fa-circle-notch" style="animation:spin .7s linear infinite"></i> Mengecek...';
+
+    try {
+      const statusRes = await axios.post('/api/deposit/status', { deposit_id: dep.id });
+      if (statusRes.data && statusRes.data.status === 'success') {
+        showToast('Pembayaran berhasil! Saldo masuk.', 'success');
+        clearInterval(countdownInterval);
+        setTimeout(() => location.reload(), 1800);
+      } else {
+        showToast('Saldo belum masuk. Tunggu atau hubungi CS.', '');
+        checkBtn.disabled = false;
+        checkBtn.innerHTML = '<i class="fas fa-check-circle"></i> Saya Sudah Membayar';
+      }
+    } catch(e) {
+      showToast('Gagal cek status. Coba lagi.', 'error');
+      checkBtn.disabled = false;
+      checkBtn.innerHTML = '<i class="fas fa-check-circle"></i> Saya Sudah Membayar';
+    }
+  };
+
+  // ── CANCEL BUTTON ──
+  document.getElementById('cancelDepositBtn').onclick = async () => {
+    if (!confirm('Batalkan transaksi ini? Pastikan kamu belum membayar.')) return;
+    try {
+      await axios.post('/api/deposit/cancel', { deposit_id: dep.id });
+      showToast('Deposit dibatalkan.', 'success');
+      clearInterval(countdownInterval);
+      setTimeout(() => location.reload(), 1200);
+    } catch(e) {
+      showToast('Gagal membatalkan.', 'error');
+    }
+  };
+}
+
+// ─── TAMPILKAN AREA PEMBAYARAN (dipakai utk deposit baru maupun deposit pending lama) ──
+function showPaymentArea(dep) {
+  currentDepositId = dep.id;
+
+  document.getElementById('inputSection').style.display    = 'none';
+  document.getElementById('depositInfoArea').style.display = 'block';
+  setStep(true, true);
+
+  setupQRImage(dep.qr_image);
+
+  document.getElementById('dispTotal').textContent =
+    'Rp ' + Number(dep.total_payment).toLocaleString('id-ID');
+
+  const payIdEl = document.getElementById('dispPayID');
+  payIdEl.innerHTML = `${dep.id} <i class="fas fa-copy copy-icon" id="copyPayId"></i>`;
+  document.getElementById('copyPayId').onclick = () => {
+    navigator.clipboard?.writeText(dep.id);
+    showToast('Payment ID disalin!', 'success');
+  };
+
+  const exp = new Date(dep.expired_at);
+  document.getElementById('expiryDate').textContent =
+    exp.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' })
+    + ', ' + exp.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+
+  startCountdown(dep.expired_at);
+  bindPaymentButtons(dep);
+}
+
+// ─── CEK DEPOSIT PENDING SEBELUMNYA ──────────────
+// Jika user masih punya deposit "pending" yang belum expired/dibatalkan,
+// langsung tampilkan QR lama itu (bukan bikin baru).
+async function checkExistingPendingDeposit() {
+  try {
+    const res = await axios.get('/api/history/deposits/' + currentUser.id);
+    const list = Array.isArray(res.data) ? res.data : [];
+    const pending = list.find(d => d.status === 'pending' && d.expired_at && d.expired_at > Date.now());
+    if (pending) {
+      showPaymentArea(pending);
+      showToast('Kamu masih punya deposit yang belum dibayar.', '');
+    }
+  } catch(e) {
+    // diamkan — biarkan user tetap bisa membuat deposit baru
+  }
+}
+checkExistingPendingDeposit();
+
+// ─── CREATE DEPOSIT ──────────────────────────────
+document.getElementById('createDepositBtn').onclick = async () => {
+  const amount = parseInt(document.getElementById('depositAmountInput').value);
+
+  if (isNaN(amount) || amount < 2000) {
+    showToast('Minimal deposit Rp 2.000', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('createDepositBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  try {
+    const res = await axios.post('/api/deposit/create', {
+      user_id: currentUser.id,
+      amount:  amount
+    });
+
+    if (res.data && res.data.success) {
+      showPaymentArea(res.data.deposit);
+    } else {
+      showToast(res.data?.error || 'Gagal membuat deposit.', 'error');
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+
+  } catch(e) {
+    // Jika masih ada deposit pending, backend akan balas 409 — langsung tampilkan QR lama
+    if (e.response?.status === 409 && e.response?.data?.pending_deposit_id) {
+      showToast(e.response.data.error || 'Kamu masih punya deposit yang belum selesai.', 'error');
+      await checkExistingPendingDeposit();
+    } else {
+      showToast(e.response?.data?.error || e.message || 'Terjadi kesalahan', 'error');
+    }
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  }
+};
+
+// ─── DOWNLOAD QR ─────────────────────────────────
+document.getElementById('downloadQRBtn').onclick = () => {
+  const img = document.querySelector('#qrWrap img');
+  if (img && img.src) {
+    const a = document.createElement('a');
+    a.href     = img.src;
+    a.download = 'QRIS_FNB NOKOS.png';
+    a.click();
+    showToast('QR Code disimpan!', 'success');
+  } else {
+    showToast('QR Code belum tersedia.', 'error');
+  }
+};
+</script>
+<script src="/auth-guard.js"></script>
+</body>
+</html>

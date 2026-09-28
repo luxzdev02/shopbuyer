@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<script src="/theme.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Jadi Bot Jualan — FNB NOKOS</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="/theme-vars.css?v=3">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;font-family:'Plus Jakarta Sans',sans-serif;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:40px;transition:background .3s,color .3s;}
+
+.app-bar{background:var(--header-bg,var(--surface));backdrop-filter:blur(20px);padding:13px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.back-btn{width:34px;height:34px;border-radius:10px;background:var(--surface2,var(--bg));border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text);font-size:14px;text-decoration:none;cursor:pointer;flex-shrink:0;}
+.bar-title{flex:1;text-align:center;font-size:16px;font-weight:800;}
+.bar-spacer{width:34px;flex-shrink:0;}
+
+.wrap{max-width:560px;margin:0 auto;padding:16px;}
+
+.hero{background:linear-gradient(135deg,#0f2b5c 0%,#1e3a8a 55%,#1d4ed8 100%);border-radius:22px;padding:26px 22px;color:#fff;text-align:center;margin-bottom:16px;position:relative;overflow:hidden;box-shadow:0 14px 34px rgba(29,78,216,.3);}
+.hero::before{content:'';position:absolute;top:-60px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);}
+.hero-mark{width:56px;height:56px;margin:0 auto 12px;border-radius:16px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;}
+.hero-mark i{font-size:24px;}
+.hero h1{position:relative;z-index:1;font-size:19px;font-weight:800;}
+.hero p{position:relative;z-index:1;font-size:12.5px;opacity:.85;margin-top:6px;max-width:340px;margin-left:auto;margin-right:auto;line-height:1.6;}
+
+.status-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);}
+.status-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;background:#94a3b8;}
+.status-dot.on{background:#22C55E;box-shadow:0 0 0 4px rgba(34,197,94,.18);}
+.status-body{flex:1;min-width:0;}
+.status-label{font-size:13px;font-weight:800;color:var(--text);}
+.status-sub{font-size:11.5px;color:var(--muted);margin-top:2px;}
+.status-btn{flex-shrink:0;padding:10px 18px;border-radius:11px;border:none;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s;}
+.status-btn.start{background:linear-gradient(135deg,#3B82F6,#2563EB);color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.3);}
+.status-btn.stop{background:#fff5f5;color:#ef4444;border:1.5px solid #fecaca;}
+.status-btn:disabled{opacity:.6;cursor:not-allowed;}
+
+.guide-card{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.18);border-radius:16px;padding:16px 18px;margin-bottom:18px;}
+.guide-card h3{font-size:12.5px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.guide-card h3 i{color:var(--blue);}
+.guide-step{display:flex;gap:10px;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:7px;}
+.guide-step:last-child{margin-bottom:0;}
+.guide-step b{color:var(--blue);flex-shrink:0;}
+
+.section-title{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:22px 0 10px;display:flex;align-items:center;gap:7px;}
+.section-title:first-of-type{margin-top:0;}
+.section-title i{color:var(--blue);}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.field{margin-bottom:14px;}
+.field:last-child{margin-bottom:0;}
+.field label{display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:7px;}
+.field label .opt{font-weight:600;color:#cbd5e1;text-transform:none;}
+.field input{width:100%;padding:11px 14px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;outline:none;font-family:inherit;transition:.2s;}
+.field input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(59,130,246,.1);}
+.field-hint{font-size:10.5px;color:#94a3b8;margin-top:5px;line-height:1.5;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+.save-btn{width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,#3B82F6,#2563EB);color:#fff;border:none;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 8px 22px rgba(37,99,235,.3);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;transition:.2s;}
+.save-btn:disabled{opacity:.6;cursor:not-allowed;}
+#toast{position:fixed;top:76px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--text);color:var(--bg);padding:10px 22px;border-radius:100px;font-size:12px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:999;display:none;white-space:nowrap;opacity:0;transition:all .3s cubic-bezier(.18,.89,.32,1.28);}
+#toast.show{display:block;opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.error{background:#ef4444;color:#fff;}
+#toast.success{background:#22C55E;color:#fff;}
+</style>
+</head>
+<body>
+<script src="/premium-loader.js?v=3"></script>
+
+<div class="app-bar">
+  <button class="back-btn" onclick="location.href='premium-tools'"><i class="fas fa-chevron-left"></i></button>
+  <div class="bar-title">Jadi Bot Jualan</div>
+  <div class="bar-spacer"></div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-mark"><i class="fas fa-robot"></i></div>
+    <h1>Bot Jualan Otomatis — Gratis</h1>
+    <p>Punya bot Telegram sendiri buat jualan nomor virtual & deposit ke customer kamu, jalan otomatis 24 jam, pakai saldo & API key FNB NOKOS kamu sendiri.</p>
+  </div>
+
+  <div class="status-card">
+    <div class="status-dot" id="statusDot"></div>
+    <div class="status-body">
+      <div class="status-label" id="statusLabel">Bot Belum Aktif</div>
+      <div class="status-sub" id="statusSub">Simpan konfigurasi dulu, baru bisa dinyalakan</div>
+    </div>
+    <button class="status-btn start" id="statusBtn" onclick="toggleBot()" disabled>Nyalakan</button>
+  </div>
+
+  <div class="guide-card">
+    <h3><i class="fas fa-circle-info"></i> Cara Pakai</h3>
+    <div class="guide-step"><b>1.</b> Bikin bot baru lewat <a href="https://t.me/BotFather" target="_blank" style="color:var(--blue);font-weight:700">@BotFather</a> di Telegram, salin Token yang dikasih.</div>
+    <div class="guide-step"><b>2.</b> Salin API Key FNB NOKOS kamu dari halaman <a href="profile" style="color:var(--blue);font-weight:700">Profil</a>.</div>
+    <div class="guide-step"><b>3.</b> Isi form di bawah — yang ada tanda <span style="color:#ef4444;font-weight:700">*</span> wajib, sisanya boleh dikosongkan.</div>
+    <div class="guide-step"><b>4.</b> Tekan "Simpan", lalu tekan "Nyalakan" di atas. Bot langsung online 24 jam.</div>
+    <div class="guide-step"><b>5.</b> Untung kamu = markup yang kamu set, otomatis ditambahkan ke harga yang dilihat customer kamu di bot.</div>
+  </div>
+
+  <div class="section-title"><i class="fas fa-key"></i> Wajib Diisi</div>
+  <div class="card">
+    <div class="field">
+      <label>API Key FNB NOKOS <span style="color:#ef4444">*</span></label>
+      <input type="text" id="fApiKey" placeholder="dp_xxxxxxxxxxxxxx">
+      <div class="field-hint">Dari halaman Profil kamu — ini yang dipakai bot buat order & deposit atas nama akun kamu.</div>
+    </div>
+    <div class="field">
+      <label>Token Bot Telegram <span style="color:#ef4444">*</span></label>
+      <input type="text" id="fToken" placeholder="123456:AAExxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+      <div class="field-hint">Didapat dari @BotFather setelah bikin bot baru.</div>
+    </div>
+    <div class="field">
+      <label>ID Telegram Kamu (Owner) <span style="color:#ef4444">*</span></label>
+      <input type="text" id="fOwnerId" placeholder="123456789">
+      <div class="field-hint">ID Telegram kamu sendiri, buat kontrol penuh atas bot ini.</div>
+    </div>
+  </div>
+
+  <div class="section-title"><i class="fas fa-sack-dollar"></i> Keuntungan Kamu</div>
+  <div class="card">
+    <div class="field-row">
+      <div class="field">
+        <label>Untung / Order Nokos <span class="opt">(Rp)</span></label>
+        <input type="number" id="fUntungNokos" placeholder="1000" value="1000">
+      </div>
+      <div class="field">
+        <label>Biaya Admin Deposit <span class="opt">(Rp)</span></label>
+        <input type="number" id="fUntungDeposit" placeholder="500" value="500">
+      </div>
+    </div>
+    <div class="field-hint" style="margin-top:2px">Ditambahkan otomatis ke harga yang tampil ke customer di bot kamu — masuk sebagai keuntungan kamu.</div>
+  </div>
+
+  <div class="section-title"><i class="fas fa-image"></i> Foto Bot <span class="opt" style="text-transform:none;font-weight:600">(opsional)</span></div>
+  <div class="card">
+    <div class="field">
+      <label>Foto Bot <span class="opt">(dipakai buat /start & semua notifikasi)</span></label>
+      <input type="text" id="fThumbnail" placeholder="https://files.catbox.moe/xxxxx.jpg">
+      <div class="field-hint">1 foto ini otomatis dipakai di pesan selamat datang, notif order, dan notif deposit — biar simpel.</div>
+    </div>
+  </div>
+
+  <div class="section-title"><i class="fas fa-link"></i> Channel &amp; Kontak <span class="opt" style="text-transform:none;font-weight:600">(opsional)</span></div>
+  <div class="card">
+    <div class="field">
+      <label>Link Kontak Admin</label>
+      <input type="text" id="fUrlAdmin" placeholder="https://t.me/usernamekamu">
+    </div>
+    <div class="field">
+      <label>Link Channel <span class="opt">(dipakai juga sebagai channel harga)</span></label>
+      <input type="text" id="fUrlChannel" placeholder="https://t.me/channelkamu">
+    </div>
+    <div class="field">
+      <label>ID Channel Notifikasi</label>
+      <input type="text" id="fIdChannel" placeholder="-100xxxxxxxxxx">
+      <div class="field-hint">Order & deposit baru dari bot kamu bakal dikirim notif ke channel ini.</div>
+    </div>
+  </div>
+
+  <button class="save-btn" id="saveBtn" onclick="saveConfig()"><i class="fas fa-floppy-disk"></i> Simpan Konfigurasi</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let currentUser = null;
+(function checkAuth(){
+  const s = localStorage.getItem('user');
+  if (!s) { location.href = '/login'; return; }
+  currentUser = JSON.parse(s);
+})();
+
+let toastTimer = null;
+function showToast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 3500);
+}
+
+let isRunning = false;
+let hasConfig = false;
+
+async function loadConfig() {
+  try {
+    const res = await axios.get('/api/reseller-bot/' + currentUser.id);
+    const cfg = res.data.data;
+    isRunning = !!res.data.is_running;
+    hasConfig = !!cfg;
+    if (cfg) {
+      document.getElementById('fApiKey').value = cfg.apikey_fnbnokos || '';
+      document.getElementById('fToken').value = cfg.token || '';
+      document.getElementById('fOwnerId').value = cfg.owner_id || '';
+      document.getElementById('fUntungNokos').value = cfg.untung_nokos ?? 1000;
+      document.getElementById('fUntungDeposit').value = cfg.untung_deposit ?? 500;
+      document.getElementById('fThumbnail').value = cfg.linkthumbnail || '';
+      document.getElementById('fUrlAdmin').value = cfg.urladmin || '';
+      document.getElementById('fUrlChannel').value = cfg.urlchannel || '';
+      document.getElementById('fIdChannel').value = cfg.idchannel || '';
+    } else {
+      // default suggestion: prefill their own FNB NOKOS api key kalau ada
+      if (currentUser.api_key) document.getElementById('fApiKey').value = currentUser.api_key;
+    }
+    renderStatus();
+  } catch(e) {
+    if (currentUser.api_key) document.getElementById('fApiKey').value = currentUser.api_key;
+  }
+}
+
+function renderStatus() {
+  const dot = document.getElementById('statusDot');
+  const label = document.getElementById('statusLabel');
+  const sub = document.getElementById('statusSub');
+  const btn = document.getElementById('statusBtn');
+  btn.disabled = !hasConfig;
+  if (isRunning) {
+    dot.classList.add('on');
+    label.textContent = 'Bot Aktif';
+    sub.textContent = 'Bot kamu online dan siap terima order 24 jam';
+    btn.textContent = 'Matikan';
+    btn.className = 'status-btn stop';
+  } else {
+    dot.classList.remove('on');
+    label.textContent = hasConfig ? 'Bot Nonaktif' : 'Bot Belum Aktif';
+    sub.textContent = hasConfig ? 'Tekan Nyalakan untuk mulai jualan' : 'Simpan konfigurasi dulu, baru bisa dinyalakan';
+    btn.textContent = 'Nyalakan';
+    btn.className = 'status-btn start';
+  }
+}
+
+async function saveConfig() {
+  const apikey = document.getElementById('fApiKey').value.trim();
+  const token = document.getElementById('fToken').value.trim();
+  const ownerId = document.getElementById('fOwnerId').value.trim();
+  if (!apikey || !token || !ownerId) {
+    showToast('API Key, Token Bot, dan ID Owner wajib diisi', 'error');
+    return;
+  }
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menyimpan...';
+  try {
+    const payload = {
+      user_id: currentUser.id,
+      apikey_fnbnokos: apikey,
+      token: token,
+      owner_id: ownerId,
+      untung_nokos: document.getElementById('fUntungNokos').value,
+      untung_deposit: document.getElementById('fUntungDeposit').value,
+      linkthumbnail: document.getElementById('fThumbnail').value.trim(),
+      urladmin: document.getElementById('fUrlAdmin').value.trim(),
+      urlchannel: document.getElementById('fUrlChannel').value.trim(),
+      idchannel: document.getElementById('fIdChannel').value.trim()
+    };
+    const res = await axios.post('/api/reseller-bot/save', payload);
+    if (res.data.success) {
+      hasConfig = true;
+      showToast('Konfigurasi tersimpan!', 'success');
+      renderStatus();
+    } else {
+      showToast(res.data.error || 'Gagal menyimpan', 'error');
+    }
+  } catch(e) {
+    showToast(e.response?.data?.error || 'Gagal menyimpan konfigurasi', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+
+async function toggleBot() {
+  const btn = document.getElementById('statusBtn');
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = '...';
+  try {
+    if (isRunning) {
+      await axios.post('/api/reseller-bot/stop', { user_id: currentUser.id });
+      isRunning = false;
+      showToast('Bot dimatikan');
+    } else {
+      const res = await axios.post('/api/reseller-bot/start', { user_id: currentUser.id });
+      if (res.data.success) {
+        isRunning = true;
+        showToast('Bot berhasil dinyalakan!', 'success');
+      } else {
+        showToast(res.data.error || 'Gagal menyalakan bot', 'error');
+      }
+    }
+  } catch(e) {
+    showToast(e.response?.data?.error || 'Gagal mengubah status bot', 'error');
+  } finally {
+    btn.disabled = false;
+    renderStatus();
+  }
+}
+
+loadConfig();
+</script>
+<script src="/auth-guard.js"></script>
+</body>
+</html>
